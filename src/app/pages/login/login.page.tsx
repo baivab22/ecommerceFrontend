@@ -21,37 +21,45 @@ export const LoginPage = () => {
         loginData?.email === 'meromail123@gmail.com' &&
         loginData?.password === '12345673'
       ) {
+    
         setCookie('userRoles', 'ADMIN')
+              navigate('/home')
       }
 
-      dispatch(
-        LoginAction({
-          loginBody: {email: loginData.email, password: loginData.password},
-          onSuccess: (data: any) => {
-            console.log(data?.user?._id, 'success login')
-            toast.success('Logged In successfully')
-            console.log('loginnnnnnnn')
-            setCookie('userId', data?.user?._id)
-            // setCookie('userRoles', data?.userRoles)
-            console.log(
-              loginData?.email,
-              loginData?.password,
-              'email and password'
-            )
-            if (
-              loginData?.email === 'adminemail12@gmail.com' &&
-              loginData?.password === '12345678'
-            ) {
-              setCookie('userRoles', 'ADMIN')
-              handleLogin(data.token, 'ADMIN')
-            } else {
-              setCookie('userRoles', 'USER')
-              handleLogin(data.token, 'USER')
-            }
-            navigate('/home')
-          }
-        })
-      )
+      console.log(loginData, 'login data value hai')
+
+      // dispatch(
+      //   LoginAction({
+      //     loginBody: {email: loginData.email, password: loginData.password},
+      //     onSuccess: (data: any) => {
+      //       console.log(data?.user?._id, 'success login')
+      //       toast.success('Logged In successfully')
+      //       console.log('loginnnnnnnn')
+      //       setCookie('userId', data?.user?._id)
+      //       // setCookie('userRoles', data?.userRoles)
+      //       console.log(
+      //         loginData?.email,
+      //         loginData?.password,
+      //         'email and passwordddddd',
+      //           loginData?.email === 'adminemail12@gmail.com' ,
+      //         loginData?.password === '123456783"'
+      //       )
+      //       if (
+      //         loginData?.email === 'adminemail12@gmail.com' &&
+      //         loginData?.password === '123456783"'
+      //       ) {
+      //         setCookie('userRoles', 'ADMIN')
+      //         handleLogin(data.token, 'ADMIN')
+      //       } else {
+      //         setCookie('userRoles', 'USER')
+      //         handleLogin(data.token, 'USER')
+      //       }
+
+      //       navigate('/home')
+      //       // navigate('/home')
+      //     }
+      //   })
+      // )
     }
   }
 
@@ -93,11 +101,12 @@ export const LoginPage = () => {
               placeholder="password"
               name="password"
               required
-              onChange={(e: any) =>
+              onChange={(e: any) =>{
+                console.log(e.target.value," value data hai")
                 setLoginData((prev: any) => ({
                   ...prev,
                   password: e.target.value
-                }))
+                }))}
               }
             />
           </div>

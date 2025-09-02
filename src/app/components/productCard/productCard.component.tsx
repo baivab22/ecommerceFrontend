@@ -56,7 +56,7 @@ export const ProductCard = ({data}: {data: any}) => {
           <img
             src={
               productImages.length > 0
-                ? `${FILE_URL}/uploads/products/${productImages?.[0]}`
+                ? `${FILE_URL}/products/${productImages?.[0]}`
                 : '/assets/images/defaultProduct.jpeg'
             }
           />
