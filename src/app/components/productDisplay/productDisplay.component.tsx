@@ -62,6 +62,8 @@ const ProductDisplay = ({product}) => {
 
     const roles = getCookie('userRoles')
 
+    console.log(userId, roles, 'user id and roles')
+
     if (!!userId && !!roles) {
       const cartData = {
         userId,

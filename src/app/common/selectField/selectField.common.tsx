@@ -1,7 +1,6 @@
+import { useMemo } from 'react'
 import Select from 'react-select'
 import Theme from 'src/theme'
-
-// import { colors } from '../../../modules'
 
 interface SelectFieldProps {
   data?: any
@@ -65,7 +64,6 @@ export const SelectField = ({
       ...styles,
       borderRadius: 4,
       width: width,
-
       borderColor: borderless
         ? 'transparent'
         : isFocused
@@ -104,21 +102,59 @@ export const SelectField = ({
     })
   }
 
-  let optionLabel
-  if (typeof getOptionLabel === 'string') {
-    optionLabel = (option: any) => `${option[getOptionLabel]}`
-  } else if (typeof getOptionLabel === 'function') {
-    optionLabel = getOptionLabel
-  }
+  // Create consistent option label function
+  const optionLabel = useMemo(() => {
+    if (typeof getOptionLabel === 'string') {
+      return (option: any) => `${option[getOptionLabel]}`
+    } else if (typeof getOptionLabel === 'function') {
+      return getOptionLabel
+    }
+    return (option: any) => option.label
+  }, [getOptionLabel])
 
-  let optionValue
-  if (typeof getOptionValue === 'string') {
-    optionValue = (option: any) => `${option[getOptionValue]}`
-  } else if (typeof getOptionValue === 'function') {
-    optionValue = getOptionValue
-  }
+  // Create consistent option value function
+  const optionValue = useMemo(() => {
+    if (typeof getOptionValue === 'string') {
+      return (option: any) => `${option[getOptionValue]}`
+    } else if (typeof getOptionValue === 'function') {
+      return getOptionValue
+    }
+    return (option: any) => option.id
+  }, [getOptionValue])
 
-  console.log(value, 'value data hai')
+  // Fix for value reference equality issue
+  const selectedValue = useMemo(() => {
+    if (!value || !options || options.length === 0) return value
+
+    // For multi-select
+    if (isMulti && Array.isArray(value)) {
+      return value.map(val => {
+        const found = options.find(option => {
+          const optionVal = optionValue(option)
+          const currentVal = optionValue(val)
+          return optionVal === currentVal
+        })
+        return found || val
+      })
+    }
+
+    // For single select - find matching option from options array
+    const found = options.find(option => {
+      const optionVal = optionValue(option)
+      const currentVal = optionValue(value)
+      return optionVal === currentVal
+    })
+
+    return found || value
+  }, [value, options, optionValue, isMulti])
+
+  // Debug logging (remove in production)
+  console.log('SelectField Debug:', {
+    value,
+    selectedValue,
+    options: options?.length,
+    hasMatch: selectedValue !== value
+  })
 
   return (
     <div style={{...containerStyle}}>
@@ -141,31 +177,10 @@ export const SelectField = ({
         formatGroupLabel={formatGroupLabel}
         placeholder={placeholder}
         defaultValue={defaultValue}
-        value={value}
+        value={selectedValue}
         onFocus={onFocus}
         {...props}
       />
     </div>
   )
 }
-
-/*
-        <SelectField
-          options={categoryData?.rows ?? []}
-          getOptionLabel={(option: Api.CategoryListByTypeItem) =>
-            option.category_details.title
-          }
-          getOptionValue={(option: Api.CategoryListByTypeItem) =>
-            option.category_details.id
-          }
-          onChangeValue={(item: Api.CategoryListByTypeItem) =>
-            setValue('commonCategoryId', item?.category_details?.id)
-          }
-          isSearchable
-          isClearable
-          placeholder="Select Room Type"
-          value={categoryData?.rows?.find(({category_details}) => {
-            return category_details.id === Number(data.commonCategoryId)
-          })}
-        />
-      */

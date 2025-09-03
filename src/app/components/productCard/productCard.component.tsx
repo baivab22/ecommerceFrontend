@@ -39,8 +39,9 @@ export const ProductCard = ({data}: {data: any}) => {
   // const ProductImages = data?.images?.map((item: any, index: number) => {
   //   console.log(item.coloredImage[0], 'coloredimage')
   //   return item.coloredImage[0]
-  // })
 
+  // })
+console.log(data,"productname category   ")
   return (
     <div
       className="productCard-container"
@@ -85,7 +86,7 @@ export const ProductCard = ({data}: {data: any}) => {
         <VStack className="productCard-titleDescription" gap="$2">
           <HStack justify="space-between" style={{width: '100%'}}>
             <Chip
-              title={data?.category?.name}
+              title={data?.subCategory?.name}
               style={{padding: '4px 6px'}}
               // color="rgb(241 233 214)"
               color="rgb(219 247 241)"

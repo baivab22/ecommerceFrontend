@@ -1,10 +1,8 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useMemo, useCallback} from 'react'
 import {useDispatch, useSelector} from 'src/store'
-// import {getCartByUserIdListAction} from './cart.slice'
 import {getCookie} from 'src/helpers'
 import {CartCard} from 'src/app/components'
 import {
-  createCartByUserIdAction,
   createOrderByUserIdAction,
   delteProductFromCartAction,
   getCartlistAction,
@@ -24,502 +22,604 @@ import {
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import toast from 'react-hot-toast'
 import {useMeasure, useMedia} from 'src/hooks'
-import {HiDatabase} from 'react-icons/hi'
 import {TextArea} from 'src/app/common/textArea'
 import {CONTACT_NUMBER} from 'src/config/constant.config'
+
+// Types
+interface Option {
+  id: number | string
+  label: string
+  value: any
+  [key: string]: any
+}
+
+interface CartProduct {
+  _id: string
+  productId: {
+    id: string
+    discountedPrice: number
+  }
+  quantity: number
+  price: number
+}
+
+// Constants
+const VALLEY_OPTIONS: Option[] = [
+  {
+    id: 'inside',
+    label: 'Inside Kathmandu Valley',
+    value: 'inside'
+  },
+  {
+    id: 'outside',
+    label: 'Outside Kathmandu Valley', 
+    value: 'outside'
+  }
+]
+
+const DELIVERY_TYPE_OPTIONS: Option[] = [
+  {
+    id: 'home',
+    label: 'Home Delivery',
+    value: 'home'
+  },
+  {
+    id: 'office',
+    label: 'Office Delivery',
+    value: 'office'
+  }
+]
+
+const PAYMENT_METHODS = {
+  PHONE_PAY: 'phonePay',
+  CASH_ON_DELIVERY: 'cashOnDelivery'
+} as const
+
+const DEFAULT_SHIPPING_PRICE = 200
+
 export const CartPage = () => {
   const dispatch = useDispatch()
   const datas = useSelector((state: any) => state.cart)
-  const [upatedcartData, setUpdatedCartData] = useState(
-    datas?.cartData?.[0]?.products ?? []
-  )
-
-  const [phoneNumber, setPhoneNumber] = useState('')
-
-  const [isInsideValley, setIsInsideValley] = useState<boolean>(true)
-
-  const [cartProductList, setCartProductList] = useState<any>([])
-  const [shoppingCost, setShoppingCost] = useState(10)
-  const [shippingLocation, setShippingLocation] = useState('')
   const media = useMedia()
-
-  useEffect(() => {
-    const userId = getCookie('userId')
-    userId && dispatch(getCartlistAction({userId: userId}))
-  }, [])
-
-  console.log(datas, 'data')
-  const [isShippingSame, setIsShippingSame] = useState(true)
-  useEffect(() => {
-    setUpdatedCartData(datas?.cartData?.[0]?.products)
-  }, [datas?.cartData?.[0]?.products])
-
   const userId = getCookie('userId')
 
-  const [selectedDistrict, setSelectedDistrict] = useState<any>()
-  const [selectedMunicipality, setSelectedMunicipality] = useState<any>()
-
+  // Cart related state
+  const [cartProducts, setCartProducts] = useState<CartProduct[]>([])
+  
+  // Shipping & Location state
+  const [selectedValleyOption, setSelectedValleyOption] = useState<Option | null>(null)
+  const [selectedDistrictOption, setSelectedDistrictOption] = useState<Option | null>(null)
+  const [selectedMunicipalityOption, setSelectedMunicipalityOption] = useState<Option | null>(null)
+  const [selectedAreaOption, setSelectedAreaOption] = useState<Option | null>(null)
+  const [selectedDeliveryTypeOption, setSelectedDeliveryTypeOption] = useState<Option | null>(null)
+  
+  // Form state
+  const [shippingLocation, setShippingLocation] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [orderNote, setOrderNote] = useState('')
+  const [isShippingSame, setIsShippingSame] = useState(true)
+  
+  // Payment state
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null)
+  
+  // Computed values
+  const isOutsideValley = selectedValleyOption?.value === 'outside'
+  const isHomeDelivery = selectedDeliveryTypeOption?.value === 'home'
+  const hasProducts = cartProducts.length > 0
+  const shouldShowQR = isOutsideValley || (isHomeDelivery && selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY)
 
-  const changeQuantity = (countQuantity, data) => {
-    console.log('data chaiyo', countQuantity, data)
-    // console.log(e.target.value, 'e.target value')
-    const updatedCart = upatedcartData?.map((item: any, index: number) => {
-      if (item._id !== data._id) {
-        return item
-      } else {
-        return {
-          ...item,
-          quantity: countQuantity,
-          price: Number(data?.productId?.discountedPrice * countQuantity)
-        }
-      }
-    })
+  // Memoized options
+  const districtOptions = useMemo(() => 
+    districtArray?.map((item, index) => ({
+      id: index,
+      label: item.district,
+      value: item.district,
+      districtData: item
+    })) ?? []
+  , [])
 
-    console.log(data.quantity, 'data quantity')
+  const municipalityOptions = useMemo(() => {
+    if (!selectedDistrictOption?.districtData) return []
+    
+    return selectedDistrictOption.districtData.municipalities?.map((item, index) => ({
+      id: index,
+      label: item.name,
+      value: item.name,
+      municipalityData: item
+    })) ?? []
+  }, [selectedDistrictOption])
+
+  const areaOptions = useMemo(() => {
+    if (!selectedMunicipalityOption?.municipalityData?.areas) return []
+    
+    return Object.keys(selectedMunicipalityOption.municipalityData.areas).map((key, index) => ({
+      id: index,
+      label: key.replace(/_/g, ' '),
+      value: key,
+      areaData: selectedMunicipalityOption.municipalityData.areas[key]
+    }))
+  }, [selectedMunicipalityOption])
+
+  // Calculated values
+  const subtotal = useMemo(() => {
+    return cartProducts.reduce((acc, item) => acc + (item.price || 0), 0)
+  }, [cartProducts])
+
+  const shippingPrice = useMemo(() => {
+    if (!selectedAreaOption?.areaData || !selectedDeliveryTypeOption) {
+      return DEFAULT_SHIPPING_PRICE
+    }
+
+    const deliveryType = selectedDeliveryTypeOption.value === 'home' ? 'homeDelivery' : 'officeDelivery'
+    return selectedAreaOption.areaData[deliveryType] || DEFAULT_SHIPPING_PRICE
+  }, [selectedAreaOption, selectedDeliveryTypeOption])
+
+  const total = subtotal + shippingPrice
+
+  // Effects
+  useEffect(() => {
+    if (userId) {
+      dispatch(getCartlistAction({userId}))
+    }
+  }, [dispatch, userId])
+
+  useEffect(() => {
+    setCartProducts(datas?.cartData?.[0]?.products ?? [])
+  }, [datas?.cartData?.[0]?.products])
+
+  // Clear dependent selections when parent changes
+  useEffect(() => {
+    setSelectedMunicipalityOption(null)
+    setSelectedAreaOption(null)
+  }, [selectedDistrictOption])
+
+  useEffect(() => {
+    setSelectedAreaOption(null)
+  }, [selectedMunicipalityOption])
+
+  // Handlers
+  const handleQuantityChange = useCallback((newQuantity: number, product: CartProduct) => {
+    if (!userId) return
+
+    const updatedPrice = Number(product.productId.discountedPrice * newQuantity)
+    
+    // Optimistic update
+    setCartProducts(prev => 
+      prev.map(item => 
+        item._id === product._id 
+          ? { ...item, quantity: newQuantity, price: updatedPrice }
+          : item
+      )
+    )
+
     dispatch(
       updatedCartByProductIdAction({
         data: {
-          userId: userId,
-          productId: data?.productId?.id,
-          quantity: countQuantity,
-          price: Number(data?.productId?.discountedPrice * countQuantity)
+          userId,
+          productId: product.productId.id,
+          quantity: newQuantity,
+          price: updatedPrice
         },
         onSuccess: () => {
-          toast.success('Product on cart updated successfully')
-          userId && dispatch(getCartlistAction({userId: userId}))
+          toast.success('Product updated successfully')
+          dispatch(getCartlistAction({userId}))
+        },
+        onFailure: () => {
+          // Revert optimistic update on failure
+          setCartProducts(datas?.cartData?.[0]?.products ?? [])
+          toast.error('Failed to update product')
         }
       })
     )
+  }, [dispatch, userId, datas?.cartData?.[0]?.products])
 
-    setUpdatedCartData(updatedCart)
-  }
+  const handleValleyChange = useCallback((option: Option) => {
+    setSelectedValleyOption(option)
+    // Clear location selections when valley type changes
+    setSelectedDistrictOption(null)
+    setSelectedMunicipalityOption(null)
+    setSelectedAreaOption(null)
+  }, [])
 
-  // useEffect(() => {
+  const handlePaymentMethodChange = useCallback((method: string, checked: boolean) => {
+    if (checked) {
+      setSelectedPaymentMethod(method)
+    } else if (selectedPaymentMethod === method) {
+      setSelectedPaymentMethod(null)
+    }
+  }, [selectedPaymentMethod])
 
-  // }, [upatedcartData])
-  const [productOrderId, setProductOrderId] = useState('ord-123456')
-  console.log(selectedDistrict, 'selectedDistrict')
-  const generateOrderId = () => {
+  const generateOrderId = useCallback(() => {
     const timestamp = Date.now()
     const randomPart = Math.floor(Math.random() * 1000000)
-    const newOrderId = `ORD-${timestamp}-${randomPart}`
-    setProductOrderId(newOrderId)
-    return newOrderId
-  }
-  const checkoutHandler = () => {
-    console.log(userId, 'userID value', new Date(Date.now()).toLocaleString())
-    userId &&
-      dispatch(
-        createOrderByUserIdAction({
-          userId: userId,
-          data: {
-            userId: userId,
-            products: upatedcartData?.map((item, index) => {
-              console.log(item.price, item.count, 'price and quantity')
-              return {
-                productId: item.productId.id,
-                quantity: item.quantity,
-                price: Number(item?.productId?.discountedPrice * item.quantity)
-              }
-            }),
+    return `ORD-${timestamp}-${randomPart}`
+  }, [])
 
-            isInsideValley: JSON.stringify(isInsideValley),
-            OrderedAt: new Date(Date.now()).toLocaleString(),
-            productOrderId: generateOrderId(),
-            shippingLocation: `${selectedDistrict}, ${selectedMunicipality}-${selectedArea}`
-          },
-          onSuccess: (data: any) => {
-            toast.success('Ordered placed successfully done')
-            clearShippingDetails()
-            // handleClick()
+  const validateForm = useCallback(() => {
+    const errors: string[] = []
+    
+    if (!hasProducts) errors.push('No products in cart')
+    if (!selectedValleyOption) errors.push('Please select location type')
+    if (!selectedDistrictOption) errors.push('Please select district')
+    if (!selectedMunicipalityOption) errors.push('Please select municipality')
+    if (!selectedAreaOption) errors.push('Please select area')
+    if (!selectedDeliveryTypeOption) errors.push('Please select delivery type')
+    if (!shippingLocation.trim()) errors.push('Please enter shipping address')
+    if (!phoneNumber.trim()) errors.push('Please enter phone number')
+    if (!selectedPaymentMethod) errors.push('Please select payment method')
 
-            upatedcartData?.map((item, index) => {
-              dispatch(
-                delteProductFromCartAction({
-                  userId: userId,
-                  productId: item?._id,
-                  onSuccess: () => {
-                    dispatch(getCartlistAction({userId: userId}))
-                    toast.success('Product Deleted from cart Successfully')
-                  }
-                })
-              )
-            })
-          },
+    return errors
+  }, [
+    hasProducts,
+    selectedValleyOption,
+    selectedDistrictOption,
+    selectedMunicipalityOption,
+    selectedAreaOption,
+    selectedDeliveryTypeOption,
+    shippingLocation,
+    phoneNumber,
+    selectedPaymentMethod
+  ])
 
-          onFailure: (error: any) => {
-            toast.error('Could not place order')
+  const handleCheckout = useCallback(() => {
+    const validationErrors = validateForm()
+    
+    if (validationErrors.length > 0) {
+      validationErrors.forEach(error => toast.error(error))
+      return
+    }
+
+    if (!userId) {
+      toast.error('Please login to continue')
+      return
+    }
+
+    const orderId = generateOrderId()
+
+    dispatch(
+      createOrderByUserIdAction({
+        userId,
+        data: {
+          userId,
+          products: cartProducts.map(item => ({
+            productId: item.productId.id,
+            quantity: item.quantity,
+            price: Number(item.productId.discountedPrice * item.quantity)
+          })),
+          isInsideValley: JSON.stringify(!isOutsideValley),
+          OrderedAt: new Date().toLocaleString(),
+          productOrderId: orderId,
+          shippingLocation: `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}`,
+          paymentMethod: selectedPaymentMethod,
+          deliveryType: selectedDeliveryTypeOption?.value,
+          phoneNumber: phoneNumber.trim(),
+          orderNote: orderNote.trim()
+        },
+        onSuccess: () => {
+          toast.success('Order placed successfully!')
+          
+          // Clear cart
+          cartProducts.forEach(item => {
+            dispatch(
+              delteProductFromCartAction({
+                userId,
+                productId: item._id,
+                onSuccess: () => {
+                  dispatch(getCartlistAction({userId}))
+                }
+              })
+            )
+          })
+
+          // Reset form
+          resetForm()
+          
+          // Open WhatsApp if phone payment
+          if (selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY) {
+            openWhatsApp(orderId)
           }
-        })
-      )
-  }
-
-  const [selectedArea, setSelectedArea] = useState<any>()
-
-  console.log(upatedcartData, 'upatedCarddata hai')
-
-  const [isHomeDelivery, setisHomeDelivery] = useState<any>(false)
-  const [shippingPrice, setShippingPrice] = useState(200)
-  console.log(isHomeDelivery, 'isHomeDelivery')
-  useEffect(() => {
-    const shippingCharges = (districtArray as any)
-      .find((item) => {
-        return item.district === selectedDistrict
+        },
+        onFailure: (error) => {
+          console.error('Order failed:', error)
+          toast.error('Failed to place order. Please try again.')
+        }
       })
-      ?.municipalities?.find((item) => {
-        return item.name === selectedMunicipality
-      })?.areas[selectedArea]
+    )
+  }, [
+    validateForm,
+    userId,
+    generateOrderId,
+    dispatch,
+    cartProducts,
+    isOutsideValley,
+    selectedDistrictOption,
+    selectedMunicipalityOption,
+    selectedAreaOption,
+    selectedPaymentMethod,
+    selectedDeliveryTypeOption,
+    phoneNumber,
+    orderNote
+  ])
 
-    console.log(shippingCharges, isHomeDelivery, 'shipping charges')
-
-    const finalShippingCost = isHomeDelivery.value
-      ? shippingCharges?.homeDelivery
-      : shippingCharges?.officeDelivery
-    setShippingPrice(finalShippingCost)
-  }, [isHomeDelivery, selectedDistrict, selectedMunicipality])
-
-  console.log(shippingPrice, 'shipping  price')
-
-  const clearShippingDetails = () => {
-    console.log('data values fast data ')
-    setIsShippingSame(true)
-    setIsInsideValley(true)
+  const resetForm = useCallback(() => {
+    setSelectedValleyOption(null)
+    setSelectedDistrictOption(null)
+    setSelectedMunicipalityOption(null)
+    setSelectedAreaOption(null)
+    setSelectedDeliveryTypeOption(null)
     setShippingLocation('')
-    setSelectedDistrict(null)
-    setSelectedMunicipality(null)
-    setSelectedArea(null)
+    setPhoneNumber('')
     setOrderNote('')
-    setisHomeDelivery(false)
-  }
+    setSelectedPaymentMethod(null)
+    setIsShippingSame(true)
+  }, [])
 
-  const handleIsPhonePayment = (value: any) => {
-    console.log(value, 'value clicked value')
-    setIsPhonePayment(value)
-    setIsCashOnDelivery(false)
-  }
-  const handleCashOnDelivery = (value: any) => {
-    console.log(value, 'value clicked value')
-    setIsCashOnDelivery(value)
-    setIsPhonePayment(false)
-  }
-
-  const [isPhonePayment, setIsPhonePayment] = useState(false)
-  const [isCashOnDelivery, setIsCashOnDelivery] = useState(false)
-
-  const phoneNumbers = '9779867072373' // Nepal country code + number
-  const message = "Hello! I' "
-
-  const [showNotice, setShowNotice] = useState(false)
-
-  const handleClick = () => {
-    setShowNotice(true)
-    console.log(productOrderId, 'productOrderId value data')
-
-    const message = `नमस्ते, मैले यो अर्डर ID को लागि भुक्तानीको फोटो (screenshot) जोडेको छु: ${
-      productOrderId ?? '454'
-    }।
-
-कृपया मेरो अर्डरको स्टाटस जानकारी दिनुहोस्।`
-
-    const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(
-      message
-    )}`
-
-    // Open in a new tab
+  const openWhatsApp = useCallback((orderId: string) => {
+    const message = `नमस्ते, मैले यो अर्डर ID को लागि भुक्तानीको फोटो (screenshot) जोडेको छु: ${orderId}।\n\nकृपया मेरो अर्डरको स्टाटस जानकारी दिनुहोस्।`
+    const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
+  }, [])
+
+  // Render QR Code Component
+  const QRCodeSection = () => (
+    <div style={{marginTop: '20px', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px'}}>
+      <p style={{fontWeight: 'bold', marginBottom: '10px'}}>Scan QR Code to Pay</p>
+      <p style={{fontSize: '14px', marginBottom: '10px', color: '#666'}}>
+        {isOutsideValley 
+          ? 'Payment required for outside valley delivery' 
+          : 'Complete payment for home delivery'
+        }
+      </p>
+      <img
+        src="src/assets/images/qrbanksample.jpg"
+        alt="QR Code for Payment"
+        className="qrImage"
+        style={{
+          maxWidth: '200px',
+          height: 'auto',
+          marginBottom: '10px',
+          display: 'block'
+        }}
+      />
+      <p style={{fontSize: '12px', color: '#888'}}>
+        After payment, please send screenshot to WhatsApp for order confirmation.
+      </p>
+    </div>
+  )
+
+  if (!hasProducts) {
+    return (
+      <div className="cartPage">
+        <VStack gap="$3" align="center" justify="center" style={{minHeight: '400px'}}>
+          <img
+            className="noProductOnCart"
+            src="src/assets/images/noCart.png"
+            alt="Empty cart"
+            style={{maxWidth: '300px', opacity: 0.7}}
+          />
+          <p style={{fontSize: '18px', color: '#666', textAlign: 'center'}}>
+            Your cart is empty
+          </p>
+          <p style={{fontSize: '14px', color: '#888', textAlign: 'center'}}>
+            Add some products to get started!
+          </p>
+        </VStack>
+      </div>
+    )
   }
 
   return (
     <div className="cartPage">
+      {/* Products Section */}
       <VStack gap="$3" style={{width: media.md ? '55%' : '100%'}}>
-        {datas?.cartData?.[0]?.products?.length > 0 ? (
-          datas?.cartData?.[0]?.products?.map((item: any, index: number) => {
-            return (
-              <CartCard
-                data={item}
-                onChangePrice={changeQuantity}
-                key={index}
-              ></CartCard>
-            )
-          })
-        ) : (
-          <img
-            className="noProductOnCart"
-            src="src/assets/images/noCart.png"
-          ></img>
-        )}
+        {cartProducts.map((item, index) => (
+          <CartCard
+            key={`${item._id}-${index}`}
+            data={item}
+            onChangePrice={handleQuantityChange}
+          />
+        ))}
       </VStack>
+
+      {/* Order Summary Section */}
       <VStack style={{width: media.md ? '40%' : '100%'}} gap="$3">
         <VStack className="cartPage-orderSummary" gap="$5">
-          <p className="cartPage-orderSummary-itemCount">
-            Total Items:{upatedcartData?.length}
-          </p>
-          <p className="cartPage-orderSummary-title">Order Summary</p>
-          <HStack
-            style={{width: '100%'}}
-            justify="space-between"
-            align="center"
-          >
-            <p>SubTotal</p>
-            <p>
-              {getNprPrice(
-                upatedcartData
-                  ?.map((item, index) => {
-                    return item.price
-                  })
-                  ?.reduce((acc, curr) => {
-                    return acc + curr
-                  }, 0)
-              ) ?? 0}
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <p className="cartPage-orderSummary-title">Order Summary</p>
+            <p className="cartPage-orderSummary-itemCount">
+              {cartProducts.length} {cartProducts.length === 1 ? 'item' : 'items'}
             </p>
+          </div>
+
+          {/* Subtotal */}
+          <HStack style={{width: '100%'}} justify="space-between" align="center">
+            <p>Subtotal</p>
+            <p>{getNprPrice(subtotal)}</p>
           </HStack>
 
-          <HStack justify="space-between" align="center">
-            <p>Is it Outside Valley?</p>
-
+          {/* Valley Selection */}
+          <VStack style={{width: '100%'}} gap="$2">
+            <Label>Location Type *</Label>
             <SelectField
-              options={[
-                {
-                  id: 1,
-                  label: 'Inside Kathmandu Valley',
-                  value: 'Inside Kathmandu Valley'
-                },
-                {
-                  id: 2,
-                  label: 'Outside Kathmandu Valley',
-                  value: 'Outside Kathmandu Valley'
-                }
-              ]}
+              options={VALLEY_OPTIONS}
               width="100%"
-              onChangeValue={(data) => setIsInsideValley((prev) => !prev)}
-              placeholder={'Is Outside Kathmandu Valley?'}
+              onChangeValue={handleValleyChange}
+              placeholder="Select location type"
               containerStyle={{width: '100%'}}
+              value={selectedValleyOption}
             />
-          </HStack>
-          <HStack
-            justify="space-between"
-            align="center"
-            style={{width: '100%', gap: '20px'}}
-          >
-            <SelectField
-              options={districtArray?.map((item, index) => {
-                return {
-                  id: index,
-                  label: item.district,
-                  value: item.district
-                }
-              })}
-              // value={selectedCateory}
-              width="100%"
-              onChangeValue={(data) => {
-                console.log(data, 'data value')
-                setSelectedDistrict(data.value)
-              }}
-              placeholder={'District'}
-              containerStyle={{width: '100%'}}
-              value={selectedDistrict}
-            />
+          </VStack>
 
-            <SelectField
-              options={(districtArray as any)
-                ?.find((item, index) => {
-                  return item.district === selectedDistrict
-                })
-                ?.municipalities?.map((items, index) => {
-                  return {
-                    id: index,
-                    label: items.name,
-                    value: items.name
-                  }
-                })}
-              // value={selectedCateory}
+          {/* Location Selection */}
+          <HStack justify="space-between" align="flex-start" style={{width: '100%', gap: '12px'}}>
+            <VStack style={{flex: 1}} gap="$2">
+              <Label>District *</Label>
+              <SelectField
+                options={districtOptions}
+                width="100%"
+                onChangeValue={setSelectedDistrictOption}
+                placeholder="Select District"
+                containerStyle={{width: '100%'}}
+                value={selectedDistrictOption}
+              />
+            </VStack>
 
-              width="100%"
-              onChangeValue={(data) => setSelectedMunicipality(data.value)}
-              placeholder={'Municipality'}
-              containerStyle={{width: '100%'}}
-              value={selectedMunicipality}
-            />
+            <VStack style={{flex: 1}} gap="$2">
+              <Label>Municipality *</Label>
+              <SelectField
+                options={municipalityOptions}
+                key={`municipality-${selectedDistrictOption?.id || 'none'}`}
+                width="100%"
+                onChangeValue={setSelectedMunicipalityOption}
+                placeholder="Select Municipality"
+                containerStyle={{width: '100%'}}
+                value={selectedMunicipalityOption}
+                isDisabled={!selectedDistrictOption}
+              />
+            </VStack>
           </HStack>
 
-          <HStack
-            justify="space-between"
-            align="center"
-            style={{width: '100%', gap: '20px'}}
-          >
-            <SelectField
-              options={
-                (districtArray as any)
-                  ?.find((item) => {
-                    return item.district === selectedDistrict
-                  })
-                  ?.municipalities?.find(
-                    (item) => item.name === selectedMunicipality
-                  )?.areas
-                  ? Object.keys(
-                      (districtArray as any)
-                        ?.find((item) => item.district === selectedDistrict)
-                        ?.municipalities?.find(
-                          (item) => item.name === selectedMunicipality
-                        )?.areas
-                    ).map((key, index) => ({
-                      id: index,
-                      label: key.replace(/_/g, ' '), // Optional: Replace underscores with spaces
-                      value: key
-                    }))
-                  : []
-              }
-              width="100%"
-              onChangeValue={(data) => setSelectedArea(data.value)}
-              placeholder={'Area'}
-              containerStyle={{width: '100%'}}
-              value={selectedArea}
-            />
+          <HStack justify="space-between" align="flex-start" style={{width: '100%', gap: '12px'}}>
+            <VStack style={{flex: 1}} gap="$2">
+              <Label>Area *</Label>
+              <SelectField
+                options={areaOptions}
+                key={`area-${selectedMunicipalityOption?.id || 'none'}`}
+                width="100%"
+                onChangeValue={setSelectedAreaOption}
+                placeholder="Select Area"
+                containerStyle={{width: '100%'}}
+                value={selectedAreaOption}
+                isDisabled={!selectedMunicipalityOption}
+              />
+            </VStack>
 
-            <SelectField
-              // defaultValue={category?.[0]}
-              options={[
-                {
-                  id: 1,
-                  label: 'Home Delivery',
-                  value: true
-                },
-                {
-                  id: 2,
-                  label: 'Office Delivery',
-                  value: false
-                }
-              ]}
-              width="100%"
-              onChangeValue={(data) => setisHomeDelivery(data)}
-              placeholder={'Delivery Type'}
-              containerStyle={{width: '100%'}}
-            />
-          </HStack>
-          <HStack justify="space-between" align="center" gap="$4">
-            <p>Shipping Location</p>
-
-            <InputField
-              onChange={(e: any) => setShippingLocation(e.target.value)}
-              placeholder="Enter full address"
-              style={{
-                border: '2px solid red  !important',
-                background: 'transsparent'
-              }}
-              value={shippingLocation}
-            ></InputField>
-            <InputField
-              onChange={(e: any) => setPhoneNumber(e.target.value)}
-              placeholder="Enter Phone Number"
-              style={{
-                border: '2px solid red !important',
-                background: 'transparent'
-              }}
-            ></InputField>
+            <VStack style={{flex: 1}} gap="$2">
+              <Label>Delivery Type *</Label>
+              <SelectField
+                options={DELIVERY_TYPE_OPTIONS}
+                width="100%"
+                onChangeValue={setSelectedDeliveryTypeOption}
+                placeholder="Delivery Type"
+                containerStyle={{width: '100%'}}
+                value={selectedDeliveryTypeOption}
+              />
+            </VStack>
           </HStack>
 
-          <HStack
-            style={{width: '100%'}}
-            justify="space-between"
-            align="center"
-          >
+          {/* Shipping Details */}
+          <VStack style={{width: '100%'}} gap="$2">
+            <Label>Shipping Details *</Label>
+            <HStack gap="$2" style={{width: '100%'}}>
+              <InputField
+                onChange={(e) => setShippingLocation(e.target.value)}
+                placeholder="Full address *"
+                value={shippingLocation}
+                style={{flex: 1}}
+              />
+              <InputField
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Phone number *"
+                value={phoneNumber}
+                style={{flex: 1}}
+                type="tel"
+              />
+            </HStack>
+          </VStack>
+
+          {/* Shipping Cost */}
+          <HStack style={{width: '100%'}} justify="space-between" align="center">
             <p>Shipping Cost</p>
-            <p>{getNprPrice(shippingPrice) ?? 0}</p>
+            <p>{getNprPrice(shippingPrice)}</p>
           </HStack>
 
-          <HStack>
-            <CheckBox
-              value="best selling"
-              label="Shipping Address is same as billing address"
-              name="bestselling"
-              check={isShippingSame}
-              handleCheckboxChange={(data) => {
-                console.log('isShippingSame', data)
-                setIsShippingSame(data)
-              }}
-            />
-          </HStack>
+          {/* Shipping Address Checkbox */}
+          <CheckBox
+            value="shipping-same"
+            label="Shipping address same as billing address"
+            name="shipping-same"
+            check={isShippingSame}
+            handleCheckboxChange={setIsShippingSame}
+          />
 
+          {/* Total */}
           <HStack
-            style={{width: '100%', fontWeight: 'bold'}}
+            style={{width: '100%', fontWeight: 'bold', fontSize: '18px'}}
             justify="space-between"
             align="center"
           >
             <p>Total</p>
-            <p>
-              {' '}
-              {getNprPrice(
-                upatedcartData
-                  ?.map((item, index) => {
-                    return item.price
-                  })
-                  ?.reduce((acc, curr) => {
-                    return acc + curr
-                  }, 0) + shippingPrice
-              )}
-            </p>
+            <p>{getNprPrice(total)}</p>
           </HStack>
 
-          <VStack style={{width: '100%'}}>
-            <p>Order Note</p>
+          {/* Order Note */}
+          <VStack style={{width: '100%'}} gap="$2">
+            <Label>Order Note (Optional)</Label>
             <TextArea
-              onChange={(e: any) => setOrderNote(e.target.value)}
-              style={{width: '100%', fontSize: '16px'}}
+              onChange={(e) => setOrderNote(e.target.value)}
+              style={{width: '100%', fontSize: '14px', minHeight: '80px'}}
               value={orderNote}
+              placeholder="Any special instructions..."
             />
           </VStack>
 
-          <VStack style={{width: '100%'}}>
+          {/* Payment Methods */}
+          <VStack style={{width: '100%'}} gap="$3">
+            <Label>Payment Method *</Label>
+            
             <CheckBox
-              value="phonePayDelivery"
-              label="Phone Pay Delivery"
-              name="phonepaydelivery"
-              check={isPhonePayment}
-              handleCheckboxChange={handleIsPhonePayment}
+              value={PAYMENT_METHODS.PHONE_PAY}
+              label="Phone Pay"
+              name="payment-method"
+              check={selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY}
+              handleCheckboxChange={(checked) => 
+                handlePaymentMethodChange(PAYMENT_METHODS.PHONE_PAY, checked)
+              }
             />
 
-            {isPhonePayment && (
-              <div style={{marginTop: '10px'}}>
-                <p style={{fontWeight: 'bold'}}>Scan the QR to pay.</p>
-                <p>
-                  Note: Product will be delivered only after confirmation of the
-                  payment from Fonepay
-                </p>
-                <p>
-                  Once you've completed the payment, please send a screenshot of
-                  the payment confirmation to our WhatsApp.
-                </p>
-                <img
-                  src="src/assets/images/qrbanksample.jpg"
-                  alt="image"
-                  className="qrImage"
-                  style={{marginTop: '10px'}}
-                />
-              </div>
-            )}
-
             <CheckBox
-              value="cashOnDelivery"
-              label="Cash On Delivery"
-              name="cash on delivery"
-              check={isCashOnDelivery}
-              handleCheckboxChange={handleCashOnDelivery}
+              value={PAYMENT_METHODS.CASH_ON_DELIVERY}
+              label="Cash on Delivery"
+              name="payment-method"
+              check={selectedPaymentMethod === PAYMENT_METHODS.CASH_ON_DELIVERY}
+              handleCheckboxChange={(checked) => 
+                handlePaymentMethodChange(PAYMENT_METHODS.CASH_ON_DELIVERY, checked)
+              }
             />
+
+            {/* QR Code Display Logic */}
+            {shouldShowQR && <QRCodeSection />}
           </VStack>
         </VStack>
-        <HStack
-          align="center"
-          justify="center"
-          className="cartPage-checkout"
-          onClick={checkoutHandler}
-        >
-          Checkout
-        </HStack>
 
-        <p>
-          Need help? For Order details
-          <a href={`tel:${CONTACT_NUMBER}`}> Call us: {CONTACT_NUMBER}</a>
+        {/* Checkout Button */}
+        <Button
+          className="cartPage-checkout"
+          onClick={handleCheckout}
+          style={{
+            width: '100%',
+            padding: '16px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Place Order
+        </Button>
+
+        {/* Contact Info */}
+        <p style={{textAlign: 'center', fontSize: '14px', color: '#666'}}>
+          Need help? For order details{' '}
+          <a 
+            href={`tel:${CONTACT_NUMBER}`}
+            style={{color: '#007bff', textDecoration: 'none'}}
+          >
+            Call us: {CONTACT_NUMBER}
+          </a>
         </p>
       </VStack>
     </div>

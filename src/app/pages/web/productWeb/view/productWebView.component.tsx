@@ -115,7 +115,9 @@ export const ProductWebDetail = () => {
 
     const roles = getCookie('userRoles')
 
-    if (!!userId && !!roles) {
+    console.log(userId , roles, 'userIduserIduserId')
+
+    if (userId && !!roles) {
       //        if(datas?.cartData?.[0]?.products?.includ){
 
       //  }
@@ -187,7 +189,7 @@ export const ProductWebDetail = () => {
         )
       }
     } else {
-      toast.error('Please login first to add product')
+      toast.error('Please login first to add productss')
     }
   }
 
@@ -337,7 +339,7 @@ export const ProductWebDetail = () => {
                   {/* <Chip color="success"></Chip> */}
 
                   <Chip
-                    title={productDetailData?.category?.name}
+                    title={productDetailData?.subCategory?.name}
                     // color="rgb(241 233 214)"
                     color="rgb(219 247 241)"
                     // style={{width: 'max-content'}}

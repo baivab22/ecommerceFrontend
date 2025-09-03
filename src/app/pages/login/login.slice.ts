@@ -6,19 +6,22 @@ export const LoginAction = createAsyncThunk(
   async (
     {
       loginBody,
-      onSuccess
+      onSuccess,
+      onError
     }: {
       loginBody: any
-      onSuccess?: () => void
+      onSuccess?: (data:any) => void
+      onError?: (data:any) => void  
     },
     thunkAPI
   ) => {
     try {
-      // const response = await CreateLogin(loginBody)
+      const response = await CreateLogin(loginBody)
       // console.log(response, 'response from login')
-      onSuccess && onSuccess()
+      onSuccess && onSuccess(response)
       // return response
     } catch (error) {
+            onError && onError(error)
       return thunkAPI.rejectWithValue('Cannot Login!')
     }
   }
