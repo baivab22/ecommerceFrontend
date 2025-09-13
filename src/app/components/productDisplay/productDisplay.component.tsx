@@ -6,7 +6,7 @@ import {
 import {FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
-import {useDispatch} from 'src/store'
+import {useDispatch, useSelector} from 'src/store'
 import {useAuth} from 'src/app/routing'
 // import './ProductDisplay.scss'
 
@@ -57,6 +57,10 @@ const ProductDisplay = ({product}) => {
     setProductImages(ProductImages)
   }, [product])
 
+   const datas = useSelector((state: any) => state.cart)
+
+
+
   const handleAddToCart = (data: any) => {
     const userId = getCookie('userId')
 
@@ -65,12 +69,23 @@ const ProductDisplay = ({product}) => {
     console.log(userId, roles, 'user id and roles')
 
     if (!!userId && !!roles) {
+
+    const isAlreadyExistData = datas?.cartData?.[0]?.products?.find(
+          (item: any) => {
+            return item?.productId?.id === data?.id
+          }
+        )
+
+        console.log(isAlreadyExistData, 'isAlreadyExistData final hai')
+
+
+
       const cartData = {
         userId,
         products: [
           {
             productId: data?.id,
-            quantity: 1,
+            quantity: quantity,
             price: data?.discountedPrice
           }
         ]

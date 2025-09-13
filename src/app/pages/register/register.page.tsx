@@ -6,6 +6,7 @@ import {RegisterAction} from './register.slice'
 import toast from 'react-hot-toast'
 import {useNavigate} from 'react-router-dom'
 import {setCookie} from 'src/helpers'
+import { HStack } from 'src/app/common'
 export const RegisterPage = () => {
   const dispatch = useDispatch()
 
@@ -21,7 +22,7 @@ export const RegisterPage = () => {
           onSuccess: (data: any) => {
             toast.success('User Created successfully')
             setCookie('userId', data?.user?._id)
-            navigate('/home')
+            navigate('/login')
           }
         })
       )
@@ -63,7 +64,7 @@ export const RegisterPage = () => {
               }
             />
           </div>
-
+<div style={{display:'flex',justifyContent:'space-between',alignItems:"center",width:'100%'}}>
           <button
             className="btn btn--form"
             style={{background: 'rgb(197 49 213)'}}
@@ -73,6 +74,20 @@ export const RegisterPage = () => {
           >
             Register
           </button>
+
+         <div>Already Register?     <span
+            onClick={() => navigate('/login')}
+            style={{
+              cursor: 'pointer',
+              // color: 'black',
+                   color: 'rgb(197 49 213)',
+              textDecoration: 'underline'
+            }}
+          >
+Login Now
+          </span></div> 
+         
+          </div>
         </div>
       </div>
     </>

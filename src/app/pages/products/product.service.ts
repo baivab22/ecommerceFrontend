@@ -65,7 +65,7 @@ const getProductListByCategoryId = async (categoryId: string) => {
 
 // MARK: - createProduct
 const createProduct = async (body: any) => {
-  console.log(body, 'body')
+  console.log(body, 'body product delete')
   const response = await api<Api.Base<{}>>('post')(
     `/product/new`,
     undefined,

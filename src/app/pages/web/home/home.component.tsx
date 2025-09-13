@@ -15,9 +15,13 @@ import {getTestimonialListAction} from '../../testimonial/testimonial.slice'
 import {getShopByBudgetListAction} from '../../shopByBudget/shopByBudget.slice'
 import {getProductListAction} from '../../products/product.slice'
 import ProductDisplay from 'src/app/components/productDisplay/productDisplay.component'
+import { useAuth } from 'src/app/routing'
 
 export const HomePage = () => {
   const dispatch = useDispatch()
+  const {loginData}=useAuth()
+
+  console.log(loginData,"login data value final")
 
   const {testimonialData} = useSelector((state: any) => state.testimonial)
   const {shopByBudgetData} = useSelector((state: any) => state.shopByBudget)
@@ -102,6 +106,13 @@ export const HomePage = () => {
 
   const {categoryData} = useSelector((state: any) => state.category)
 
+  console.log(data,"data value last")
+
+  const datas=    data?.filter(item => item?.isHotSelling)?.pop()
+
+    // const loginData = useSelector((state:any) => state.login);
+  // console.log(loginData,'loginData in profile from home')
+
   return (
     <div className="home">
       <MainCarousel></MainCarousel>
@@ -158,7 +169,7 @@ export const HomePage = () => {
             </VStack>
           )}
 
-          <ProductDisplay product={data?.[1]}></ProductDisplay>
+          <ProductDisplay product={datas}></ProductDisplay>
         </VStack>
       </CompWrapper>
     </div>

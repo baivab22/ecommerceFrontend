@@ -18,8 +18,11 @@ export const LoginAction = createAsyncThunk(
     try {
       const response = await CreateLogin(loginBody)
       // console.log(response, 'response from login')
+
+
+      console.log(response, 'response from login')
       onSuccess && onSuccess(response)
-      // return response
+      return response
     } catch (error) {
             onError && onError(error)
       return thunkAPI.rejectWithValue('Cannot Login!')
@@ -28,14 +31,16 @@ export const LoginAction = createAsyncThunk(
 )
 
 export const ForgotPasswordAction = createAsyncThunk(
-  'user/login',
+  'user/forgetPassword ',
   async (
     {
       userEmail,
-      onSuccess
+      onSuccess,
+      onError
     }: {
       userEmail: string
       onSuccess?: (data: any) => void
+      onError?: (data: any) => void
     },
     thunkAPI
   ) => {
@@ -45,6 +50,7 @@ export const ForgotPasswordAction = createAsyncThunk(
       onSuccess && onSuccess(response)
       return response
     } catch (error) {
+      onError && onError(error)
       return thunkAPI.rejectWithValue('Cannot Login!')
     }
   }
@@ -52,13 +58,15 @@ export const ForgotPasswordAction = createAsyncThunk(
 
 const initialState: {
   loginLoading?: boolean
-  forgotPasswordLoading?: boolean
+  forgotPasswordLoading?: boolean,
+  loginData?: any
 } = {
   loginLoading: false,
-  forgotPasswordLoading: false
+  forgotPasswordLoading: false,
+  loginData: null
 }
 
-const subCategorySlice = createSlice({
+const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {},
@@ -67,7 +75,10 @@ const subCategorySlice = createSlice({
       state.loginLoading = true
     })
     builder.addCase(LoginAction.fulfilled, (state, action) => {
+
+      console.log(action.payload,'payload in login slice')
       state.loginLoading = false
+      state.loginData = action.payload
     })
     builder.addCase(LoginAction.rejected, (state) => {
       state.loginLoading = false
@@ -84,3 +95,6 @@ const subCategorySlice = createSlice({
     })
   }
 })
+
+
+export default loginSlice.reducer

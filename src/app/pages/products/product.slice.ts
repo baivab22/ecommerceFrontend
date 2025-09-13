@@ -147,6 +147,8 @@ const createProductAction = createAsyncThunk(
     thunkAPI
   ) => {
     try {
+
+      console.log('productBody data', productBody)
       const response = await productService.createProduct(productBody)
       onSuccess && onSuccess(response)
       return response

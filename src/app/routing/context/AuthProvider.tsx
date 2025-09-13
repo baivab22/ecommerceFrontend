@@ -22,8 +22,10 @@ interface ContextProps {
   setAuth: Function
   sidenavExpand: boolean
   setSidenavExpand: Dispatch<SetStateAction<boolean>>
-  handleLogin: (a: string, b: string) => void
+  handleLogin: (a: string, b: string,c:any) => void
   handleLogout: () => void
+  loginData: any  
+  setLoginData?: Dispatch<SetStateAction<any>>
 }
 
 const defaultValue: ContextProps = {
@@ -32,7 +34,9 @@ const defaultValue: ContextProps = {
   sidenavExpand: true,
   setSidenavExpand: () => {},
   handleLogin: () => {},
-  handleLogout: () => {}
+  handleLogout: () => {},
+  loginData: null,
+  setLoginData: () => {}
 }
 
 export const AuthContext = createContext<ContextProps>(defaultValue)
@@ -46,6 +50,8 @@ export const AuthProvider = memo(({children}: any) => {
 
   const [sidenavExpand, setSidenavExpand] = useState<boolean>(true)
   const [authLoading, setAuthLoading] = useState(true)
+
+  const [loginData, setLoginData] = useState(null)
   // const dispatch = useDispatch()
 
   const loginSuccess = (role: string) => {
@@ -91,9 +97,16 @@ export const AuthProvider = memo(({children}: any) => {
         setAuth,
         sidenavExpand,
         setSidenavExpand,
-        handleLogin: (token?: string, role?: string) => {
+        loginData,
+        setLoginData,
+        handleLogin: (token?: string, role?: string,loginDatas?:any) => {
           token && setCookie('token', token)
           role && loginSuccess(role)
+      setLoginData(loginDatas)
+
+
+
+
         },
         handleLogout: () => {
           loginFailure()

@@ -44,6 +44,8 @@ export const ResetPasswordPage = () => {
           onSuccess: (data: any) => {
             console.log(data?.user?._id, 'success login')
             toast.success('Password reset successfully')
+
+            navigate('/login')
             console.log('loginnnnnnnn')
             setCookie('userId', data?.user?._id)
             // setCookie('userRoles', data?.userRoles)

@@ -37,6 +37,7 @@ import {AddSocialLinksPage} from 'src/app/pages/socialLinks/add/addSocialLinks.c
 import {SubCategoryListPageNested} from 'src/app/pages/subCategoryNested'
 import {AddSubCategoryPageNested} from 'src/app/pages/subCategoryNested/add'
 import SubCategoryDetailPageNested from 'src/app/pages/subCategoryNested/view/[subCategoryId]/subCategoryid.page'
+import { MyProfile } from 'src/app/components/myProfile.component'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -71,7 +72,15 @@ export const Router: RouteObject[] = [
 
     element: <HomePage />
   },
-
+  {
+    path:'/my-profile',
+    element:<ProtectedAuth/>,
+    children:[
+      {
+        path:'',
+        element:<MyProfile/>
+      }
+  ]},
   {
     path: '/',
     // element: <PublicAuth />,/
@@ -81,6 +90,7 @@ export const Router: RouteObject[] = [
   {
     path: '/login',
     element: <ProtectedAuth />,
+    //  element: <LoginPage />
     children: [
       {
         path: '',

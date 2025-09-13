@@ -36,7 +36,11 @@ export const CheckBox = ({
             type="checkbox"
             checked={check}
             onChange={(e) => {
-              handleCheckboxChange(!check, e, name)
+
+
+
+              console.log('Checkbox changed value hai:',e.target.checked)
+              handleCheckboxChange(e.target.checked, e, name)
             }}
             style={{
               top: 0,

@@ -31,6 +31,8 @@ export const LoginPage = () => {
     setIsLoading(true)
     console.log(loginData, 'login data value hai')
 
+
+
     dispatch(
       LoginAction({
         loginBody: {
@@ -41,6 +43,7 @@ export const LoginPage = () => {
           setIsLoading(false)
           console.log(data?.user?._id, 'success login')
           toast.success('Logged In successfully')
+          handleLogin(data.token, data.userRoles,data)
           
           // Set user ID cookie
           if (data?.user?._id) {
@@ -57,23 +60,23 @@ export const LoginPage = () => {
           ) {
             userRole = 'ADMIN'
             setCookie('userRoles', 'ADMIN')
-            handleLogin(data.token, 'ADMIN')
+            handleLogin(data.token, 'ADMIN',data)
           } else if (
             loginData?.email === 'meromail123@gmail.com' &&
             loginData?.password === '12345673'
           ) {
             userRole = 'ADMIN'
             setCookie('userRoles', 'ADMIN')
-            handleLogin(data.token, 'ADMIN')
+            handleLogin(data.token, 'ADMIN',data)
           } else {
             // Check if user role is provided in API response
             if (data?.userRoles) {
               userRole = data.userRoles
               setCookie('userRoles', data.userRoles)
-              handleLogin(data.token, data.userRoles)
+              handleLogin(data.token, data.userRoles,data)
             } else {
               setCookie('userRoles', 'USER')
-              handleLogin(data.token, 'USER')
+              handleLogin(data.token, 'USER',data)
             }
           }
 
@@ -189,7 +192,7 @@ export const LoginPage = () => {
           >
             {isLoading ? 'Logging in...' : 'Log in'}
           </button>
-
+<div style={{display:'flex',justifyContent:'space-between',alignItems:"center",width:'100%'}}>
           <p 
             onClick={handleForgotPassword}
             style={{
@@ -200,6 +203,20 @@ export const LoginPage = () => {
           >
             Forgot Password?
           </p>
+
+
+     <div>Not Registered yet?     <span
+            onClick={() => navigate('/register')}
+            style={{
+              cursor: 'pointer',
+                 color: 'rgb(197 49 213)',
+              textDecoration: 'underline'
+            }}
+          >
+Register Now
+          </span></div> 
+          </div>
+
         </div>
       </div>
     </>

@@ -205,6 +205,7 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 import {CartService} from './cart.service'
 import {toast} from 'react-hot-toast'
+import { categoryService } from '../../category/category.service'
 
 const getCartlistAction = createAsyncThunk(
   'cart/list',
@@ -279,6 +280,10 @@ const delteProductFromCartAction = createAsyncThunk(
   }
 )
 
+
+
+
+
 // const updateCartAction = createAsyncThunk(
 //   'category/udpate',
 //   async (
@@ -328,6 +333,7 @@ const delteProductFromCartAction = createAsyncThunk(
 //   }
 // )
 
+
 const createCartByUserIdAction = createAsyncThunk(
   'cartByUserId/create',
   async (
@@ -350,8 +356,8 @@ const createCartByUserIdAction = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot create Cart!')
     }
-  }
-)
+  })
+
 
 const updatedCartByProductIdAction = createAsyncThunk(
   'updateCartByUserId/create',
@@ -407,28 +413,54 @@ const createOrderByUserIdAction = createAsyncThunk(
     }
   }
 )
-// const deleteCategoryAction = createAsyncThunk(
-//   'category/delete',
-//   async (
-//     {
-//       categoryId,
-//       onSuccess
-//     }: {
-//       categoryId: string
-//       onSuccess?: (data: any) => void
-//     },
-//     thunkAPI
-//   ) => {
-//     console.log(categoryId, 'productId slice')
-//     try {
-//       const response = await categoryService.deleteCategory(categoryId)
-//       onSuccess && onSuccess(response)
-//       return response
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue('Cannot get Category!')
-//     }
-//   }
-// )
+const deleteCategoryAction = createAsyncThunk(
+  'category/delete',
+  async (
+    {
+      categoryId,
+      onSuccess
+    }: {
+      categoryId: string
+      onSuccess?: (data: any) => void
+    },
+    thunkAPI
+  ) => {
+    console.log(categoryId, 'productId slice')
+    try {
+      const response = await categoryService.deleteCategory(categoryId)
+      onSuccess && onSuccess(response)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Cannot get Category!')
+    }
+  }
+)
+
+
+const deleteCartByIdAction = createAsyncThunk(
+  'cartId/delete',
+  async (
+    {
+      cartId,
+      onSuccess
+    }: {
+      cartId: string
+      onSuccess?: (data: any) => void
+    },
+    thunkAPI
+  ) => {
+    console.log(cartId, 'productId slice')
+    try {
+      const response = await CartService.deleteCart(cartId)
+      onSuccess && onSuccess?.(response)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Cannot get Category!')
+    }
+  }
+)
+
+
 
 const initialState: {
   cartData?: any
@@ -446,6 +478,7 @@ const initialState: {
   createCategoryLoading?: boolean
   updateCategoryLoading?: boolean
   categoryDetailDataLoading?: boolean
+  cartDeleteLoading?: boolean 
 } = {
   cartData: undefined,
   cartLoading: false,
@@ -461,7 +494,8 @@ const initialState: {
   createCategoryLoading: false,
   updateCategoryLoading: false,
   categoryDetailData: undefined,
-  categoryDetailDataLoading: false
+  categoryDetailDataLoading: false,
+  cartDeleteLoading: false
 }
 
 const cartSlice = createSlice({
@@ -522,6 +556,16 @@ const cartSlice = createSlice({
       state.updatedCardByLoading = false
     })
 
+        builder.addCase(deleteCartByIdAction.pending, (state) => {
+      state.cartDeleteLoading = true
+    })
+    builder.addCase(deleteCartByIdAction.fulfilled, (state, action) => {
+      state.cartDeleteLoading = false
+    })
+    builder.addCase(deleteCartByIdAction.rejected, (state) => {
+      state.cartDeleteLoading = false
+    })
+
     // builder.addCase(getCategoryDetailByIdAction.pending, (state) => {
     //   state.categoryDetailDataLoading = true
     // })
@@ -557,6 +601,7 @@ export {
   // updateCardByUserIdAction,
   createOrderByUserIdAction,
   getOrderListAction,
-  updatedCartByProductIdAction
+  updatedCartByProductIdAction,
+  deleteCartByIdAction
 }
 export default cartSlice.reducer

@@ -271,6 +271,7 @@ export const ProductListForWeb = () => {
               loading={loading}
               color="#fcedeb"
               size={30}
+            
             />
           ) : data?.length > 0 ? (
             <div style={{}} className="productListContainer">

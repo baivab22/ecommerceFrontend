@@ -1,15 +1,18 @@
-import React, {useEffect, useState, useMemo, useCallback} from 'react'
-import {useDispatch, useSelector} from 'src/store'
-import {getCookie} from 'src/helpers'
-import {CartCard} from 'src/app/components'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { useDispatch, useSelector } from 'src/store'
+import { getCookie } from 'src/helpers'
+import { CartCard } from 'src/app/components'
 import {
   createOrderByUserIdAction,
+  
+  deleteCartByIdAction,
+  
   delteProductFromCartAction,
   getCartlistAction,
   updatedCartByProductIdAction
 } from './cart.slice'
 
-import {districtArray} from 'src/utils/districtArray'
+import { districtArray } from 'src/utils/districtArray'
 import {
   Button,
   CheckBox,
@@ -19,11 +22,11 @@ import {
   SelectField,
   VStack
 } from 'src/app/common'
-import {getNprPrice} from 'src/helpers/nprPrice.helper'
+import { getNprPrice } from 'src/helpers/nprPrice.helper'
 import toast from 'react-hot-toast'
-import {useMeasure, useMedia} from 'src/hooks'
-import {TextArea} from 'src/app/common/textArea'
-import {CONTACT_NUMBER} from 'src/config/constant.config'
+import { useMeasure, useMedia } from 'src/hooks'
+import { TextArea } from 'src/app/common/textArea'
+import { CONTACT_NUMBER } from 'src/config/constant.config'
 
 // Types
 interface Option {
@@ -52,7 +55,7 @@ const VALLEY_OPTIONS: Option[] = [
   },
   {
     id: 'outside',
-    label: 'Outside Kathmandu Valley', 
+    label: 'Outside Kathmandu Valley',
     value: 'outside'
   }
 ]
@@ -75,8 +78,6 @@ const PAYMENT_METHODS = {
   CASH_ON_DELIVERY: 'cashOnDelivery'
 } as const
 
-const DEFAULT_SHIPPING_PRICE = 200
-
 export const CartPage = () => {
   const dispatch = useDispatch()
   const datas = useSelector((state: any) => state.cart)
@@ -85,53 +86,69 @@ export const CartPage = () => {
 
   // Cart related state
   const [cartProducts, setCartProducts] = useState<CartProduct[]>([])
-  
+
   // Shipping & Location state
   const [selectedValleyOption, setSelectedValleyOption] = useState<Option | null>(null)
   const [selectedDistrictOption, setSelectedDistrictOption] = useState<Option | null>(null)
   const [selectedMunicipalityOption, setSelectedMunicipalityOption] = useState<Option | null>(null)
   const [selectedAreaOption, setSelectedAreaOption] = useState<Option | null>(null)
   const [selectedDeliveryTypeOption, setSelectedDeliveryTypeOption] = useState<Option | null>(null)
-  
+
   // Form state
   const [shippingLocation, setShippingLocation] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [orderNote, setOrderNote] = useState('')
   const [isShippingSame, setIsShippingSame] = useState(true)
-  
+
   // Payment state
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null)
-  
+
   // Computed values
   const isOutsideValley = selectedValleyOption?.value === 'outside'
-  const isHomeDelivery = selectedDeliveryTypeOption?.value === 'home'
+  const isInsideValley = selectedValleyOption?.value === 'inside'
+  const isPhonePaySelected = selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY
   const hasProducts = cartProducts.length > 0
-  const shouldShowQR = isOutsideValley || (isHomeDelivery && selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY)
+
+  // Check if all required location fields are selected
+  const isLocationComplete = !!(
+    selectedValleyOption &&
+    selectedDistrictOption &&
+    selectedMunicipalityOption &&
+    selectedAreaOption &&
+    selectedDeliveryTypeOption
+  )
+
+  // QR Code display logic: Show QR if outside valley OR (inside valley AND phone pay)
+  const shouldShowQR = isOutsideValley || (isInsideValley && isPhonePaySelected)
 
   // Memoized options
-  const districtOptions = useMemo(() => 
-    districtArray?.map((item, index) => ({
-      id: index,
-      label: item.district,
-      value: item.district,
-      districtData: item
-    })) ?? []
-  , [])
+  const districtOptions = useMemo(
+    () =>
+      districtArray?.map((item, index) => ({
+        id: index,
+        label: item.district,
+        value: item.district,
+        districtData: item
+      })) ?? [],
+    []
+  )
 
   const municipalityOptions = useMemo(() => {
     if (!selectedDistrictOption?.districtData) return []
-    
-    return selectedDistrictOption.districtData.municipalities?.map((item, index) => ({
-      id: index,
-      label: item.name,
-      value: item.name,
-      municipalityData: item
-    })) ?? []
+
+    return (
+      selectedDistrictOption.districtData.municipalities?.map((item, index) => ({
+        id: index,
+        label: item.name,
+        value: item.name,
+        municipalityData: item
+      })) ?? []
+    )
   }, [selectedDistrictOption])
 
   const areaOptions = useMemo(() => {
     if (!selectedMunicipalityOption?.municipalityData?.areas) return []
-    
+
     return Object.keys(selectedMunicipalityOption.municipalityData.areas).map((key, index) => ({
       id: index,
       label: key.replace(/_/g, ' '),
@@ -140,26 +157,42 @@ export const CartPage = () => {
     }))
   }, [selectedMunicipalityOption])
 
-  // Calculated values
+  // FIXED: Correct subtotal calculation using actual unit price * quantity
   const subtotal = useMemo(() => {
-    return cartProducts.reduce((acc, item) => acc + (item.price || 0), 0)
+    return cartProducts.reduce((acc, item) => {
+      // Use unit price * quantity instead of the stored total price
+      const unitPrice = item.productId?.discountedPrice || 0
+      const quantity = item.quantity || 0
+      const itemTotal = unitPrice * quantity
+      
+      console.log(`Product ${item._id}: Unit Price ${unitPrice} × Quantity ${quantity} = ${itemTotal}`)
+      
+      return acc + itemTotal
+    }, 0)
   }, [cartProducts])
 
+  // Shipping price calculation - only return actual price when location is complete
   const shippingPrice = useMemo(() => {
+    // Return 0 if location is not complete
+    if (!isLocationComplete) {
+      return 0
+    }
+
+    // If no area data or delivery type, return 0 (no default charge)
     if (!selectedAreaOption?.areaData || !selectedDeliveryTypeOption) {
-      return DEFAULT_SHIPPING_PRICE
+      return 0
     }
 
     const deliveryType = selectedDeliveryTypeOption.value === 'home' ? 'homeDelivery' : 'officeDelivery'
-    return selectedAreaOption.areaData[deliveryType] || DEFAULT_SHIPPING_PRICE
-  }, [selectedAreaOption, selectedDeliveryTypeOption])
+    return selectedAreaOption.areaData[deliveryType] || 0
+  }, [selectedAreaOption, selectedDeliveryTypeOption, isLocationComplete])
 
   const total = subtotal + shippingPrice
 
   // Effects
   useEffect(() => {
     if (userId) {
-      dispatch(getCartlistAction({userId}))
+      dispatch(getCartlistAction({ userId }))
     }
   }, [dispatch, userId])
 
@@ -177,57 +210,68 @@ export const CartPage = () => {
     setSelectedAreaOption(null)
   }, [selectedMunicipalityOption])
 
-  // Handlers
-  const handleQuantityChange = useCallback((newQuantity: number, product: CartProduct) => {
-    if (!userId) return
+  // FIXED: Corrected quantity change handler
+  const handleQuantityChange = useCallback(
+    (newQuantity: number, product: CartProduct) => {
+      if (!userId) return
+      
+      // Validate quantity
+      if (newQuantity < 1) {
+        toast.error('Quantity must be at least 1')
+        return
+      }
 
-    const updatedPrice = Number(product.productId.discountedPrice * newQuantity)
-    
-    // Optimistic update
-    setCartProducts(prev => 
-      prev.map(item => 
-        item._id === product._id 
-          ? { ...item, quantity: newQuantity, price: updatedPrice }
-          : item
+      // FIXED: Calculate price correctly using unit price
+      const unitPrice = product.productId?.discountedPrice || 0
+      const updatedPrice = Number(unitPrice * newQuantity)
+
+      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`)
+
+      // Optimistic update
+      setCartProducts(prev =>
+        prev.map(item =>
+          item._id === product._id 
+            ? { ...item, quantity: newQuantity, price: updatedPrice } 
+            : item
+        )
       )
-    )
 
-    dispatch(
-      updatedCartByProductIdAction({
-        data: {
-          userId,
-          productId: product.productId.id,
-          quantity: newQuantity,
-          price: updatedPrice
-        },
-        onSuccess: () => {
-          toast.success('Product updated successfully')
-          dispatch(getCartlistAction({userId}))
-        },
-        onFailure: () => {
-          // Revert optimistic update on failure
-          setCartProducts(datas?.cartData?.[0]?.products ?? [])
-          toast.error('Failed to update product')
-        }
-      })
-    )
-  }, [dispatch, userId, datas?.cartData?.[0]?.products])
+      dispatch(
+        updatedCartByProductIdAction({
+          data: {
+            userId,
+            productId: product.productId.id,
+            quantity: newQuantity,
+            price: updatedPrice
+          },
+          onSuccess: () => {
+            toast.success('Product updated successfully')
+            dispatch(getCartlistAction({ userId }))
+          },
+          onFailure: () => {
+            // Revert optimistic update on failure
+            setCartProducts(datas?.cartData?.[0]?.products ?? [])
+            toast.error('Failed to update product')
+          }
+        })
+      )
+    },
+    [dispatch, userId, datas?.cartData?.[0]?.products]
+  )
 
   const handleValleyChange = useCallback((option: Option) => {
     setSelectedValleyOption(option)
-    // Clear location selections when valley type changes
+    // Clear all location selections when valley type changes
     setSelectedDistrictOption(null)
     setSelectedMunicipalityOption(null)
     setSelectedAreaOption(null)
   }, [])
 
-  const handlePaymentMethodChange = useCallback((method: string, checked: boolean) => {
-    if (checked) {
-      setSelectedPaymentMethod(method)
-    } else if (selectedPaymentMethod === method) {
-      setSelectedPaymentMethod(null)
-    }
-  }, [selectedPaymentMethod])
+  // Updated payment method change handler for radio button behavior
+  const handlePaymentMethodChange = useCallback((method: string) => {
+    console.log('Payment method changed:', method)
+    setSelectedPaymentMethod(method)
+  }, [])
 
   const generateOrderId = useCallback(() => {
     const timestamp = Date.now()
@@ -237,7 +281,7 @@ export const CartPage = () => {
 
   const validateForm = useCallback(() => {
     const errors: string[] = []
-    
+
     if (!hasProducts) errors.push('No products in cart')
     if (!selectedValleyOption) errors.push('Please select location type')
     if (!selectedDistrictOption) errors.push('Please select district')
@@ -245,7 +289,14 @@ export const CartPage = () => {
     if (!selectedAreaOption) errors.push('Please select area')
     if (!selectedDeliveryTypeOption) errors.push('Please select delivery type')
     if (!shippingLocation.trim()) errors.push('Please enter shipping address')
-    if (!phoneNumber.trim()) errors.push('Please enter phone number')
+    
+    // Validate phone number
+    if (!phoneNumber.trim()) {
+      errors.push('Please enter phone number')
+    } else if (!/^[0-9+\-\s()]+$/.test(phoneNumber.trim())) {
+      errors.push('Please enter a valid phone number')
+    }
+    
     if (!selectedPaymentMethod) errors.push('Please select payment method')
 
     return errors
@@ -261,11 +312,13 @@ export const CartPage = () => {
     selectedPaymentMethod
   ])
 
+  // FIXED: Corrected checkout handler with proper price calculations
   const handleCheckout = useCallback(() => {
     const validationErrors = validateForm()
-    
+
     if (validationErrors.length > 0) {
-      validationErrors.forEach(error => toast.error(error))
+      // Show only the first error to avoid spam
+      toast.error(validationErrors[0])
       return
     }
 
@@ -276,50 +329,91 @@ export const CartPage = () => {
 
     const orderId = generateOrderId()
 
+    // FIXED: Calculate correct prices for products in order
+    const orderProducts = cartProducts.map(item => {
+      const unitPrice = item.productId?.discountedPrice || 0
+      const quantity = item.quantity || 0
+      const totalPriceForProduct = unitPrice * quantity
+
+
+      
+      
+      console.log(`Order Product ${item.productId.id}: Unit ${unitPrice} × Qty ${quantity} = ${totalPriceForProduct}`)
+      
+      return {
+        productId: item.productId.id,
+        quantity: quantity,
+        price: totalPriceForProduct // This should be total price for this product (unit * quantity)
+      }
+    })
+
+    console.log('Order Products:', orderProducts)
+    console.log('Subtotal:', subtotal)
+    console.log('Shipping:', shippingPrice)
+    console.log('Total:', total)
+
+    console.log(cartProducts, "cartProducts to be deleted outside")
+
     dispatch(
       createOrderByUserIdAction({
         userId,
         data: {
           userId,
-          products: cartProducts.map(item => ({
-            productId: item.productId.id,
-            quantity: item.quantity,
-            price: Number(item.productId.discountedPrice * item.quantity)
-          })),
+          products: orderProducts,
           isInsideValley: JSON.stringify(!isOutsideValley),
           OrderedAt: new Date().toLocaleString(),
           productOrderId: orderId,
-          shippingLocation: `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}`,
+          shippingLocation: `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}, ${shippingLocation}`,
           paymentMethod: selectedPaymentMethod,
           deliveryType: selectedDeliveryTypeOption?.value,
           phoneNumber: phoneNumber.trim(),
-          orderNote: orderNote.trim()
+          orderNote: orderNote.trim(),
+          shippingPrice: shippingPrice,
+          totalAmount: total
         },
         onSuccess: () => {
           toast.success('Order placed successfully!')
-          
-          // Clear cart
-          cartProducts.forEach(item => {
-            dispatch(
-              delteProductFromCartAction({
-                userId,
-                productId: item._id,
-                onSuccess: () => {
-                  dispatch(getCartlistAction({userId}))
-                }
-              })
-            )
-          })
+
+          // Clear cart items one by one
+          const clearCartItems = async () => {
+// console.log(cartProductsuserId, "cartProducts to be deleted")
+            
+            // for (const item of cartProducts) {
+            //   dispatch(
+            //     delteProductFromCartAction({
+            //       userId,
+            //       productId: item._id,
+            //       onSuccess: () => {
+            //         // Refresh cart after each deletion
+            //         dispatch(getCartlistAction({ userId }))
+            //       },
+            //       onFailure: (error) => {
+            //         console.error('Failed to remove item from cart:', error)
+            //       }
+            //     })
+            //   )
+            // }
+            dispatch(deleteCartByIdAction({
+              cartId: userId,
+              onSuccess: () => {
+                // Refresh cart after deletion
+                dispatch(getCartlistAction({ userId }))
+              },
+         
+            }))
+          }
+
+          clearCartItems()
 
           // Reset form
           resetForm()
-          
-          // Open WhatsApp if phone payment
+
+          // Open WhatsApp if phone payment is selected
           if (selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY) {
-            openWhatsApp(orderId)
+            setTimeout(() => openWhatsApp(orderId), 1000) // Delay to show success message
           }
         },
-        onFailure: (error) => {
+        onFailure: error => {
           console.error('Order failed:', error)
           toast.error('Failed to place order. Please try again.')
         }
@@ -338,7 +432,11 @@ export const CartPage = () => {
     selectedPaymentMethod,
     selectedDeliveryTypeOption,
     phoneNumber,
-    orderNote
+    orderNote,
+    shippingPrice,
+    shippingLocation,
+    total,
+    subtotal
   ])
 
   const resetForm = useCallback(() => {
@@ -362,13 +460,12 @@ export const CartPage = () => {
 
   // Render QR Code Component
   const QRCodeSection = () => (
-    <div style={{marginTop: '20px', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px'}}>
-      <p style={{fontWeight: 'bold', marginBottom: '10px'}}>Scan QR Code to Pay</p>
-      <p style={{fontSize: '14px', marginBottom: '10px', color: '#666'}}>
-        {isOutsideValley 
-          ? 'Payment required for outside valley delivery' 
-          : 'Complete payment for home delivery'
-        }
+    <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+      <p style={{ fontWeight: 'bold', marginBottom: '10px', color: '#333' }}>Scan QR Code to Pay</p>
+      <p style={{ fontSize: '14px', marginBottom: '10px', color: '#666' }}>
+        {isOutsideValley
+          ? 'Payment required for outside valley delivery'
+          : 'Complete payment for your order'}
       </p>
       <img
         src="src/assets/images/qrbanksample.jpg"
@@ -378,10 +475,16 @@ export const CartPage = () => {
           maxWidth: '200px',
           height: 'auto',
           marginBottom: '10px',
-          display: 'block'
+          display: 'block',
+          border: '1px solid #ddd',
+          borderRadius: '4px'
+        }}
+        onError={(e) => {
+          console.error('QR Code image failed to load')
+          e.currentTarget.style.display = 'none'
         }}
       />
-      <p style={{fontSize: '12px', color: '#888'}}>
+      <p style={{ fontSize: '12px', color: '#888' }}>
         After payment, please send screenshot to WhatsApp for order confirmation.
       </p>
     </div>
@@ -389,18 +492,19 @@ export const CartPage = () => {
 
   if (!hasProducts) {
     return (
-      <div className="cartPage">
-        <VStack gap="$3" align="center" justify="center" style={{minHeight: '400px'}}>
+      <div className="cartPage" style={{ width: '100%'}}>
+        <VStack gap="$3" align="center" justify="center" style={{ minHeight: '400px',width:'100%' }}>
           <img
             className="noProductOnCart"
             src="src/assets/images/noCart.png"
             alt="Empty cart"
-            style={{maxWidth: '300px', opacity: 0.7}}
+            style={{ maxWidth: '300px', opacity: 0.7 }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
           />
-          <p style={{fontSize: '18px', color: '#666', textAlign: 'center'}}>
-            Your cart is empty
-          </p>
-          <p style={{fontSize: '14px', color: '#888', textAlign: 'center'}}>
+          <p style={{ fontSize: '18px', color: '#666', textAlign: 'center' }}>Your cart is empty</p>
+          <p style={{ fontSize: '14px', color: '#888', textAlign: 'center' }}>
             Add some products to get started!
           </p>
         </VStack>
@@ -408,23 +512,29 @@ export const CartPage = () => {
     )
   }
 
+  console.log(selectedPaymentMethod, "selectedPaymentMethod ")
+  console.log('Current subtotal calculation:', subtotal)
+  console.log('Cart products for debugging:', cartProducts.map(item => ({
+    id: item._id,
+    unitPrice: item.productId?.discountedPrice,
+    quantity: item.quantity,
+    storedPrice: item.price,
+    calculatedPrice: (item.productId?.discountedPrice || 0) * (item.quantity || 0)
+  })))
+
   return (
     <div className="cartPage">
       {/* Products Section */}
-      <VStack gap="$3" style={{width: media.md ? '55%' : '100%'}}>
+      <VStack gap="$3" style={{ width: media.md ? '55%' : '100%' }}>
         {cartProducts.map((item, index) => (
-          <CartCard
-            key={`${item._id}-${index}`}
-            data={item}
-            onChangePrice={handleQuantityChange}
-          />
+          <CartCard key={`${item._id}-${index}`} data={item} onChangePrice={handleQuantityChange} />
         ))}
       </VStack>
 
       {/* Order Summary Section */}
-      <VStack style={{width: media.md ? '40%' : '100%'}} gap="$3">
+      <VStack style={{ width: media.md ? '40%' : '100%' }} gap="$3">
         <VStack className="cartPage-orderSummary" gap="$5">
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p className="cartPage-orderSummary-title">Order Summary</p>
             <p className="cartPage-orderSummary-itemCount">
               {cartProducts.length} {cartProducts.length === 1 ? 'item' : 'items'}
@@ -432,39 +542,39 @@ export const CartPage = () => {
           </div>
 
           {/* Subtotal */}
-          <HStack style={{width: '100%'}} justify="space-between" align="center">
+          <HStack style={{ width: '100%' }} justify="space-between" align="center">
             <p>Subtotal</p>
             <p>{getNprPrice(subtotal)}</p>
           </HStack>
 
           {/* Valley Selection */}
-          <VStack style={{width: '100%'}} gap="$2">
+          <VStack style={{ width: '100%' }} gap="$2">
             <Label>Location Type *</Label>
             <SelectField
               options={VALLEY_OPTIONS}
               width="100%"
               onChangeValue={handleValleyChange}
               placeholder="Select location type"
-              containerStyle={{width: '100%'}}
+              containerStyle={{ width: '100%' }}
               value={selectedValleyOption}
             />
           </VStack>
 
           {/* Location Selection */}
-          <HStack justify="space-between" align="flex-start" style={{width: '100%', gap: '12px'}}>
-            <VStack style={{flex: 1}} gap="$2">
+          <HStack justify="space-between" align="flex-start" style={{ width: '100%', gap: '12px' }}>
+            <VStack style={{ flex: 1 }} gap="$2">
               <Label>District *</Label>
               <SelectField
                 options={districtOptions}
                 width="100%"
                 onChangeValue={setSelectedDistrictOption}
                 placeholder="Select District"
-                containerStyle={{width: '100%'}}
+                containerStyle={{ width: '100%' }}
                 value={selectedDistrictOption}
               />
             </VStack>
 
-            <VStack style={{flex: 1}} gap="$2">
+            <VStack style={{ flex: 1 }} gap="$2">
               <Label>Municipality *</Label>
               <SelectField
                 options={municipalityOptions}
@@ -472,15 +582,15 @@ export const CartPage = () => {
                 width="100%"
                 onChangeValue={setSelectedMunicipalityOption}
                 placeholder="Select Municipality"
-                containerStyle={{width: '100%'}}
+                containerStyle={{ width: '100%' }}
                 value={selectedMunicipalityOption}
                 isDisabled={!selectedDistrictOption}
               />
             </VStack>
           </HStack>
 
-          <HStack justify="space-between" align="flex-start" style={{width: '100%', gap: '12px'}}>
-            <VStack style={{flex: 1}} gap="$2">
+          <HStack justify="space-between" align="flex-start" style={{ width: '100%', gap: '12px' }}>
+            <VStack style={{ flex: 1 }} gap="$2">
               <Label>Area *</Label>
               <SelectField
                 options={areaOptions}
@@ -488,50 +598,60 @@ export const CartPage = () => {
                 width="100%"
                 onChangeValue={setSelectedAreaOption}
                 placeholder="Select Area"
-                containerStyle={{width: '100%'}}
+                containerStyle={{ width: '100%' }}
                 value={selectedAreaOption}
                 isDisabled={!selectedMunicipalityOption}
               />
             </VStack>
 
-            <VStack style={{flex: 1}} gap="$2">
+            <VStack style={{ flex: 1 }} gap="$2">
               <Label>Delivery Type *</Label>
               <SelectField
                 options={DELIVERY_TYPE_OPTIONS}
                 width="100%"
                 onChangeValue={setSelectedDeliveryTypeOption}
                 placeholder="Delivery Type"
-                containerStyle={{width: '100%'}}
+                containerStyle={{ width: '100%' }}
                 value={selectedDeliveryTypeOption}
               />
             </VStack>
           </HStack>
 
           {/* Shipping Details */}
-          <VStack style={{width: '100%'}} gap="$2">
+          <VStack style={{ width: '100%' }} gap="$2">
             <Label>Shipping Details *</Label>
-            <HStack gap="$2" style={{width: '100%'}}>
+            <HStack gap="$2" style={{ width: '100%' }}>
               <InputField
-                onChange={(e) => setShippingLocation(e.target.value)}
+                onChange={e => setShippingLocation(e.target.value)}
                 placeholder="Full address *"
                 value={shippingLocation}
-                style={{flex: 1}}
+                style={{ flex: 1 }}
               />
               <InputField
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={e => setPhoneNumber(e.target.value)}
                 placeholder="Phone number *"
                 value={phoneNumber}
-                style={{flex: 1}}
+                style={{ flex: 1 }}
                 type="tel"
               />
             </HStack>
           </VStack>
 
-          {/* Shipping Cost */}
-          <HStack style={{width: '100%'}} justify="space-between" align="center">
-            <p>Shipping Cost</p>
-            <p>{getNprPrice(shippingPrice)}</p>
-          </HStack>
+          {/* Shipping Cost - Only show when location is complete and shipping price > 0 */}
+          {isLocationComplete && shippingPrice > 0 && (
+            <HStack style={{ width: '100%' }} justify="space-between" align="center">
+              <p>Shipping Cost</p>
+              <p>{getNprPrice(shippingPrice)}</p>
+            </HStack>
+          )}
+
+          {/* Show "Free Shipping" message when location is complete but shipping is free */}
+          {isLocationComplete && shippingPrice === 0 && (
+            <HStack style={{ width: '100%' }} justify="space-between" align="center">
+              <p>Shipping Cost</p>
+              <p style={{ color: '#28a745', fontWeight: 'bold' }}>Free</p>
+            </HStack>
+          )}
 
           {/* Shipping Address Checkbox */}
           <CheckBox
@@ -544,7 +664,7 @@ export const CartPage = () => {
 
           {/* Total */}
           <HStack
-            style={{width: '100%', fontWeight: 'bold', fontSize: '18px'}}
+            style={{ width: '100%', fontWeight: 'bold', fontSize: '18px' }}
             justify="space-between"
             align="center"
           >
@@ -553,39 +673,77 @@ export const CartPage = () => {
           </HStack>
 
           {/* Order Note */}
-          <VStack style={{width: '100%'}} gap="$2">
+          <VStack style={{ width: '100%' }} gap="$2">
             <Label>Order Note (Optional)</Label>
             <TextArea
-              onChange={(e) => setOrderNote(e.target.value)}
-              style={{width: '100%', fontSize: '14px', minHeight: '80px'}}
+              onChange={e => setOrderNote(e.target.value)}
+              style={{ width: '100%', fontSize: '14px', minHeight: '80px' }}
               value={orderNote}
               placeholder="Any special instructions..."
             />
           </VStack>
 
-          {/* Payment Methods */}
-          <VStack style={{width: '100%'}} gap="$3">
+          {/* Payment Methods - Native HTML Radio Buttons */}
+          <VStack style={{ width: '100%' }} gap="$3">
             <Label>Payment Method *</Label>
-            
-            <CheckBox
-              value={PAYMENT_METHODS.PHONE_PAY}
-              label="Phone Pay"
-              name="payment-method"
-              check={selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY}
-              handleCheckboxChange={(checked) => 
-                handlePaymentMethodChange(PAYMENT_METHODS.PHONE_PAY, checked)
-              }
-            />
 
-            <CheckBox
-              value={PAYMENT_METHODS.CASH_ON_DELIVERY}
-              label="Cash on Delivery"
-              name="payment-method"
-              check={selectedPaymentMethod === PAYMENT_METHODS.CASH_ON_DELIVERY}
-              handleCheckboxChange={(checked) => 
-                handlePaymentMethodChange(PAYMENT_METHODS.CASH_ON_DELIVERY, checked)
-              }
-            />
+            {/* Phone Pay Option */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type="radio"
+                id="payment-phone-pay"
+                name="payment-method"
+                value={PAYMENT_METHODS.PHONE_PAY}
+                checked={selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY}
+                onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  cursor: 'pointer',
+                  accentColor: '#007bff'
+                }}
+              />
+              <label 
+                htmlFor="payment-phone-pay" 
+                style={{ 
+                  fontSize: '16px', 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  color: '#333'
+                }}
+              >
+                Phone Pay
+              </label>
+            </div>
+
+            {/* Cash on Delivery Option */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type="radio"
+                id="payment-cash-on-delivery"
+                name="payment-method"
+                value={PAYMENT_METHODS.CASH_ON_DELIVERY}
+                checked={selectedPaymentMethod === PAYMENT_METHODS.CASH_ON_DELIVERY}
+                onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  cursor: 'pointer',
+                  accentColor: '#007bff'
+                }}
+              />
+              <label 
+                htmlFor="payment-cash-on-delivery" 
+                style={{ 
+                  fontSize: '16px', 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  color: '#333'
+                }}
+              >
+                Cash on Delivery
+              </label>
+            </div>
 
             {/* QR Code Display Logic */}
             {shouldShowQR && <QRCodeSection />}
@@ -593,31 +751,31 @@ export const CartPage = () => {
         </VStack>
 
         {/* Checkout Button */}
-        <Button
+        <div
           className="cartPage-checkout"
           onClick={handleCheckout}
+          // disabled={!hasProducts}
           style={{
             width: '100%',
             padding: '16px',
             fontSize: '16px',
             fontWeight: 'bold',
-            backgroundColor: '#007bff',
+            backgroundColor: hasProducts ? '#007bff' : '#ccc',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: hasProducts ? 'pointer' : 'not-allowed',
+            opacity: hasProducts ? 1 : 0.6,
+            textAlign: 'center',
           }}
         >
           Place Order
-        </Button>
+        </div>
 
         {/* Contact Info */}
-        <p style={{textAlign: 'center', fontSize: '14px', color: '#666'}}>
+        <p style={{ textAlign: 'center', fontSize: '14px', color: '#666' }}>
           Need help? For order details{' '}
-          <a 
-            href={`tel:${CONTACT_NUMBER}`}
-            style={{color: '#007bff', textDecoration: 'none'}}
-          >
+          <a href={`tel:${CONTACT_NUMBER}`} style={{ color: '#007bff', textDecoration: 'none' }}>
             Call us: {CONTACT_NUMBER}
           </a>
         </p>

@@ -100,6 +100,9 @@ export const AddProductPage = () => {
     isWatchAndShop: false
   })
 
+  const [isHotSelling, setIsHotSelling] = useState(false)
+
+
   useEffect(() => {
     // console.log('product DetailData called')
 
@@ -357,7 +360,7 @@ export const AddProductPage = () => {
   const addProductHandler = (event: any) => {
     event.preventDefault()
     console.log('addProduct called to updated', data)
-    console.log(isNewArrivalOrBestSelling, 'is new arrival or best selling')
+    console.log(isHotSelling, 'is new arrival or best selling')
     const formData = new FormData()
 
     formData.append('name', data.name)
@@ -370,6 +373,10 @@ export const AddProductPage = () => {
     console.log(data.video, 'data video')
     formData.append('video', data.video)
     formData.append('stockQuantity', data.stockQuantity)
+    formData.append('isHotSelling', JSON.stringify(isHotSelling))
+
+
+
 
     // productVariantIdList.forEach((productId: any, index: string) => {
     //   formData.append('productVariants', productId)
@@ -399,13 +406,32 @@ export const AddProductPage = () => {
       'isWatchAndShop',
       JSON.stringify(isNewArrivalOrBestSelling.isWatchAndShop)
     )
+
+
+    
+
+
+
+
+    console.log(isHotSelling,'ishotselling value before  append')
+
+    // formData.append(
+    //   'isHotSelling',
+    //   JSON.stringify(isHotSelling)
+    // )
+// formData.append(
+//       'isWatchAndShop',
+//       JSON.stringify(isNewArrivalOrBestSelling.isWatchAndShop)
+//     )
+
+    
     // console.log(data?.images, 'data images')
 
     // image.forEach((file: any, index: string) => {
     //   formData.append('image', file)
     // })
 
-    console.log(data.video, 'video')
+    console.log(isHotSelling, ' is hot selling video')
 
     {
       productId
@@ -430,7 +456,8 @@ export const AddProductPage = () => {
                   subCategory: '',
                   images: [],
                   video: null,
-                  description: ''
+                  description: '',
+                  // isHotSelling:false
                 })
               }
             })
@@ -456,7 +483,8 @@ export const AddProductPage = () => {
                   subCategory: '',
                   images: [],
                   video: null,
-                  description: ''
+                  description: '',
+                  // isHotSelling:false
                 })
               }
             })
@@ -532,6 +560,9 @@ export const AddProductPage = () => {
   }, [data?.discountPercentage, data?.originalPrice])
 
   console.log(productDetailData?.images, productDetailData, 'images data value')
+
+
+  console.log('isHot selling value',isHotSelling)
 
   return (
     <div className="addProductContainer">
@@ -935,7 +966,24 @@ export const AddProductPage = () => {
                 handleCheckboxChange={handleWatchAndShopping}
               />
             </VStack>
+
+
+           
           </div>
+
+                  <VStack gap="$3">
+              <Label required labelName="Is Hot Selling?"></Label>
+
+              <CheckBox
+                value="Hot selling"
+                label="Hot Selling"
+                name="hotselling"
+                check={isHotSelling}
+                handleCheckboxChange={()=>{
+                  setIsHotSelling(!isHotSelling)
+                }}
+              />
+            </VStack>
         </div>
 
         <Button

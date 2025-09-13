@@ -1,15 +1,27 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import toast from 'react-hot-toast'
 import {AiOutlineClose, AiOutlineMinus, AiOutlinePlus} from 'react-icons/ai'
 import {HStack, InputField, VStack} from 'src/app/common'
 import {
   delteProductFromCartAction,
-  getCartlistAction
+  getCartlistAction,
+  updatedCartByProductIdAction
 } from 'src/app/pages/web/cart/cart.slice'
 import {FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import {useDispatch} from 'src/store'
+
+
+interface CartProduct {
+  _id: string
+  productId: {
+    id: string
+    discountedPrice: number
+  }
+  quantity: number
+  price: number
+}
 
 export const CartCard = ({
   data,
@@ -21,6 +33,56 @@ export const CartCard = ({
   const [quantity, setQuantity] = useState(1)
   const dispatch = useDispatch()
   const userId = getCookie('userId')
+
+
+
+  const handleQuantityChange = useCallback(
+    (newQuantity: number, product: CartProduct) => {
+      if (!userId) return
+      
+      // Validate quantity
+      if (newQuantity < 1) {
+        toast.error('Quantity must be at least 1')
+        return
+      }
+
+      // FIXED: Calculate price correctly using unit price
+      const unitPrice = product.productId?.discountedPrice || 0
+      const updatedPrice = Number(unitPrice * newQuantity)
+
+      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`)
+
+      // Optimistic update
+      // setCartProducts(prev =>
+      //   prev.map(item =>
+      //     item._id === product._id 
+      //       ? { ...item, quantity: newQuantity, price: updatedPrice } 
+      //       : item
+      //   )
+      // )
+
+      dispatch(
+        updatedCartByProductIdAction({
+          data: {
+            userId,
+            productId: product.productId.id,
+            quantity: newQuantity,
+            price: updatedPrice
+          },
+          onSuccess: () => {
+            toast.success('Product updated successfully')
+            dispatch(getCartlistAction({ userId }))
+          },
+          // onFailure: () => {
+          //   // Revert optimistic update on failure
+          //   // setCartProducts(datas?.cartData?.[0]?.products ?? [])
+          //   toast.error('Failed to update product')
+          // }
+        })
+      )
+    },
+    [dispatch, userId, data?.cartData?.[0]?.products]
+  )
 
   const deleteProductFromCart = () => {
     console.log('delete product called')

@@ -52,11 +52,21 @@ const deleteCartByProductId = async (userId: string, productId: string) => {
   return response
 }
 
+const deleteCart=async (cartId: string) => {
+  //   console.log(bannerName, 'productId from service')
+  console.log('delte service',cartId)
+  const response = await api<any>('delete')(`/cart/delete/${cartId}`, undefined)
+  console.log(response, 'response hai ta')
+
+  return response
+}
+
 export const CartService = {
   createCartByUserId,
   deleteCartByProductId,
   getCartListByUserId,
   createOrderByUserId,
   getOrderList,
-  updateCartByProductId
+  updateCartByProductId,
+  deleteCart
 }

@@ -150,7 +150,11 @@ console.log(data,"productname category   ")
           align="center"
           gap="$3"
         >
-          <div>
+          <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center'
+          }}>
             <FiEye size={20} />
           </div>
           <div className="productCard-footer-right">View Details</div>

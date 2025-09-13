@@ -12,6 +12,7 @@ import CartReducer from 'src/app/pages/web/cart/cart.slice'
 
 import SocialLinksReducer from 'src/app/pages/socialLinks/socialLinks.slice'
 import ResetPasswordReducer from 'src/app/pages/resetPassword/resetPassword.slice'
+import LoginReducer from 'src/app/pages/login/login.slice'
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     shopByBudget: ShopByBudgetReducer,
     cart: CartReducer,
     socialLinks: SocialLinksReducer,
-    resetPassword: ResetPasswordReducer
+    resetPassword: ResetPasswordReducer,
+    Login: LoginReducer
   }
 })
