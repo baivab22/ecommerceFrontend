@@ -23,6 +23,7 @@
     "html2canvas": "^1.4.1",
     "interweave": "^13.0.0",
     "jspdf": "^2.5.1",
+    "lucide-react": "^0.544.0",
     "moment": "^2.29.4",
     "pdfjs-dist": "^3.4.120",
     "qrcode": "^1.5.4",

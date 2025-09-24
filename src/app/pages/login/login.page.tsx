@@ -1,27 +1,28 @@
-import React, {useEffect, useState} from 'react'
+import React, { useState } from 'react'
 import './_loginPage.scss'
-import {useDispatch} from 'src/store'
-import {ForgotPasswordAction, LoginAction} from './login.slice'
+import { useDispatch } from 'src/store'
+import { ForgotPasswordAction, LoginAction } from './login.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
-import {setCookie} from 'src/helpers'
-import {useAuth} from 'src/app/routing'
+import { useNavigate } from 'react-router-dom'
+import { setCookie } from 'src/helpers'
+import { useAuth } from 'src/app/routing'
+import { Eye, EyeOff } from 'lucide-react'
 
 export const LoginPage = () => {
   const dispatch = useDispatch()
-  const [loginData, setLoginData] = useState({email: '', password: ''})
+  const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
-  const {handleLogin} = useAuth()
+  const { handleLogin } = useAuth()
 
   const handleLogins = () => {
-    // Validate input fields
     if (loginData.email.length === 0 || loginData.password.length === 0) {
       toast.error('Please fill in both email and password')
       return
     }
 
-    // Basic email validation
+    // ✅ Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(loginData.email)) {
       toast.error('Please enter a valid email address')
@@ -29,9 +30,6 @@ export const LoginPage = () => {
     }
 
     setIsLoading(true)
-    console.log(loginData, 'login data value hai')
-
-
 
     dispatch(
       LoginAction({
@@ -41,55 +39,46 @@ export const LoginPage = () => {
         },
         onSuccess: (data: any) => {
           setIsLoading(false)
-          console.log(data?.user?._id, 'success login')
           toast.success('Logged In successfully')
-          handleLogin(data.token, data.userRoles,data)
-          
-          // Set user ID cookie
+          handleLogin(data.token, data.userRoles, data)
+
           if (data?.user?._id) {
             setCookie('userId', data.user?._id)
           }
 
-          // Determine user role and set appropriate cookies
-          let userRole = 'USER' // default role
-          
-          // Check if this is admin login (you can modify this logic based on your needs)
+          let userRole = 'USER'
+
+
+          console.log(loginData?.email, loginData?.password, 'login data value')  
           if (
             loginData?.email === 'adminemail12@gmail.com' &&
             loginData?.password === '123456783'
           ) {
             userRole = 'ADMIN'
             setCookie('userRoles', 'ADMIN')
-            handleLogin(data.token, 'ADMIN',data)
+            handleLogin(data.token, 'ADMIN', data)
           } else if (
             loginData?.email === 'meromail123@gmail.com' &&
             loginData?.password === '12345673'
           ) {
             userRole = 'ADMIN'
             setCookie('userRoles', 'ADMIN')
-            handleLogin(data.token, 'ADMIN',data)
+            handleLogin(data.token, 'ADMIN', data)
           } else {
-            // Check if user role is provided in API response
             if (data?.userRoles) {
               userRole = data.userRoles
               setCookie('userRoles', data.userRoles)
-              handleLogin(data.token, data.userRoles,data)
+              handleLogin(data.token, data.userRoles, data)
             } else {
               setCookie('userRoles', 'USER')
-              handleLogin(data.token, 'USER',data)
+              handleLogin(data.token, 'USER', data)
             }
           }
 
-          console.log('User logged in with role:', userRole)
-          
-          // Navigate to home page
           navigate('/home')
         },
         onError: (error: any) => {
           setIsLoading(false)
-          console.error('Login error:', error)
-          
-          // Handle different error scenarios
           if (error?.response?.status === 401) {
             toast.error('Invalid email or password')
           } else if (error?.response?.status === 404) {
@@ -97,7 +86,9 @@ export const LoginPage = () => {
           } else if (error?.response?.status >= 500) {
             toast.error('Server error. Please try again later.')
           } else {
-            toast.error(error?.response?.data?.message || 'Login failed. Please try again.')
+            toast.error(
+              error?.response?.data?.message || 'Login failed. Please try again.'
+            )
           }
         }
       })
@@ -123,19 +114,24 @@ export const LoginPage = () => {
           toast.success('Password reset link has been sent to your email')
         },
         onError: (error: any) => {
-          console.error('Forgot password error:', error)
-          toast.error(error?.response?.data?.message || 'Failed to send reset link. Please try again.')
+          toast.error(
+            error?.response?.data?.message ||
+              'Failed to send reset link. Please try again.'
+          )
         }
       })
     )
   }
 
-  // Handle Enter key press for form submission
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleLogins()
     }
   }
+
+    React.useEffect(() => {
+    console.log('LoginPage mounted')
+  }, [])
 
   return (
     <>
@@ -151,33 +147,46 @@ export const LoginPage = () => {
               name="email"
               required
               value={loginData.email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setLoginData((prev) => ({...prev, email: e.target.value}))
+              onChange={(e) =>
+                setLoginData((prev) => ({ ...prev, email: e.target.value }))
               }
               onKeyPress={handleKeyPress}
               disabled={isLoading}
             />
           </div>
 
-          <div>
+          <div style={{ position: 'relative' }}>
             <label htmlFor="password">Password </label>
+            <div style={{ position: 'relative' }}>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="password"
               name="password"
               required
               value={loginData.password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                console.log(e.target.value, " value data hai")
+              onChange={(e) =>
                 setLoginData((prev) => ({
                   ...prev,
                   password: e.target.value
                 }))
-              }}
+              }
               onKeyPress={handleKeyPress}
               disabled={isLoading}
             />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '60%',
+                cursor: 'pointer',
+               transform: 'translateY(-50%)'
+              }}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </span>
+            </div>
           </div>
 
           <button
@@ -192,31 +201,40 @@ export const LoginPage = () => {
           >
             {isLoading ? 'Logging in...' : 'Log in'}
           </button>
-<div style={{display:'flex',justifyContent:'space-between',alignItems:"center",width:'100%'}}>
-          <p 
-            onClick={handleForgotPassword}
+
+          <div
             style={{
-              cursor: 'pointer',
-              color: 'rgb(197 49 213)',
-              textDecoration: 'underline'
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%'
             }}
           >
-            Forgot Password?
-          </p>
+            <p
+              onClick={handleForgotPassword}
+              style={{
+                cursor: 'pointer',
+                color: 'rgb(197 49 213)',
+                textDecoration: 'underline'
+              }}
+            >
+              Forgot Password?
+            </p>
 
-
-     <div>Not Registered yet?     <span
-            onClick={() => navigate('/register')}
-            style={{
-              cursor: 'pointer',
-                 color: 'rgb(197 49 213)',
-              textDecoration: 'underline'
-            }}
-          >
-Register Now
-          </span></div> 
+            <div>
+              Not Registered yet?{' '}
+              <span
+                onClick={() => navigate('/register')}
+                style={{
+                  cursor: 'pointer',
+                  color: 'rgb(197 49 213)',
+                  textDecoration: 'underline'
+                }}
+              >
+                Register Now
+              </span>
+            </div>
           </div>
-
         </div>
       </div>
     </>

@@ -12,29 +12,45 @@ export const Footer = () => {
             <p
               className="footer-left-linkList-each"
               onClick={() => {
-                navigate('shipping-policy')
+                navigate('/shipping-policy')
               }}
             >
               Shipping Policy
             </p>
-            <p className="footer-left-linkList-each">Terms and Condition</p>
+            <p className="footer-left-linkList-each"
+                 onClick={() => {
+                navigate('/terms-and-conditions')
+              }}
+            
+            >Terms and Condition</p>
             <p
               className="footer-left-linkList-each"
               onClick={() => {
-                navigate('return-policy')
+                navigate('/return-policy')
               }}
             >
               Return Policy
             </p>
-            <p className="footer-left-linkList-each">Privacy Policy</p>
+            <p className="footer-left-linkList-each"
+                 onClick={() => {
+                navigate('/privacy-policy')
+              }}
+            
+            >Privacy Policy</p>
           </div>
         </div>
         <div className="footer-middle">
           <div className="footer-middle-subTitle">About Us</div>
 
           <div className="footer-middle-linkList">
-            <p className="footer-middle-linkList-each">Contact Us</p>
-            <p className="footer-middle-linkList-each">Styling Guide</p>
+            <p className="footer-middle-linkList-each"
+                
+               onClick={() => navigate('/contact-us')}
+            >Contact Us</p>
+            <p className="footer-middle-linkList-each"
+            
+               onClick={() => navigate('/styling-guide')}
+            >Styling Guide</p>
           </div>
         </div>
 

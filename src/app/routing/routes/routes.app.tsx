@@ -1,5 +1,5 @@
 // import {BusinessDetailPage, Sample} from 'src/app/pages'
-import {ProtectedAuth, PublicAuth} from './ProtectedRoutes.app'
+import {ProtectedAuth, PublicAuth, UnrestrictedAuth} from './ProtectedRoutes.app'
 import {CompWrapper} from 'src/app/common'
 import {RouteObject, createBrowserRouter} from 'react-router-dom'
 import {ROLES} from '../roles'
@@ -17,8 +17,7 @@ import {
   NewArrivalListPage,
   OrderListPage,
   RegisterPage,
-  ReturnPolicy,
-  ShippingPolicy,
+
   SocialLinksPage,
   Testimonial
   // ProductWebSample
@@ -38,6 +37,12 @@ import {SubCategoryListPageNested} from 'src/app/pages/subCategoryNested'
 import {AddSubCategoryPageNested} from 'src/app/pages/subCategoryNested/add'
 import SubCategoryDetailPageNested from 'src/app/pages/subCategoryNested/view/[subCategoryId]/subCategoryid.page'
 import { MyProfile } from 'src/app/components/myProfile.component'
+import { StylingGuide } from 'src/app/pages/stylingGuide'
+import { ContactUs } from 'src/app/pages/contactUs'
+import PrivacyPolicy from 'src/app/pages/privacyPolicy'
+import TermsAndConditions from 'src/app/pages/termsAndCondition.tsx'
+import ReturnPolicy from 'src/app/pages/returnPolicy'
+import ShippingPolicy from 'src/app/pages/shippingPolicy'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -72,6 +77,44 @@ export const Router: RouteObject[] = [
 
     element: <HomePage />
   },
+    {
+    path: '/contact-us',
+    // element: <PublicAuth />,/
+
+    element: <ContactUs />
+  },
+
+    {
+    path: '/return-policy',
+    // element: <PublicAuth />,/
+
+    element: <ReturnPolicy />
+  },
+      {
+    path: '/shipping-policy',
+    // element: <PublicAuth />,/
+
+    element: <ShippingPolicy />
+  },
+      {
+    path: '/styling-guide',
+    // element: <PublicAuth />,/
+
+    element: <StylingGuide />
+  },
+
+    {
+    path: '/privacy-policy',
+    // element: <PublicAuth />,
+
+    element: <PrivacyPolicy />
+  },
+    {
+    path: '/terms-and-conditions',
+    // element: <PublicAuth />,
+
+    element: <TermsAndConditions />
+  },
   {
     path:'/my-profile',
     element:<ProtectedAuth/>,
@@ -89,7 +132,7 @@ export const Router: RouteObject[] = [
   },
   {
     path: '/login',
-    element: <ProtectedAuth />,
+    element: <PublicAuth />,
     //  element: <LoginPage />
     children: [
       {
@@ -101,7 +144,7 @@ export const Router: RouteObject[] = [
 
   {
     path: '/register',
-    element: <ProtectedAuth />,
+    element: <PublicAuth />,
     children: [
       {
         path: '',
@@ -112,7 +155,7 @@ export const Router: RouteObject[] = [
 
   {
     path: '/reset-password',
-    element: <ProtectedAuth />,
+    element: <PublicAuth />,
     children: [
       {
         path: '',
@@ -155,17 +198,38 @@ export const Router: RouteObject[] = [
       }
     ]
   },
-  {
-    path: '/products',
+  // {
+  //   path: '/products',
 
-    element: <ProtectedAuth />,
-    children: [
-      {
-        path: '',
-        element: <ProductListForWeb />
-      }
-    ]
-  },
+  //   element: <PublicAuth />,
+  //   children: [
+  //     {
+  //       path: '',
+  //       element: <ProductListForWeb />
+  //     },
+  //      {
+  //       path: 'view/:productId',
+  //       element: <ProductWebDetail />
+  //     }
+  //   ]
+  // },
+
+
+
+  {
+  path: '/products',
+  element: <UnrestrictedAuth />,
+  children: [
+    {
+      path: '',
+      element: <ProductListForWeb />
+    },
+    {
+      path: 'view/:productId', 
+      element: <ProductWebDetail />
+    }
+  ]
+},
 
   {
     path: '/dash-product',

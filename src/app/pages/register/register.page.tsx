@@ -1,32 +1,50 @@
-import React, {useEffect, useState} from 'react'
-
+import React, { useState } from 'react'
 import './_register.scss'
-import {useDispatch} from 'src/store'
-import {RegisterAction} from './register.slice'
+import { useDispatch } from 'src/store'
+import { RegisterAction } from './register.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
-import {setCookie} from 'src/helpers'
-import { HStack } from 'src/app/common'
+import { useNavigate } from 'react-router-dom'
+import { setCookie } from 'src/helpers'
+import { Eye, EyeOff } from 'lucide-react'
+
 export const RegisterPage = () => {
   const dispatch = useDispatch()
-
-  const [loginData, setLoginData] = useState({email: '', password: ''})
+  const [loginData, setLoginData] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
-  const handleRegister = () => {
-    // console.log(loginData, 'logindatat')
 
-    if (loginData.email.length > 0 && loginData.password.length > 0) {
-      dispatch(
-        RegisterAction({
-          registerBody: {email: loginData.email, password: loginData.password},
-          onSuccess: (data: any) => {
-            toast.success('User Created successfully')
-            setCookie('userId', data?.user?._id)
-            navigate('/login')
-          }
-        })
-      )
+  // ✅ Email validation helper
+  const isValidEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return regex.test(email)
+  }
+
+  const handleRegister = () => {
+    if (!loginData.email || !loginData.password) {
+      toast.error('Please fill all fields')
+      return
     }
+
+    if (!isValidEmail(loginData.email)) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    dispatch(
+      RegisterAction({
+        registerBody: { email: loginData.email, password: loginData.password },
+        onSuccess: (data: any) => {
+          toast.success('User Created successfully')
+          setCookie('userId', data?.user?._id)
+          navigate('/login')
+        },
+
+        onerror: (error: any) => {
+          console.log("error page",error)
+          toast.error(error?.data.message || 'Something went wrong')
+        }
+      })
+    )
   }
 
   return (
@@ -43,16 +61,18 @@ export const RegisterPage = () => {
               name="email"
               required
               onChange={(e: any) =>
-                setLoginData((prev: any) => ({...prev, email: e.target.value}))
+                setLoginData((prev: any) => ({ ...prev, email: e.target.value }))
               }
             />
           </div>
 
-          <div>
+          <div style={{ position: 'relative' }}>
             <label htmlFor="password">Password </label>
-            <input
+           
+           <div style={{ position: 'relative' }}>
+                 <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="password"
               name="password"
               required
@@ -63,30 +83,53 @@ export const RegisterPage = () => {
                 }))
               }
             />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '60%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer'
+              }}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </span>
+           </div>
+       
           </div>
-<div style={{display:'flex',justifyContent:'space-between',alignItems:"center",width:'100%'}}>
-          <button
-            className="btn btn--form"
-            style={{background: 'rgb(197 49 213)'}}
-            type="submit"
-            value="register"
-            onClick={handleRegister}
-          >
-            Register
-          </button>
 
-         <div>Already Register?     <span
-            onClick={() => navigate('/login')}
+          <div
             style={{
-              cursor: 'pointer',
-              // color: 'black',
-                   color: 'rgb(197 49 213)',
-              textDecoration: 'underline'
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%'
             }}
           >
-Login Now
-          </span></div> 
-         
+            <button
+              className="btn btn--form"
+              style={{ background: 'rgb(197 49 213)' }}
+              type="submit"
+              value="register"
+              onClick={handleRegister}
+            >
+              Register
+            </button>
+
+            <div>
+              Already Registered?{' '}
+              <span
+                onClick={() => navigate('/login')}
+                style={{
+                  cursor: 'pointer',
+                  color: 'rgb(197 49 213)',
+                  textDecoration: 'underline'
+                }}
+              >
+                Login Now
+              </span>
+            </div>
           </div>
         </div>
       </div>

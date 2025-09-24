@@ -6,10 +6,12 @@ export const RegisterAction = createAsyncThunk(
   async (
     {
       registerBody,
-      onSuccess
+      onSuccess,
+      onerror
     }: {
       registerBody: any
       onSuccess?: (data: any) => void
+      onerror?: (error: any) => void
     },
     thunkAPI
   ) => {
@@ -19,6 +21,8 @@ export const RegisterAction = createAsyncThunk(
       onSuccess && onSuccess(response)
       return response
     } catch (error) {
+      console.log(error, 'error from register')
+      onerror && onerror(error.response)
       return thunkAPI.rejectWithValue('Could not create account!')
     }
   }

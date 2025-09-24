@@ -35,7 +35,11 @@ export const USER_ROLES: UserRoles = {
       '/dash-social-links/*',
       'orderDetails/*',
       '/dash-subCategorynested/*',
-      '/my-profile/*'
+      '/my-profile/*',
+      '/contact-us',
+      '/about-us',
+      '/privacy-policy',
+      '/styling-guide'
     ]
   },
   USER: {
@@ -57,7 +61,11 @@ export const USER_ROLES: UserRoles = {
       '/shipping-policy',
       'orderDetails/*',
       '/dash-subCategorynested/*',
-          '/my-profile/*'
+          '/my-profile/*',
+              '/contact-us',
+      '/about-us',
+      '/privacy-policy',
+      '/styling-guide'
     ]
   }
 }
