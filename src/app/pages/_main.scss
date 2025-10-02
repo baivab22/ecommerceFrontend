@@ -13,6 +13,7 @@
 @import './register/register';
 @import './socialLinks/socialLinks';
 @import './privacyPolicy/privacyPolicy';
+@import './stylingGuide/stylingGuide';
 
 
 
@@ -395,7 +396,7 @@
   border-radius: 10px;
   border: 2px solid #ffc107;
   text-align: center;
-  margin-top: 40px;
+  // margin-top: 40px;
 }
 
 /* ========== ABOUT US STYLES ========== */
@@ -540,7 +541,7 @@
 }
 
 .guide-content {
-  margin-top: 40px;
+  // margin-top: 40px;
 }
 
 .styling-tips {

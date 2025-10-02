@@ -132,14 +132,26 @@ export const Router: RouteObject[] = [
   },
   {
     path: '/login',
-    element: <PublicAuth />,
-    //  element: <LoginPage />
-    children: [
-      {
-        path: '',
-        element: <LoginPage />
-      }
-    ]
+    // element: <PublicAuth />,
+     element: <LoginPage />
+    // children: [
+    //   {
+    //     path: '',
+    //     element: <LoginPage />
+    //   }
+    // ]
+  },
+
+    {
+    path: '/reset-password',
+            element: <ResetPasswordPage />
+    // element: <PublicAuth />,
+    // children: [
+    //   {
+    //     path: '',
+    //     element: <ResetPasswordPage />
+    //   }
+    // ]
   },
 
   {
@@ -153,16 +165,7 @@ export const Router: RouteObject[] = [
     ]
   },
 
-  {
-    path: '/reset-password',
-    element: <PublicAuth />,
-    children: [
-      {
-        path: '',
-        element: <ResetPasswordPage />
-      }
-    ]
-  },
+
 
   {
     path: '/sample',

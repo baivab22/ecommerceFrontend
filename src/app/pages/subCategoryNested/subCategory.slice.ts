@@ -3,7 +3,7 @@ import {subCategoryService} from './subCategory.service'
 import {toast} from 'react-hot-toast'
 
 const getSubCategoryListActionNested = createAsyncThunk(
-  'categorynested/list',
+  'categorynested/listtt',
   async (
     {
       onSuccess
@@ -15,8 +15,8 @@ const getSubCategoryListActionNested = createAsyncThunk(
     try {
       console.log('final data hai value response above')
       const response = await subCategoryService.getSubCategoriesListNested()
-      console.log('final data hai value response above below')
-      onSuccess(response)
+      console.log('final data hai value response above below',response)
+      onSuccess(response.data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get SubCategory!')
@@ -152,11 +152,6 @@ const subCategorySliceNested = createSlice({
       getSubCategoryListActionNested.fulfilled,
       (state, action) => {
         state.getSubCategoryLoadingNested = false
-        console.log(
-          action.payload.data,
-          'final data hai value response above action bit'
-        )
-
         state.subCategoryDataNested = action.payload.data
       }
     )

@@ -81,9 +81,9 @@ export const SubCategoryListPage = () => {
           ]}
           data={subCategoryData}
           actions={{
-            onView: (item: any) => {
-              navigate(`view/${item.id}`)
-            },
+            // onView: (item: any) => {
+            //   navigate(`view/${item.id}`)
+            // },
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')

@@ -1,0 +1,246 @@
+// Variables
+$primary-pink: #f48fb1;
+$light-pink: #fce4ec;
+$dark-pink: #c2185b;
+$white: #ffffff;
+$text-dark: #4a4a4a;
+$text-light: #757575;
+
+// Reset
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, $light-pink, $white);
+    color: $text-dark;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+// Container
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+// Header
+.header {
+    text-align: center;
+    margin-bottom: 50px;
+
+    h1 {
+        font-size: 2.5rem;
+        color: $dark-pink;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1.1rem;
+        color: $text-light;
+    }
+}
+
+// Flex Grid
+.styling-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+// Card
+.style-card {
+    flex: 1 1 calc(50% - 15px);
+    min-width: 280px;
+    background: $white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(244, 143, 177, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(244, 143, 177, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, $primary-pink, $dark-pink);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $white;
+            font-size: 1.5rem;
+        }
+
+        .title-group {
+            flex: 1;
+
+            h3 {
+                font-size: 1.3rem;
+                color: $dark-pink;
+                margin-bottom: 3px;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+                color: $primary-pink;
+            }
+        }
+    }
+
+    ul {
+        list-style: none;
+
+        li {
+            padding: 8px 0;
+            color: $text-dark;
+            position: relative;
+            padding-left: 20px;
+
+            &:before {
+                content: "✦";
+                position: absolute;
+                left: 0;
+                color: $primary-pink;
+            }
+        }
+    }
+}
+
+// Quick Tips Section
+.quick-tips {
+    background: linear-gradient(135deg, $light-pink, #fce4ec);
+    border-radius: 15px;
+    padding: 40px;
+    margin-bottom: 40px;
+
+    h2 {
+        text-align: center;
+        font-size: 2rem;
+        color: $dark-pink;
+        margin-bottom: 30px;
+    }
+
+    .tips-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+
+        .tip-item {
+            flex: 1 1 calc(33.333% - 17px);
+            min-width: 250px;
+
+            h4 {
+                font-size: 1.1rem;
+                color: $dark-pink;
+                margin-bottom: 8px;
+            }
+
+            p {
+                font-size: 0.95rem;
+                color: $text-dark;
+            }
+        }
+    }
+}
+
+// CTA Button
+.cta-section {
+    text-align: center;
+
+    .cta-button {
+        background: linear-gradient(135deg, $primary-pink, $dark-pink);
+        color: $white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(244, 143, 177, 0.3);
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 143, 177, 0.4);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .container {
+        // padding: 30px 15px;
+        // border: 2px solid red;
+        padding:0;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .styling-grid {
+        gap: 20px;
+    }
+
+    .style-card {
+        flex: 1 1 100%;
+        min-width: auto;
+    }
+
+    .quick-tips {
+        padding: 30px 20px;
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        .tips-grid {
+            gap: 20px;
+
+            .tip-item {
+                flex: 1 1 100%;
+                min-width: auto;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .style-card {
+        padding: 20px;
+    }
+
+    .quick-tips {
+        padding: 25px 15px;
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 15px 30px;
+    }
+}

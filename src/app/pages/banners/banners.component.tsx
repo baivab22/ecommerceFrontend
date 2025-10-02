@@ -29,7 +29,9 @@ export const Banners = () => {
     setBannerImage((prev: any) => [...prev, ...selectedFiles])
   }, [])
 
-  useEffect(() => {}, [bannerData])
+  console.log(bannerData,"banner data hai")
+
+  // useEffect(() => {}, [bannerData])
 
   useEffect(() => {
     dispatch(
@@ -38,6 +40,10 @@ export const Banners = () => {
       })
     )
   }, [])
+
+
+
+  
 
   const addBannerHandler = () => {
     const formData = new FormData()
@@ -63,6 +69,8 @@ export const Banners = () => {
         // value={bannerImage}
         uniqueKeys="bannersupload"
         actionHandler={(name: any) => {
+
+          console.log("action handler data")
           dispatch(
             deleteBannerImageAction({
               bannerName: name,

@@ -39,7 +39,8 @@ export const USER_ROLES: UserRoles = {
       '/contact-us',
       '/about-us',
       '/privacy-policy',
-      '/styling-guide'
+      '/styling-guide',
+      '/dash-banners'
     ]
   },
   USER: {

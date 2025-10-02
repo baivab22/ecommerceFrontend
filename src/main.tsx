@@ -95,8 +95,8 @@ const App = () => {
         >
           {!containsDash && (
             <>
-              <TopHeader></TopHeader>
-              <Header></Header>
+             <TopHeader></TopHeader>
+              <Header></Header> 
             </>
           )}
 

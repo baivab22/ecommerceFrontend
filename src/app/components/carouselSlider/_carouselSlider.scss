@@ -1,7 +1,7 @@
 .carouselContainer {
   position: relative;
   overflow: hidden;
-  height: 65vh;
+  height: 70vh;
 
   @include responsive-for(md) {
     height: 35vh;

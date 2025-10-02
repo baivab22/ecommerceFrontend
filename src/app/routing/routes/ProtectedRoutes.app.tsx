@@ -63,6 +63,7 @@ const PublicAuth = () => {
 
   // If not logged in, allow access to public pages (login, register, etc.)
   return <Outlet />
+
 }
 
 // UnrestrictedAuth - for pages accessible to everyone (logged in or not)

@@ -16,12 +16,14 @@ import {useParams} from 'src/hooks'
 import {useDispatch, useSelector} from 'src/store'
 import {
   createSubCategoryAction,
-  getSubCategoryListAction
+  getSubCategoryListAction,
+  updateSubCategoryAction
 } from '../../subCategory/subCategory.slice'
 import {
   createCategoryAction,
   getCategoryDetailByIdAction,
-  getSubCategoryAction
+  getSubCategoryAction,
+  updateCategoryAction
 } from '../category.slice'
 import toast from 'react-hot-toast'
 import {useNavigate} from 'react-router-dom'
@@ -237,6 +239,26 @@ export const AddCategoryPage = () => {
       formData.append(`subCategories[${index}]`, id.toString())
     })
 
+
+if(categoryId ){
+    dispatch(
+      updateCategoryAction({
+        categoryBody: formData, 
+        categoryId:categoryId as any,// Use FormData instead of plain object
+        onSuccess: () => {
+          toast.success(
+            categoryId
+              ? 'Category Updated Successfully'
+              : 'Category Created Successfully'
+          )
+          navigate('/category')
+        },
+        onError: (error) => {
+          toast.error(error?.message || 'Something went wrong')
+        }
+      })
+    )
+}else{
     dispatch(
       createCategoryAction({
         categoryBody: formData, // Use FormData instead of plain object
@@ -253,6 +275,13 @@ export const AddCategoryPage = () => {
         }
       })
     )
+}
+
+
+
+
+
+    
   }
 
   useEffect(() => {
@@ -377,12 +406,12 @@ export const AddCategoryPage = () => {
         .upload-area {
           border: 2px dashed #d1d5db;
           border-radius: 12px;
-          padding: 2rem;
+          // padding: 2rem;
           text-align: center;
           cursor: pointer;
           transition: all 0.3s ease;
           background-color: #f9fafb;
-          min-height: 200px;
+          // min-height: 200px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -500,7 +529,7 @@ export const AddCategoryPage = () => {
         @media (max-width: 768px) {
           .upload-area {
             padding: 1.5rem 1rem;
-            min-height: 150px;
+            // min-height: 150px;
           }
 
           .image-overlay {

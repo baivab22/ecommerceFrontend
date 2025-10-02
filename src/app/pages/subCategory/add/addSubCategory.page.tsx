@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import {Button, InputField, Label, SelectField, VStack} from 'src/app/common'
 import {useParams} from 'src/hooks'
 import {useDispatch, useSelector} from 'src/store'
@@ -15,230 +15,169 @@ import {
 } from '../../subCategoryNested/subCategory.slice'
 
 export const AddSubCategoryPage = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const subCategoryId = useParams('subCategoryId')
+
   const {
     updateSubCategoryLoading,
     createSubCategoryLoading,
-    subCategoryDetailLoading,
-
     subCategoryDetailData
   }: any = useSelector((state: any) => state.subCategory)
 
-  const {subCategoryDataNested, subCategoryDetailDataNested} = useSelector(
-    (state: any) => state.subCategoryNested
-  )
 
-  const {subCategoryDataNeseted} = useSelector(
-    (state: any) => state.subCategoryNested
-  )
-  const navigate = useNavigate()
+  console.log(subCategoryDetailData, 'subCategoryDetailData')
 
-  const subCategoryId = useParams('subCategoryId')
-  const [data, setData] = useState<any>({
-    name: ''
-  })
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    console.log(subCategoryId, 'subCategorydI')
-    dispatch(
-      getSubCategoryDetailByIdAction({subCategoryId: subCategoryId as string})
-    )
-  }, [subCategoryId])
-
-  useEffect(() => {
-    console.log(subCategoryDetailData, 'subCategoryDetailData')
-    setData((prev: any) => ({...prev, name: subCategoryDetailData?.name}))
-  }, [subCategoryDetailData])
-
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState([])
-
-  // const categoryId = useParams('subCategoryId')
-  // console.log(
-  //   selectedSubCategoryId,
-  //   selectedSubCategoryOption,
-  //   'subCategoryId value data outside'
+  // const {subCategoryDataNested} = useSelector(
+  //   (state: any) => state.subCategoryNested
   // )
 
-  const [selectedSubCategoryOption, setSelectedSubCategoryOption] = useState([])
 
-  console.log(selectedSubCategoryOption, 'selected sub category option')
-  const addSubCategoryHandler = () => {
-    console.log(
-      selectedSubCategoryId,
-      selectedSubCategoryOption,
-      'subCategoryId value data'
-    )
-    !subCategoryId
-      ? dispatch(
-          createSubCategoryAction({
-            subCategoryBody: {
-              name: data.name,
-              subCategories: [selectedSubCategoryOption[0]?.id]
-            },
-            onSuccess: (data: any) => {
-              navigate('/dash-subCategory')
-              toast.success('Sub Category Created')
-            }
-          })
-        )
-      : dispatch(
-          updateSubCategoryAction({
-            subCategoryBody: {
-              name: data.name,
-              subCategories: selectedSubCategoryId
-            },
-            subCategoryId: subCategoryId as string,
-            onSuccess: (data: any) => {
-              toast.success('subCategory Updated Successfully')
-              navigate('/dash-subCategory')
-            }
-          })
-        )
-  }
+  const [subCategoryDataNested, setSubCategoryNested] = useState<any[]>([])
 
-  const [subCategoryOption, setSubCategoryOption] = useState<any>()
+  // console.log(subCategoryDataNested, 'subCategoryDataNested')
 
-  console.log(selectedSubCategoryOption, 'option value data')
-  console.log(
-    subCategoryDataNested,
-    'subCategoryData inside function value data'
+  const [data, setData] = useState<any>({name: ''})
+  const [selectedSubCategories, setSelectedSubCategories] = useState<any[]>([])
+
+  /** 🔹 Fetch initial data */
+
+
+useEffect(() => {
+  dispatch(
+    getSubCategoryListActionNested({
+      onSuccess: (data) => {
+setSubCategoryNested(data)
+
+
+        console.log('Sub categoryList fetch Successfully')
+      },
+    })
   )
-  const remappedSubCategoryAction = useCallback(() => {
-    const modifiedSubCategoryList = subCategoryDataNested?.map(
-      (item: any, index: number) => {
-        return {
-          id: item.id,
-          label: item.name,
-          value: item.name
-        }
-      }
-    )
-    console.log(modifiedSubCategoryList, 'modified Sub Category List')
+}, [dispatch])
 
-    setSubCategoryOption(modifiedSubCategoryList)
-  }, [subCategoryDataNested])
+
+console.log(subCategoryDataNested,"subCategoryDataNested in main" )
+
 
   useEffect(() => {
-    remappedSubCategoryAction()
 
-    subCategoryId &&
-      setData((prev: any) => ({...prev, name: subCategoryDetailData?.name}))
-    const remappedCategoryDetail = selectedSubCategoryOption.map(
-      (item: any, index: number) => {
-        return {
-          id: item.id,
-          label: item.name,
-          value: item.name
-        }
-      }
-    )
+    if (subCategoryId) {
+      dispatch(getSubCategoryDetailByIdAction({subCategoryId}))
+      dispatch(getSubCategoryDetailByIdActionNested({subCategoryId}))
+    }
+  }, [subCategoryId, dispatch])
 
-    console.log(
-      subCategoryDetailDataNested,
-      remappedCategoryDetail,
-      'remappedcategory detail'
-    )
+  /** 🔹 Map list to options */
+  const subCategoryOptions = useMemo(
+    () =>{
 
-    // subCategoryId && setSelectedSubCategoryOption(remappedCategoryDetail)
+      console.log(subCategoryDataNested,"mapping to options")
+      return subCategoryDataNested?.map((item: any) => ({
+        id: item.id,
+        label: item.name,
+        value: item.name
+      })) || []},
+    [subCategoryDataNested]
+  )
 
-    // console.log(subCategories, 'subCategorydata from useEffect')
-  }, [subCategoryDataNeseted, subCategoryDetailData])
 
+  console.log(subCategoryOptions, 'subCategoryOptions value')
+
+  /** 🔹 Hydrate form name */
   useEffect(() => {
-    console.log(subCategoryDataNested, 'final data hai')
-    dispatch(getSubCategoryListActionNested({}))
-    subCategoryId &&
-      dispatch(
-        getSubCategoryDetailByIdActionNested({
-          subCategoryId: subCategoryId as string
-        })
-      )
-  }, [])
+    if (subCategoryDetailData) {
+      setData((prev: any) => ({...prev, name: subCategoryDetailData.name}))
+    }
+  }, [subCategoryDetailData])
 
-  console.log(data, 'data value data')
-
+  /** 🔹 Preselect subcategories by ID from detail */
   useEffect(() => {
-    console.log(
-      subCategoryOption,
-      data?.subCategories,
-      'subCategoryOption value data'
-    )
 
-    if (!!subCategoryId) {
-      if (!!subCategoryOption) {
-        const selectedSubCategoryId = subCategoryOption?.find((item: any) => {
-          return item.id === data?.subCategories?.[0]
-        }) || {
-          id: '',
-          label: '',
-          value: ''
-        }
+    console.log(      subCategoryDetailData?.subCategories ,
+      subCategoryDetailData?.subCategories?.length > 0 ,
+      subCategoryOptions?.length > 0, 'check here')
+    if (
+      subCategoryDetailData?.subCategories &&
+      subCategoryDetailData.subCategories.length > 0 &&
+      subCategoryOptions.length > 0
+    ) {
+ const preSelected = subCategoryOptions.filter(opt =>
+  subCategoryDetailData.subCategories.includes(opt.id)
+)
 
-        console.log(
-          selectedSubCategoryOption,
-          'selectedSub Category Option changed'
-        )
-      }
+
+console.log(preSelected, 'preSelected')
+
+      setSelectedSubCategories(preSelected)
+    }
+  }, [subCategoryDetailData, subCategoryOptions])
+
+  /** 🔹 Submit */
+  const handleSubmit = () => {
+    const body = {
+      name: data.name,
+      subCategories: selectedSubCategories.map((s) => s.id)
     }
 
-    setSelectedSubCategoryId(selectedSubCategoryId)
-  }, [subCategoryOption, data, subCategoryId])
-
-  useEffect(() => {
-    dispatch(getSubCategoryListActionNested({}))
-    subCategoryId &&
+    if (subCategoryId) {
       dispatch(
-        getSubCategoryDetailByIdActionNested({
-          subCategoryId: subCategoryId as string
+        updateSubCategoryAction({
+          subCategoryBody: body,
+          subCategoryId,
+          onSuccess: () => {
+            toast.success('SubCategory updated successfully')
+            navigate('/dash-subCategory')
+          }
         })
       )
-  }, [])
+    } else 
+      dispatch(
+        createSubCategoryAction({
+          subCategoryBody: body,
+          onSuccess: () => {
+            toast.success('SubCategory created successfully')
+            navigate('/dash-subCategory')
+          }
+        })
+      )
+    }
+  
 
-  console.log(subCategoryDataNested, 'subCategoryDataNested data value y ')
   return (
     <VStack gap="$3">
+      {/* SubCategory Name */}
       <VStack gap="$2">
-        <Label required labelName="Sub Category Name"></Label>
-
+        <Label required labelName="Sub Category Name" />
         <InputField
           type="text"
           placeholder="Enter SubCategory Name"
-          onChange={(e: any) =>
-            setData((prev: any) => ({
-              ...prev,
-              name: e.target.value
-            }))
-          }
           value={data.name}
-        ></InputField>
+          onChange={(e: any) =>
+            setData((prev: any) => ({...prev, name: e.target.value}))
+          }
+        />
       </VStack>
 
+      {/* SubCategories Select */}
       <VStack gap="$2">
-        <Label required labelName="SubCategories"></Label>
+        <Label required labelName="SubCategories" />
         <SelectField
-          options={subCategoryOption && subCategoryOption}
-          // getOptionLabel="org_sector"
-          // getOptionValue="id"
-          value={selectedSubCategoryOption}
-          isSearchable={true}
-          isMulti={true}
-          // width="225px"
-          onChangeValue={(data) => {
-            setSelectedSubCategoryOption(data)
-
-            // setSelectedSubCategoryOption(selectedSubCategory)
-          }}
+          options={subCategoryOptions}
+          value={selectedSubCategories}
+          isSearchable
+          isMulti
+          onChangeValue={setSelectedSubCategories}
           placeholder="Select SubCategory"
-        ></SelectField>
+        />
       </VStack>
 
+      {/* Submit Button */}
       <Button
         title={subCategoryId ? 'Update SubCategory' : 'Add SubCategory'}
-        onClick={addSubCategoryHandler}
-        loading={
-          subCategoryId ? updateSubCategoryLoading : createSubCategoryLoading
-        }
-      ></Button>
+        onClick={handleSubmit}
+        loading={subCategoryId ? updateSubCategoryLoading : createSubCategoryLoading}
+      />
     </VStack>
   )
 }

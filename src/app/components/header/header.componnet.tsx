@@ -1332,19 +1332,32 @@ export const TopHeader = () => {
 
       <div className="topHeader-container">
         <div className="topHeader">
-          <div className="topHeader-logo" onClick={() => navigate('/home')}>
+          <div className="topHeader-logo" onClick={() => navigate('/home')}
+            
+          
+            >
             <img
-              src="src/assets/images/logo.jpg"
+              src="src/assets/images/logosss.png"
               alt="logo"
               className="topHeader-logo-image"
             ></img>
           </div>
 
-          <div className="topHeader-search">
+{
+  auth.isLoggedin &&  <>
+
+  <p></p>
+      <div className="topHeader-search"
+          
+         
+          >
             <SearchField
               placeholder="Search Your Product"
+              
               onChange={(e) => {
                 // setSearchValue(e.target.value)
+
+                console.log("on search handler called",e.target.value)
                 onSearchHandler(e.target.value)
               }}
             ></SearchField>
@@ -1452,6 +1465,13 @@ export const TopHeader = () => {
               </VStack>
             </div>
           </div>
+  </>
+}
+
+      
+
+
+
         </div>
       </div>
     </>

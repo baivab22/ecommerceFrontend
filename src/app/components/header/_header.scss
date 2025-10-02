@@ -75,6 +75,18 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
       // width: 200px;
       // border: 2px solid red;
 
+
+              position:absolute;
+              height:100px;
+              top:unset;
+
+    @include responsive-for(md) {
+top:0;
+// border: 2px solid red;
+    }
+
+            
+
       &-image {
         height: 100%;
         width: 100%;

@@ -45,7 +45,7 @@ const ImageUploader = React.memo(
               // id: isBanner ? item : item._id
 
               file: isBanner
-                ? `${FILE_URL}/${item?.coloredImage}`
+                ? `${FILE_URL}/${item}`
                 : `${FILE_URL}/products/${item?.coloredImage}`,
               id: isBanner ? item : item?._id
             })
@@ -92,9 +92,12 @@ const ImageUploader = React.memo(
     const handleRemoveImage = (id: any, isNew: boolean) => {
       console.log(id, ' product id ')
 
-      console.log('handle remove image called', id, selectedImages)
+      console.log('handle remove image called',!isNew, id, selectedImages)
 
-      !isNew ? actionHandler && actionHandler(id) : null
+      // !isNew ? actionHandler && actionHandler(id) : null
+
+
+      actionHandler(id)
 
       const updatedImages = selectedImages?.filter(
         (image: any) => image.id !== id
@@ -114,6 +117,8 @@ const ImageUploader = React.memo(
         // setSelectedImages([])
       }
     }, [selectedImages, files])
+
+    console.log(selectedImages, 'selectedImages from cmp')
 
     return (
       <div className="image-uploader">

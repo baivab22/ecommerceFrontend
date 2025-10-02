@@ -87,9 +87,9 @@ export const SubCategoryListPageNested = () => {
           ]}
           data={subCategoryDataNested}
           actions={{
-            onView: (item: any) => {
-              navigate(`view/${item.id}`)
-            },
+            // onView: (item: any) => {
+            //   navigate(`view/${item.id}`)
+            // },
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')

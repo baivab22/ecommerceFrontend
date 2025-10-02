@@ -11,7 +11,7 @@ import {
   RiFolderTransferFill,
   FaUsers
 } from 'react-icons/all'
-import SystemTitle from '../../../assets/images/logo.jpg'
+import SystemTitle from '../../../assets/images/logoss.png'
 
 import {Box, ToolTip} from 'src/app/common'
 // import {useMeasure} from 'src/hooks'

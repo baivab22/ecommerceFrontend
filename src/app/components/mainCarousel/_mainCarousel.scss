@@ -1,5 +1,5 @@
 .carouselContainers {
-  height: 60vh;
+  height: 70vh;
   width: 100vw;
 
   @include responsive-for(md) {
@@ -14,9 +14,9 @@
   }
 
   .slick-slide {
-    height: 60vh !important;
+    height: 70vh !important;
     img {
-      height: 60vh !important;
+      height: 70vh !important;
 
       @include responsive-for(md) {
         height: 40vh !important;
@@ -25,7 +25,7 @@
   }
 
   .slider {
-    height: 60vh !important;
+    height: 70vh !important;
 
     @include responsive-for(md) {
       height: 40vh;
@@ -33,7 +33,7 @@
 
     .image-container {
       position: relative;
-      height: 60vh !important;
+      height: 70vh !important;
 
       @include responsive-for(md) {
         height: 40vh !important;

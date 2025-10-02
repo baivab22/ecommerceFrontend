@@ -48,11 +48,13 @@ const updateCategoryAction = createAsyncThunk(
     {
       categoryBody,
       categoryId,
-      onSuccess
+      onSuccess,
+      onError
     }: {
       categoryBody: any
       categoryId: string
       onSuccess?: (data: any) => void
+      onError?: (error: any) => void  
     },
     thunkAPI
   ) => {
@@ -235,6 +237,7 @@ export {
   getSubCategoryAction,
   deleteCategoryAction,
   createCategoryAction,
-  getCategoryDetailByIdAction
+  getCategoryDetailByIdAction,
+  updateCategoryAction
 }
 export default categorySlice.reducer
