@@ -328,6 +328,7 @@ export const CartPage = () => {
     }
 
     const orderId = generateOrderId()
+    const isPhonePay = selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY
 
     // FIXED: Calculate correct prices for products in order
     const orderProducts = cartProducts.map(item => {
@@ -371,35 +372,30 @@ export const CartPage = () => {
           shippingPrice: shippingPrice,
           totalAmount: total
         },
-        onSuccess: () => {
-          toast.success('Order placed successfully!')
+        onSuccess: (response) => {
+          // Get the order ID from backend response
+          const backendOrderId = response?.data?.orderId || response?.orderId || orderId
+          
+          // Show success message with order ID
+          toast.success(
+            <div style={{ lineHeight: '1.6' }}>
+              <strong>Order placed successfully with orderId </strong>
+              <br />
+              <span style={{ fontSize: '14px' }}>Order ID: {backendOrderId}</span>
+              <br />
+              <span style={{ fontSize: '13px', color: '#666' }}>Please contact us for further information</span>
+            </div>,
+            { duration: 30000 }
+          )
 
-          // Clear cart items one by one
+          // Clear cart items
           const clearCartItems = async () => {
-// console.log(cartProductsuserId, "cartProducts to be deleted")
-            
-            // for (const item of cartProducts) {
-            //   dispatch(
-            //     delteProductFromCartAction({
-            //       userId,
-            //       productId: item._id,
-            //       onSuccess: () => {
-            //         // Refresh cart after each deletion
-            //         dispatch(getCartlistAction({ userId }))
-            //       },
-            //       onFailure: (error) => {
-            //         console.error('Failed to remove item from cart:', error)
-            //       }
-            //     })
-            //   )
-            // }
             dispatch(deleteCartByIdAction({
               cartId: userId,
               onSuccess: () => {
                 // Refresh cart after deletion
                 dispatch(getCartlistAction({ userId }))
               },
-         
             }))
           }
 
@@ -409,8 +405,8 @@ export const CartPage = () => {
           resetForm()
 
           // Open WhatsApp if phone payment is selected
-          if (selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY) {
-            setTimeout(() => openWhatsApp(orderId), 1000) // Delay to show success message
+          if (isPhonePay) {
+            setTimeout(() => openWhatsApp(backendOrderId), 1500) // Delay to show success message
           }
         },
         onFailure: error => {
@@ -754,7 +750,6 @@ export const CartPage = () => {
         <div
           className="cartPage-checkout"
           onClick={handleCheckout}
-          // disabled={!hasProducts}
           style={{
             width: '100%',
             padding: '16px',

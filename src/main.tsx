@@ -86,7 +86,7 @@ const App = () => {
               containsDash && getCookie('userRoles') === 'ADMIN'
                 ? '75vw'
                 : '100vw',
-            marginTop: media.md ? '40px' : '20px',
+            marginTop: media.md ? '0px' : '20px',
             left:
               containsDash && getCookie('userRoles') === 'ADMIN'
                 ? '20vw'

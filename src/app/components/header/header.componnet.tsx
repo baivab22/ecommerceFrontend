@@ -1277,7 +1277,11 @@ export const TopHeader = () => {
   return (
     <>
       <div className="header-top">
-        <div className="container">
+        <div className="container"
+   style={{
+    paddingBottom:'0px'
+   }}
+        >
           <ul className="header-social-container">
             <li>
               <a

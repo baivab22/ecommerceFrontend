@@ -57,6 +57,7 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
   margin: auto;
   width: 100%;
   padding: 0 map-get($space, 4);
+  // border: 2px solid red;
   // background-color: #e2e8f0;
   border-bottom: 1px solid $grey200;
   .topHeader {
@@ -82,6 +83,7 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
 
     @include responsive-for(md) {
 top:0;
+left:0px;
 // border: 2px solid red;
     }
 

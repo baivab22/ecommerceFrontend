@@ -39,6 +39,15 @@ export const OrderListPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<any>()
   const orderData = useSelector((state: any) => state.cart)
 
+  // Date filter states
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
+  const [dateFilterType, setDateFilterType] = useState<string>('all')
+  const [showCustomDateInputs, setShowCustomDateInputs] = useState<boolean>(false)
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
   useEffect(() => {
     dispatch(
       getOrderListAction({
@@ -68,6 +77,95 @@ export const OrderListPage = () => {
     }
   }
 
+  // Helper function to parse date from OrderedAt string
+  const parseOrderDate = (dateString: string) => {
+    if (!dateString) return null
+    try {
+      const cleanDate = dateString.replace(/,/g, '')
+      return new Date(cleanDate)
+    } catch {
+      return null
+    }
+  }
+
+  // Helper function to get date range based on filter type
+  const getDateRange = (filterType: string) => {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    switch (filterType) {
+      case 'today':
+        return {
+          start: today,
+          end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
+        }
+      case 'week':
+        const weekStart = new Date(today)
+        weekStart.setDate(today.getDate() - today.getDay())
+        return {
+          start: weekStart,
+          end: new Date(now.getTime() + 24 * 60 * 60 * 1000 - 1)
+        }
+      case 'month':
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        return {
+          start: monthStart,
+          end: new Date(now.getTime() + 24 * 60 * 60 * 1000 - 1)
+        }
+      case 'custom':
+        return {
+          start: startDate ? new Date(startDate) : null,
+          end: endDate ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000 - 1) : null
+        }
+      default:
+        return { start: null, end: null }
+    }
+  }
+
+  // Filter orders by date and search query
+  const filteredOrders = useMemo(() => {
+    if (!orderData?.orderData) return []
+    
+    let filtered = orderData.orderData
+
+    // Apply date filter
+    if (dateFilterType !== 'all') {
+      const { start, end } = getDateRange(dateFilterType)
+      
+      if (start || end) {
+        filtered = filtered.filter((order: any) => {
+          const orderDate = parseOrderDate(order.OrderedAt)
+          if (!orderDate) return false
+
+          if (start && orderDate < start) return false
+          if (end && orderDate > end) return false
+          
+          return true
+        })
+      }
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      filtered = filtered.filter((order: any) => {
+        if (order.productOrderId?.toLowerCase().includes(query)) return true
+        if (order.userId?.email?.toLowerCase().includes(query)) return true
+        if (order.userId?.name?.toLowerCase().includes(query)) return true
+        if (order.userId?.phone?.toLowerCase().includes(query)) return true
+        if (order.shippingLocation?.toLowerCase().includes(query)) return true
+        if (order.products?.some((product: any) => 
+          product.productId?.name?.toLowerCase().includes(query)
+        )) return true
+        if (order.paymentMethod?.toLowerCase().includes(query)) return true
+        
+        return false
+      })
+    }
+
+    return filtered
+  }, [orderData, dateFilterType, startDate, endDate, searchQuery])
+
   // Helper function to get total quantity for an order
   const getTotalQuantity = (products: any[]) => {
     return products?.reduce((total, product) => total + product.quantity, 0) || 0
@@ -80,7 +178,7 @@ export const OrderListPage = () => {
 
   // WhatsApp message sender
   const sendWhatsAppMessage = (order: any) => {
-    const phoneNumber = order.userId?.phone || '9841934343' // Default or customer phone
+    const phoneNumber = order.userId?.phone || '9841934343'
     const customerName = order.userId?.name || order.userId?.email || 'Customer'
     const orderId = order.productOrderId || order._id
     
@@ -118,7 +216,6 @@ We'll keep you updated on your order status.
 Best regards,
 Aabhushan Gallery Team`
 
-    // Open WhatsApp with pre-filled message
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
   }
@@ -186,6 +283,47 @@ Aabhushan Gallery Team`
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
   }
 
+  // Clear date filter
+  const clearDateFilter = () => {
+    setDateFilterType('all')
+    setStartDate('')
+    setEndDate('')
+    setShowCustomDateInputs(false)
+  }
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchQuery('')
+  }
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    clearDateFilter()
+    clearSearch()
+  }
+
+  // Handle custom date filter toggle
+  const handleCustomDateFilterToggle = () => {
+    if (dateFilterType === 'custom') {
+      setShowCustomDateInputs(!showCustomDateInputs)
+    } else {
+      setDateFilterType('custom')
+      setShowCustomDateInputs(true)
+    }
+  }
+
+  // Handle start date change
+  const handleStartDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setStartDate(newValue)
+  }, [])
+
+  // Handle end date change
+  const handleEndDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setEndDate(newValue)
+  }, [])
+
   return (
     <div>
       <Box>
@@ -207,6 +345,288 @@ Aabhushan Gallery Team`
             disabled={activeData.filter(item => Object.keys(item).length !== 0).length === 0}
           />
         </HStack>
+
+        {/* Date Filter Section */}
+        {!showDetails && (
+          <div style={{
+            margin: '20px 0',
+            padding: '16px',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '8px',
+            border: '1px solid #e0e0e0'
+          }}>
+            {/* Search Bar */}
+            <div style={{
+              marginBottom: '16px',
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center'
+            }}>
+              <input
+                type="text"
+                placeholder="Search by Order ID, Customer, Product, Location, Phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#1976d2'}
+                onBlur={(e) => e.target.style.borderColor = '#ccc'}
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    color: '#666'
+                  }}
+                >
+                  Clear Search
+                </button>
+              )}
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ fontWeight: 'bold', fontSize: '14px', paddingTop: '6px' }}>
+                Filter by Date:
+              </div>
+              
+              {/* Quick Filter Buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
+                <button
+                  onClick={() => {
+                    setDateFilterType('all')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'all' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'all' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'all' ? 'bold' : 'normal'
+                  }}
+                >
+                  All Orders
+                </button>
+                <button
+                  onClick={() => {
+                    setDateFilterType('today')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'today' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'today' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'today' ? 'bold' : 'normal'
+                  }}
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => {
+                    setDateFilterType('week')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'week' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'week' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'week' ? 'bold' : 'normal'
+                  }}
+                >
+                  This Week
+                </button>
+                <button
+                  onClick={() => {
+                    setDateFilterType('month')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'month' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'month' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'month' ? 'bold' : 'normal'
+                  }}
+                >
+                  This Month
+                </button>
+                <button
+                  onClick={handleCustomDateFilterToggle}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'custom' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'custom' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'custom' ? 'bold' : 'normal'
+                  }}
+                >
+                  Custom Range {dateFilterType === 'custom' && (showCustomDateInputs ? '▼' : '▶')}
+                </button>
+              </div>
+
+              {/* Clear All Filters Button */}
+              {(dateFilterType !== 'all' || searchQuery) && (
+                <button
+                  onClick={clearAllFilters}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #d32f2f',
+                    backgroundColor: '#ffebee',
+                    color: '#d32f2f',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+
+            {/* Custom Date Range Inputs */}
+            {dateFilterType === 'custom' && showCustomDateInputs && (
+              <div style={{ 
+                display: 'flex', 
+                gap: '12px', 
+                alignItems: 'center', 
+                marginTop: '12px',
+                padding: '12px',
+                backgroundColor: 'white',
+                borderRadius: '6px',
+                border: '1px solid #ccc'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <label htmlFor="start-date-filter" style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', minWidth: '40px' }}>
+                    From:
+                  </label>
+                  <input
+                    id="start-date-filter"
+                    type="text"
+                    placeholder="YYYY-MM-DD"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      border: '1px solid #ccc',
+                      fontSize: '13px',
+                      minWidth: '140px',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <label htmlFor="end-date-filter" style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', minWidth: '25px' }}>
+                    To:
+                  </label>
+                  <input
+                    id="end-date-filter"
+                    type="text"
+                    placeholder="YYYY-MM-DD"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      border: '1px solid #ccc',
+                      fontSize: '13px',
+                      minWidth: '140px',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => setShowCustomDateInputs(false)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    backgroundColor: '#f5f5f5',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    color: '#666',
+                    marginLeft: 'auto'
+                  }}
+                >
+                  Hide
+                </button>
+              </div>
+            )}
+
+            {/* Filter Summary */}
+            <div style={{
+              marginTop: '12px',
+              fontSize: '12px',
+              color: '#666',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <span>
+                Showing <strong>{filteredOrders.length}</strong> of <strong>{orderData?.orderData?.length || 0}</strong> orders
+              </span>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {searchQuery && (
+                  <span style={{ 
+                    fontStyle: 'italic',
+                    backgroundColor: '#e3f2fd',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontSize: '11px'
+                  }}>
+                    🔍 Searching: "{searchQuery.substring(0, 30)}{searchQuery.length > 30 ? '...' : ''}"
+                  </span>
+                )}
+                {dateFilterType !== 'all' && (
+                  <span style={{ 
+                    fontStyle: 'italic',
+                    backgroundColor: '#fff3e0',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontSize: '11px'
+                  }}>
+                    📅 {dateFilterType === 'custom' && startDate && endDate
+                      ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`
+                      : dateFilterType.charAt(0).toUpperCase() + dateFilterType.slice(1)
+                    }
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {!showDetails && (
           <Table
@@ -363,6 +783,22 @@ Aabhushan Gallery Team`
                   )
                 }
               },
+
+                  {
+                field: 'phoneNumber',
+                name: 'Mobile Number',
+                colStyle: { width: '130px', minWidth: '130px' },
+                render: (phoneNumber) => {
+                  return (
+                    <div style={{ 
+                      fontSize: '11px',
+                      color: '#666'
+                    }}>
+                  {phoneNumber ?? '-'}
+                    </div>
+                  )
+                }
+              },
               {
                 field: 'shippingPrice',
                 name: 'Shipping',
@@ -415,10 +851,10 @@ Aabhushan Gallery Team`
                 }
               }
             ]}
-            data={(orderData && orderData.orderData) ?? []}
+            data={filteredOrders ?? []}
             actions={{}}
             pagination={{
-              totalCount: Number(orderData.orderData?.length ?? 0),
+              totalCount: Number(filteredOrders?.length ?? 0),
               perPage: 10
             }}
           />
@@ -469,7 +905,6 @@ const OrderPDf = ({data}) => {
     }
   }
 
-  // Calculate totals for an order
   const calculateOrderTotals = (products) => {
     if (!products || products.length === 0) return { totalQuantity: 0, totalPrice: 0 }
     
@@ -479,18 +914,16 @@ const OrderPDf = ({data}) => {
     return { totalQuantity, totalPrice }
   }
 
-  // Calculate maximum products per page based on available space
   const getMaxProductsPerPage = (productsCount) => {
-    // Base space calculations for A4 page (216x288 points)
     const headerHeight = 30
     const originDestHeight = 40
     const summaryHeight = 50
     const qrHeight = 40
     const footerHeight = 20
-    const margins = 24 // top + bottom padding
+    const margins = 24
     
     const availableHeight = 288 - headerHeight - originDestHeight - summaryHeight - qrHeight - footerHeight - margins
-    const productItemHeight = 16 // Height per product item
+    const productItemHeight = 16
     
     return Math.floor(availableHeight / productItemHeight)
   }
@@ -511,7 +944,6 @@ const OrderPDf = ({data}) => {
                 style={styles.page}
                 key={index}
               >
-                {/* Header */}
                 <View style={styles.header}>
                   <Image
                     style={styles.logo}
@@ -520,7 +952,6 @@ const OrderPDf = ({data}) => {
                   <Text style={styles.headerTitle}>{item.productOrderId}</Text>
                 </View>
 
-                {/* Origin & Destination */}
                 <View style={styles.box}>
                   <View style={styles.row}>
                     <View style={styles.column}>
@@ -537,7 +968,6 @@ const OrderPDf = ({data}) => {
                   </View>
                 </View>
 
-                {/* Products Section - Compact Layout */}
                 <View style={[styles.box, {backgroundColor: '#f9f9f9', flex: 1}]}>
                   <Text style={styles.sectionTitle}>Products Details</Text>
                   <View style={styles.productsContainer}>
@@ -551,12 +981,11 @@ const OrderPDf = ({data}) => {
                         </View>
                         <View style={styles.productStatsContainer}>
                           <Text style={styles.productStat}>Qty: {product?.quantity || 0}</Text>
-                          <Text style={styles.productStat}>Rs. {product?.price || 0}</Text>
+                          <Text style={styles.productStat}>Rs. {product?.price.toFixed(2) || 0}</Text>
                         </View>
                       </View>
                     ))}
                     
-                    {/* Show remaining products count if exceeds max */}
                     {item?.products?.length > maxProducts && (
                       <View style={styles.moreProductsIndicator}>
                         <Text style={styles.moreProductsText}>
@@ -567,7 +996,6 @@ const OrderPDf = ({data}) => {
                   </View>
                 </View>
 
-                {/* Order Summary - Fixed at bottom */}
                 <View style={[styles.box, {backgroundColor: '#f0f7ff'}]}>
                   <View style={styles.summaryRow}>
                     <View style={styles.summaryColumn}>
@@ -575,16 +1003,15 @@ const OrderPDf = ({data}) => {
                       <Text style={styles.summaryLabel}>Qty: {totalQuantity}</Text>
                     </View>
                     <View style={styles.summaryColumn}>
-                      <Text style={styles.summaryLabel}>Products: Rs. {totalPrice}</Text>
-                      <Text style={styles.summaryLabel}>Shipping: Rs. {item.shippingPrice || 0}</Text>
+                      <Text style={styles.summaryLabel}>Products: Rs. {totalPrice.toFixed(2)}</Text>
+                      <Text style={styles.summaryLabel}>Shipping: Rs. {item?.shippingPrice || 0}</Text>
                     </View>
-                    <View style={styles.summaryColumn}>
-                      <Text style={styles.totalLabel}>Total: Rs. {item.totalAmount || (totalPrice + parseFloat(item.shippingPrice || 0))}</Text>
+                    <View style={styles?.summaryColumn}>
+                      <Text style={styles?.totalLabel}>Total: Rs. {item?.totalAmount?.toFixed(2) || (totalPrice.toFixed(2) + parseFloat(item.shippingPrice || 0))}</Text>
                     </View>
                   </View>
                 </View>
 
-                {/* QR Code - Compact */}
                 <View style={styles.qrContainer}>
                   <Image
                     style={styles.qrCode}
@@ -594,7 +1021,6 @@ const OrderPDf = ({data}) => {
                   />
                 </View>
 
-                {/* Footer */}
                 <View style={styles.footer}>
                   <Text style={styles.printDate}>
                     Print Date: {currentDate.toLocaleDateString()}

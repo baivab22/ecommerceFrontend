@@ -9,156 +9,125 @@ import {createCartByUserIdAction} from 'src/app/pages/web/cart/cart.slice'
 import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
-import {FiEye} from 'react-icons/fi'
+import {FiEye, FiShoppingCart} from 'react-icons/fi'
 import {FILE_URL} from 'src/config'
-
-const productImages = [
-  // 'src/assets/images/products/jewellery-1.jpg',
-  // 'src/assets/images/products/jewellery-2.jpg',
-  // 'src/assets/images/products/jewellery-3.jpg',
-  // 'src/assets/images/products/perfume.jpg'
-]
 
 export const ProductCard = ({data}: {data: any}) => {
   const [activeImage, setActiveImage] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [productImages, setProductImages] = useState([])
 
-  console.log(productImages?.[0], data, 'product images value')
-
   useEffect(() => {
-    const ProductImages = data?.images?.map((item: any, index: number) => {
-      console.log(item.coloredImage, 'coloredimage')
-      return item.coloredImage
-    })
-
+    const ProductImages = data?.images?.map((item: any) => item.coloredImage)
     setProductImages(ProductImages)
   }, [data])
 
-  // const ProductImages = data?.images?.map((item: any, index: number) => {
-  //   console.log(item.coloredImage[0], 'coloredimage')
-  //   return item.coloredImage[0]
+  const discountPercentage = data?.originalPrice 
+    ? Math.round(((data.originalPrice - data.discountedPrice) / data.originalPrice) * 100)
+    : 0
 
-  // })
-console.log(data,"productname category   ")
   return (
     <div
       className="productCard-container"
-      onClick={() => navigate(`/product/view/${data?.id}`)}
-      onMouseOver={() => setActiveImage(1)}
-      onMouseLeave={() => setActiveImage(0)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <VStack className="productCard" gap="$3">
-        <div className="productCard-image">
-          {/* <img src={productImages[activeImage]}></img> */}
-          {/* <img src="http://localhost:8000/1705164295377-htmlimage.jpg"></img> */}
+        <div className="productCard-image-wrapper">
+          <div className="productCard-image">
+            <img
+              src={
+                productImages.length > 0
+                  ? `${FILE_URL}/products/${productImages?.[0]}`
+                  : '/assets/images/defaultProduct.jpeg'
+              }
+              alt={data?.name}
+            />
+            
+            {/* Discount Badge */}
+            {discountPercentage > 0 && (
+              <div className="productCard-discount-badge">
+                -{discountPercentage}%
+              </div>
+            )}
 
-          <img
-            src={
-              productImages.length > 0
-                ? `${FILE_URL}/products/${productImages?.[0]}`
-                : '/assets/images/defaultProduct.jpeg'
-            }
-          />
+            {/* Stock Indicator */}
+            { data?.stockQuantity > 0 && (
+              <div className="productCard-stock-badge low-stock">
+                Only {data?.stockQuantity} left
+              </div>
+            )}
+            
+            {data?.stockQuantity === 0 && (
+              <div className="productCard-stock-badge out-of-stock">
+                Out of Stock
+              </div>
+            )}
+
+            {/* Quick Actions Overlay */}
+            <div className={`productCard-overlay ${isHovered ? 'active' : ''}`}>
+              <button 
+                className="productCard-action-btn primary"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate(`/product/view/${data?.id}`)
+                }}
+              >
+                <FiEye size={20} />
+                <span>Quick View</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <HStack className="productCard-tags" gap="$2">
-          <HStack align="center" gap="$2">
-            {/* <p className="">Best Selling</p> */}
-            {/* <Chip
-              title="Best Selling"
-              color="rgb(241 233 214)"
-              icon={<FaCartArrowDown size={12} fill="black" />}
-
-              // style={{color: 'black'}}
-            ></Chip> */}
-            {/* <Chip
-              title="New Arrivals"
-              color="rgb(219 247 241)"
-              icon={<FaCartArrowDown size={12} fill="black" />}
-
-              // style={{color: 'black'}}
-            ></Chip> */}
-          </HStack>
-        </HStack>
-
-        <VStack className="productCard-titleDescription" gap="$2">
-          <HStack justify="space-between" style={{width: '100%'}}>
+        <VStack className="productCard-content" gap="$2">
+          <HStack justify="space-between" align="center" style={{width: '100%'}}>
             <Chip
               title={data?.subCategory?.name}
-              style={{padding: '4px 6px'}}
-              // color="rgb(241 233 214)"
-              color="rgb(219 247 241)"
-              // style={{width: 'max-content'}}
-
-              // icon={<FaCartArrowDown size={12} fill="black" />}
-
-              // style={{color: 'black'}}
-            ></Chip>
-
-            <Chip
-              title={data?.stockQuantity}
-              style={{padding: '4px 6px'}}
-              // color="rgb(241 233 214)"
-              color="rgb(219 247 241)"
-              // style={{width: 'max-content'}}
-
-              // icon={<FaCartArrowDown size={12} fill="black" />}
-
-              // style={{color: 'black'}}
-            ></Chip>
+              style={{
+                padding: '4px 10px',
+                fontSize: '11px',
+                fontWeight: '600'
+              }}
+              color="rgba(99, 102, 241, 0.1)"
+            />
           </HStack>
 
-          <HStack justify="space-between">
-            <p className="productCard-titleDescription-title">{data?.name}</p>
-          </HStack>
-          <div>
-            {/* <ReactStarsRating
-              size={15}
-              value={3}
+          <div className="productCard-title-wrapper">
+            <h3 className="productCard-title">{data?.name}</h3>
+          </div>
+
+          {/* <div className="productCard-rating">
+            <ReactStarsRating
+              size={14}
+              value={4.5}
               primaryColor="hsl(29, 90%, 65%)"
               isEdit={false}
+            />
+            <span className="productCard-review-count">(125)</span>
+          </div> */}
 
-              // secondaryColor="blue"
-            /> */}
-          </div>
-          <HStack align="center" gap="$3">
-            <div className="productCard-titleDescription-price">
+          <HStack align="center" gap="$2" className="productCard-price-wrapper">
+            <div className="productCard-price-current">
               {getNprPrice(data?.discountedPrice)}
             </div>
-            <div
-              style={{color: 'hsl(0, 0%, 47%)', textDecoration: 'line-through'}}
-            >
-              {getNprPrice(data?.originalPrice)}
-            </div>
+            {data?.originalPrice > data?.discountedPrice && (
+              <div className="productCard-price-original">
+                {getNprPrice(data?.originalPrice)}
+              </div>
+            )}
           </HStack>
-
-          {/* <p
-            className="productCard-titleDescription-description"
-            // dangerouslySetInnerHTML={data?.description
-
-            dangerouslySetInnerHTML={{
-              __html: data?.description
-            }}
-          ></p> */}
         </VStack>
 
-        <HStack
+        {/* <div 
           className="productCard-footer"
-          justify="center"
-          align="center"
-          gap="$3"
+
         >
-          <div style={{
-            display:'flex',
-            justifyContent:'center',
-            alignItems:'center'
-          }}>
-            <FiEye size={20} />
-          </div>
-          <div className="productCard-footer-right">View Details</div>
-        </HStack>
+          <span>View Details</span>
+          <FiEye size={16} />
+        </div> */}
       </VStack>
     </div>
   )
