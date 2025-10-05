@@ -545,7 +545,7 @@ export const CartPage = () => {
 
           {/* Valley Selection */}
           <VStack style={{ width: '100%' }} gap="$2">
-            <Label>Location Type *</Label>
+            <Label labelName="hello">Location Type *</Label>
             <SelectField
               options={VALLEY_OPTIONS}
               width="100%"
@@ -618,13 +618,13 @@ export const CartPage = () => {
             <Label>Shipping Details *</Label>
             <HStack gap="$2" style={{ width: '100%' }}>
               <InputField
-                onChange={e => setShippingLocation(e.target.value)}
+                onChange={(e:any) => setShippingLocation(e.target.value)}
                 placeholder="Full address *"
                 value={shippingLocation}
                 style={{ flex: 1 }}
               />
               <InputField
-                onChange={e => setPhoneNumber(e.target.value)}
+                onChange={(e:any) => setPhoneNumber(e.target.value)}
                 placeholder="Phone number *"
                 value={phoneNumber}
                 style={{ flex: 1 }}

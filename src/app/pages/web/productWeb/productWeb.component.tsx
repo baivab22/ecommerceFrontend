@@ -379,13 +379,18 @@ export const ProductListForWeb: React.FC = () => {
           sort: query.sort,
           order: query.order,
           categoryId: query.categoryId,
-          minPrice: query.minPrice,
-          maxPrice: query.maxPrice,
+          //@ts-ignore 
+          minPrice: query.minPrice as number,
+          //@ts-ignore
+
+          maxPrice: query.maxPrice as number,
           search: query.search,
           subCategoryId: query.subCategoryId,
+          //@ts-ignore
+          
           nestedSubCategoryId: query.nestedSubCategoryId,
-          isBestSelling: query.isBestSelling,
-          isNewArrivals: query.isNewArrivals
+          isBestSelling: !!query.isBestSelling as boolean,
+          isNewArrivals: !!query.isNewArrivals as boolean
         }
       })
     )

@@ -364,10 +364,12 @@ const updatedCartByProductIdAction = createAsyncThunk(
   async (
     {
       data,
-      onSuccess
+      onSuccess,
+      onFailure
     }: {
       data: any
       onSuccess?: (data: any) => void
+      onFailure?: (data: any) => void
     },
     thunkAPI
   ) => {
@@ -379,6 +381,7 @@ const updatedCartByProductIdAction = createAsyncThunk(
       onSuccess && onSuccess(response)
       return response
     } catch (error) {
+      onFailure && onFailure(error)
       return thunkAPI.rejectWithValue('Cannot update Cart!')
     }
   }

@@ -5,7 +5,7 @@ import {BsAsterisk} from 'react-icons/bs'
 import Theme from 'src/theme'
 
 interface LabelProps extends ComponentPropsWithoutRef<'label'> {
-  labelName: React.ReactNode
+  labelName?: React.ReactNode
   required?: boolean
   containerStyle?: React.CSSProperties
 }

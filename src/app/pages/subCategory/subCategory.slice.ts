@@ -31,7 +31,7 @@ const updateSubCategoryAction = createAsyncThunk(
       onSuccess
     }: {
       subCategoryBody: any
-      subCategoryId: string
+      subCategoryId: any
       onSuccess?: (data: any) => void
     },
     thunkAPI
@@ -55,14 +55,14 @@ const getSubCategoryDetailByIdAction = createAsyncThunk(
     {
       subCategoryId
     }: {
-      subCategoryId: string
+      subCategoryId: any
     },
     thunkAPI
   ) => {
     console.log('getproduct detail by id called')
     try {
       const response = await subCategoryService.getSubCategoryDetailById(
-        subCategoryId
+        (subCategoryId) as any
       )
       return response
     } catch (error) {

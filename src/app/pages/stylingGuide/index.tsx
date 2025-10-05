@@ -1,124 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const StylingGuide=()=> {
-  const styles = {
-    container: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-      // padding: '40px 20px',
-      fontFamily: 'Arial, sans-serif'
-    },
-    header: {
-      textAlign: 'center',
-      marginBottom: '50px'
-    },
-    title: {
-      fontSize: '2.5rem',
-      color: '#c2185b',
-      marginBottom: '10px'
-    },
-    subtitle: {
-      fontSize: '1.1rem',
-      color: '#666'
-    },
-    cardsContainer: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '30px',
-      marginBottom: '50px'
-    },
-    card: {
-      flex: '1 1 calc(50% - 15px)',
-      minWidth: '280px',
-      background: '#fff',
-      borderRadius: '15px',
-      padding: '30px',
-      boxShadow: '0 4px 6px rgba(244, 143, 177, 0.1)',
-      transition: 'transform 0.3s ease'
-    },
-    cardHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '15px',
-      marginBottom: '20px'
-    },
-    icon: {
-      width: '50px',
-      height: '50px',
-      background: 'linear-gradient(135deg, #f48fb1, #c2185b)',
-      borderRadius: '12px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '1.5rem',
-      flexShrink: 0
-    },
-    cardTitle: {
-      fontSize: '1.3rem',
-      color: '#c2185b',
-      marginBottom: '3px'
-    },
-    cardSubtitle: {
-      fontSize: '0.9rem',
-      color: '#f48fb1'
-    },
-    tipsList: {
-      listStyle: 'none',
-      padding: 0,
-      margin: 0
-    },
-    tipItem: {
-      padding: '8px 0',
-      paddingLeft: '20px',
-      position: 'relative',
-      color: '#4a4a4a'
-    },
-    quickTips: {
-      background: 'linear-gradient(135deg, #fce4ec, #fce4ec)',
-      borderRadius: '15px',
-      padding: '40px',
-      marginBottom: '40px'
-    },
-    quickTitle: {
-      textAlign: 'center',
-      fontSize: '2rem',
-      color: '#c2185b',
-      marginBottom: '30px'
-    },
-    tipsGrid: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '25px'
-    },
-    tipBox: {
-      flex: '1 1 calc(33.333% - 17px)',
-      minWidth: '250px'
-    },
-    tipBoxTitle: {
-      fontSize: '1.1rem',
-      color: '#c2185b',
-      marginBottom: '8px'
-    },
-    tipBoxText: {
-      fontSize: '0.95rem',
-      color: '#4a4a4a'
-    },
-    ctaSection: {
-      textAlign: 'center'
-    },
-    button: {
-      background: 'linear-gradient(135deg, #f48fb1, #c2185b)',
-      color: '#fff',
-      padding: '15px 40px',
-      border: 'none',
-      borderRadius: '30px',
-      fontSize: '1.1rem',
-      fontWeight: '600',
-      cursor: 'pointer',
-      boxShadow: '0 4px 15px rgba(244, 143, 177, 0.3)'
-    }
-  };
+export const StylingGuide = () => {
+  const navigate = useNavigate();
 
   const stylingTips = [
     {
@@ -178,29 +62,101 @@ export const StylingGuide=()=> {
     }
   ];
 
-  const navigate=useNavigate();
-
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Jewelry Styling Guide</h1>
-        <p style={styles.subtitle}>Discover the perfect way to style your jewelry for every occasion</p>
+    <div style={{
+      maxWidth: '1200px',
+      margin: '0 auto',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '50px'
+      }}>
+        <h1 style={{
+          fontSize: '2.5rem',
+          color: '#c2185b',
+          marginBottom: '10px'
+        }}>
+          Jewelry Styling Guide
+        </h1>
+        <p style={{
+          fontSize: '1.1rem',
+          color: '#666'
+        }}>
+          Discover the perfect way to style your jewelry for every occasion
+        </p>
       </div>
 
-      <div style={styles.cardsContainer}>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '30px',
+        marginBottom: '50px'
+      }}>
         {stylingTips.map((tip, index) => (
-          <div key={index} style={styles.card}>
-            <div style={styles.cardHeader}>
-              <div style={styles.icon}>{tip.icon}</div>
+          <div key={index} style={{
+            flex: '1 1 calc(50% - 15px)',
+            minWidth: '280px',
+            background: '#fff',
+            borderRadius: '15px',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(244, 143, 177, 0.1)',
+            transition: 'transform 0.3s ease'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                width: '50px',
+                height: '50px',
+                background: 'linear-gradient(135deg, #f48fb1, #c2185b)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                flexShrink: 0
+              }}>
+                {tip.icon}
+              </div>
               <div>
-                <h3 style={styles.cardTitle}>{tip.title}</h3>
-                <span style={styles.cardSubtitle}>{tip.description}</span>
+                <h3 style={{
+                  fontSize: '1.3rem',
+                  color: '#c2185b',
+                  marginBottom: '3px'
+                }}>
+                  {tip.title}
+                </h3>
+                <span style={{
+                  fontSize: '0.9rem',
+                  color: '#f48fb1'
+                }}>
+                  {tip.description}
+                </span>
               </div>
             </div>
-            <ul style={styles.tipsList}>
+            <ul style={{
+              listStyle: 'none',
+              padding: 0,
+              margin: 0
+            }}>
               {tip.tips.map((t, i) => (
-                <li key={i} style={styles.tipItem}>
-                  <span style={{position: 'absolute', left: 0, color: '#f48fb1'}}>✦</span>
+                <li key={i} style={{
+                  padding: '8px 0',
+                  paddingLeft: '20px',
+                  position: 'relative',
+                  color: '#4a4a4a'
+                }}>
+                  <span style={{
+                    position: 'absolute',
+                    left: 0,
+                    color: '#f48fb1'
+                  }}>
+                    ✦
+                  </span>
                   {t}
                 </li>
               ))}
@@ -209,21 +165,64 @@ export const StylingGuide=()=> {
         ))}
       </div>
 
-      <div style={styles.quickTips}>
-        <h2 style={styles.quickTitle}>Quick Styling Tips</h2>
-        <div style={styles.tipsGrid}>
+      <div style={{
+        background: 'linear-gradient(135deg, #fce4ec, #fce4ec)',
+        borderRadius: '15px',
+        padding: '40px',
+        marginBottom: '40px'
+      }}>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '2rem',
+          color: '#c2185b',
+          marginBottom: '30px'
+        }}>
+          Quick Styling Tips
+        </h2>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '25px'
+        }}>
           {quickTips.map((tip, index) => (
-            <div key={index} style={styles.tipBox}>
-              <h4 style={styles.tipBoxTitle}>{tip.title}</h4>
-              <p style={styles.tipBoxText}>{tip.description}</p>
+            <div key={index} style={{
+              flex: '1 1 calc(33.333% - 17px)',
+              minWidth: '250px'
+            }}>
+              <h4 style={{
+                fontSize: '1.1rem',
+                color: '#c2185b',
+                marginBottom: '8px'
+              }}>
+                {tip.title}
+              </h4>
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#4a4a4a'
+              }}>
+                {tip.description}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={styles.ctaSection}>
-        <button style={styles.button}
-        onClick={() =>navigate('/products')}
+      <div style={{
+        textAlign: 'center'
+      }}>
+        <button
+          style={{
+            background: 'linear-gradient(135deg, #f48fb1, #c2185b)',
+            color: '#fff',
+            padding: '15px 40px',
+            border: 'none',
+            borderRadius: '30px',
+            fontSize: '1.1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(244, 143, 177, 0.3)'
+          }}
+          onClick={() => navigate('/products')}
         >
           Explore Our Collection
         </button>

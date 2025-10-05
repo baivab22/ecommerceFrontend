@@ -63,7 +63,7 @@ console.log(subCategoryDataNested,"subCategoryDataNested in main" )
   useEffect(() => {
 
     if (subCategoryId) {
-      dispatch(getSubCategoryDetailByIdAction({subCategoryId}))
+      dispatch(getSubCategoryDetailByIdAction({subCategoryId  }))
       dispatch(getSubCategoryDetailByIdActionNested({subCategoryId}))
     }
   }, [subCategoryId, dispatch])

@@ -57,7 +57,7 @@ const getSubCategoryDetailByIdActionNested = createAsyncThunk(
     {
       subCategoryId
     }: {
-      subCategoryId: string
+      subCategoryId: any
     },
     thunkAPI
   ) => {
