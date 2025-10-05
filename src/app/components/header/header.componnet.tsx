@@ -1341,7 +1341,7 @@ export const TopHeader = () => {
           
             >
             <img
-              src="src/assets/images/logosss.png"
+              src="/assets/images/logosss.png"
               alt="logo"
               className="topHeader-logo-image"
             ></img>
