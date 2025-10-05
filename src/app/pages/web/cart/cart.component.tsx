@@ -121,6 +121,8 @@ export const CartPage = () => {
   // QR Code display logic: Show QR if outside valley OR (inside valley AND phone pay)
   const shouldShowQR = isOutsideValley || (isInsideValley && isPhonePaySelected)
 
+  console.log(shouldShowQR,"should show QR")
+
   // Memoized options
   const districtOptions = useMemo(
     () =>
@@ -545,7 +547,7 @@ export const CartPage = () => {
 
           {/* Valley Selection */}
           <VStack style={{ width: '100%' }} gap="$2">
-            <Label labelName="hello">Location Type *</Label>
+            <Label >Location Type *</Label>
             <SelectField
               options={VALLEY_OPTIONS}
               width="100%"
@@ -742,7 +744,7 @@ export const CartPage = () => {
             </div>
 
             {/* QR Code Display Logic */}
-            {shouldShowQR && <QRCodeSection />}
+            <QRCodeSection />
           </VStack>
         </VStack>
 
