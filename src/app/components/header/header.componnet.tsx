@@ -1274,6 +1274,9 @@ export const TopHeader = () => {
 }
 
 
+
+console.log(auth.isLoggedin,auth,"data value final")
+
   return (
     <>
       <div className="header-top">
@@ -1348,7 +1351,7 @@ export const TopHeader = () => {
           </div>
 
 {
-  auth.isLoggedin &&  <>
+    <>
 
   <p></p>
       <div className="topHeader-search"
@@ -1448,7 +1451,7 @@ export const TopHeader = () => {
                         className="filterItem"
                         onClick={() => {
                           // handleLogout()
-                          // navigate('/register')
+                          navigate('/register')
                           setSortVisible(false)
                           removeCookie('userId')
                           removeCookie('userRoles')

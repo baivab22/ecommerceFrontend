@@ -82,7 +82,7 @@ export const AuthProvider = memo(({children}: any) => {
     //     }
     //   })
     // )
-    loginSuccess('ADMIN')
+    // loginSuccess('ADMIN')
     setAuthLoading(false)
   }, [])
 
