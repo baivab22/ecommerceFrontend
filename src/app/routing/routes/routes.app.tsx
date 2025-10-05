@@ -84,12 +84,12 @@ export const Router: RouteObject[] = [
     element: <ContactUs />
   },
 
-    {
-    path: '/return-policy',
-    // element: <PublicAuth />,/
+  //   {
+  //   path: '/return-policy',
+  //   // element: <PublicAuth />,/
 
-    element: <ReturnPolicy />
-  },
+  //   element: <ReturnPolicy />
+  // },
       {
     path: '/shipping-policy',
     // element: <PublicAuth />,/
@@ -181,7 +181,7 @@ export const Router: RouteObject[] = [
   {
     path: '/return-policy',
     // element: <Sample />
-    element: <ProtectedAuth />,
+    element: <PublicAuth />,
     children: [
       {
         path: '',

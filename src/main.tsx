@@ -28,19 +28,16 @@ import {getCookie} from './helpers'
 import {useEffect, useMemo, useState} from 'react'
 import {useMedia} from './hooks'
 
-// const MemoChild = () => {
-//   console.log('hello memo')
+// ScrollToTop Component
+const ScrollToTop = () => {
+  const { pathname } = useLocation()
 
-//   console.log(window.location.href, 'hello')
-//   console.log(roles, 'roles')
-//   return (
-//     <AuthProvider>
-//       <div>
-//         <App />
-//       </div>
-//     </AuthProvider>
-//   )
-// }
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
+  return null
+}
 
 const App = () => {
   let routes: RouteObject[] = [
@@ -76,6 +73,7 @@ const App = () => {
 
   return (
     <AuthProvider>
+      <ScrollToTop /> {/* Added ScrollToTop component */}
       <HStack>
         {sideNavData}
         <div

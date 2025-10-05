@@ -36,7 +36,10 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/return-policy')}
+                  onClick={() => {
+                    
+                    console.log("return policy clicked")
+                    navigate('/return-policy')}}
                 >
                   Return Policy
                 </button>
