@@ -466,7 +466,7 @@ export const CartPage = () => {
           : 'Complete payment for your order'}
       </p>
       <img
-        src="src/assets/images/qrbanksample.jpg"
+        src="/assets/images/qrbanksample.jpg"
         alt="QR Code for Payment"
         className="qrImage"
         style={{
@@ -744,7 +744,7 @@ export const CartPage = () => {
             </div>
 
             {/* QR Code Display Logic */}
-            <QRCodeSection />
+           {shouldShowQR && <QRCodeSection /> } 
           </VStack>
         </VStack>
 
