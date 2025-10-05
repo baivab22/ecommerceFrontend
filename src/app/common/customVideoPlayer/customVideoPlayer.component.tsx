@@ -27,21 +27,6 @@ const CustomVideoPlayer = ({
     <div className="custom-video-player">
       {!isFullScreen ? (
         <div className="thumbnail">
-          {/* <button className="close">
-            <IoCloseCircle
-              size={20}
-              color="red"
-              onClick={() => {
-                setIsClosed(true)
-              }}
-            ></IoCloseCircle>
-          </button> */}
-          {/* <img
-            src={thumbnailUrl}
-            alt="Video Thumbnail"
-            onClick={toggleFullScreen}
-          /> */}
-
           <div
             className="videos"
             style={{
@@ -49,7 +34,7 @@ const CustomVideoPlayer = ({
               width: isFromUploader ? '80px' : '120px'
             }}
           >
-            <video src={videoUrl} muted autoPlay loop />
+            <video src={videoUrl} muted autoPlay loop playsInline />
           </div>
 
           <div className="play-button" onClick={toggleFullScreen}>
@@ -61,7 +46,7 @@ const CustomVideoPlayer = ({
           <button className="close-button" onClick={closeFullScreen}>
             <IoClose size={20} color="red" stroke="white"></IoClose>
           </button>
-          <video src={videoUrl} controls autoPlay />
+          <video src={videoUrl} controls autoPlay playsInline />
         </div>
       )}
     </div>

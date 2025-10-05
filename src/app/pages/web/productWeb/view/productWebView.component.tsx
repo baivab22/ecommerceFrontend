@@ -34,23 +34,25 @@ import {FILE_URL} from 'src/config'
 
 export const ProductWebDetail = () => {
   const media = useMedia()
-  const [position, setPosition] = useState({x: media.md ? 1175 : '0', y: 450})
+  const [position, setPosition] = useState({x: media.md ? 1175 : 0, y: 450})
   const [offset, setOffset] = useState({x: 0, y: 0})
+  const [isDragging, setIsDragging] = useState(false)
 
   const {auth} = useAuth()
 
-  const handleMouseDown = (e) => {
+  // Mouse events for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
     setOffset({
-      //@ts-ignore
-      x: e.clientX - position.x - 30,
-      y: e.clientY - position.y - 40
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
     })
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
   }
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return
+    e.preventDefault()
     setPosition({
       x: e.clientX - offset.x,
       y: e.clientY - offset.y
@@ -58,17 +60,58 @@ export const ProductWebDetail = () => {
   }
 
   const handleMouseUp = () => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
+    setIsDragging(false)
   }
+
+  // Touch events for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setOffset({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
+    })
+  }
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging) return
+    e.preventDefault()
+    const touch = e.touches[0]
+    setPosition({
+      x: touch.clientX - offset.x,
+      y: touch.clientY - offset.y
+    })
+  }
+
+  const handleTouchEnd = () => {
+    setIsDragging(false)
+  }
+
+  // Add event listeners when dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleTouchMove, {passive: false})
+      document.addEventListener('touchend', handleTouchEnd)
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('touchmove', handleTouchMove)
+        document.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [isDragging, offset])
+
   const dispatch = useDispatch()
 
   let {productId} = useParams()
 
-  // console.log(productId, 'productId')
   useEffect(() => {
     dispatch(getProductDetailByIdAction({productId: productId as string}))
-  }, [productId])
+  }, [productId, dispatch])
 
   const {productDetailData, productDetailLoading}: any = useSelector(
     (state: any) => state.product
@@ -77,6 +120,7 @@ export const ProductWebDetail = () => {
   const [productImageList, setProductImageList] = useState([])
 
   console.log(productImageList, 'il value')
+  
   useEffect(() => {
     const requiredImageList = productDetailData?.images?.map(
       (item: any, index: number) => {
@@ -88,13 +132,14 @@ export const ProductWebDetail = () => {
   }, [productDetailData])
 
   const products = productDetailData?.image
+  
   const ratingChange = (value: number) => {
     console.log(value, 'rating value')
   }
 
   const [activeColorIndex, setActiveColorIndex] = useState(0)
 
-  const handleColorClicked = (id: string, index) => {
+  const handleColorClicked = (id: string, index: number) => {
     const requiredImageList = productDetailData?.images?.find(
       (item: any, index: number) => {
         return item._id === id
@@ -108,31 +153,21 @@ export const ProductWebDetail = () => {
 
     setProductImageList([requiredImageList?.coloredImage])
   }
+  
   const datas = useSelector((state: any) => state.cart)
 
   const handleAddToCart = (data: any) => {
     const userId = getCookie('userId')
-
     const roles = getCookie('userRoles')
 
-    console.log(userId , roles, 'userIduserIduserId')
+    console.log(userId, roles, 'userIduserIduserId')
 
     if (userId && !!roles) {
-      //        if(datas?.cartData?.[0]?.products?.includ){
-
-      //  }
-
       const isAlreadyExist = datas?.cartData?.[0]?.products?.some(
         (item: any) => {
           console.log(
-            // datas?.cartData?.[0]?.products,
-            // data.id,
-            // item?.productId?.id,
-            // data?.id,
-            // data?.name,
             item,
             data,
-
             'helo details dataaaaaaaa'
           )
           return item?.productId?.id === data?.id
@@ -189,7 +224,7 @@ export const ProductWebDetail = () => {
         )
       }
     } else {
-      toast.error('Please login first to add productss')
+      toast.error('Please login first to add products')
     }
   }
 
@@ -204,16 +239,6 @@ export const ProductWebDetail = () => {
             className="productsWrapper"
           >
             <div style={{width: '60%'}} className="productDetail-left">
-              {/* <CarouselSlider>
-                {products?.map((data: any, index: any) => (
-                  <img
-                    src={data.url}
-                    alt="image"
-                    className="image"
-                    key={index}
-                  />
-                ))}
-              </CarouselSlider> */}
               {productImageList && (
                 <ZoomSlider data={productImageList}></ZoomSlider>
               )}
@@ -224,7 +249,6 @@ export const ProductWebDetail = () => {
               gap="$4"
               id="productContainer"
             >
-              {/* <ReactStarsRating size={15} onChange={ratingChange} value={3} /> */}
               <Title heading className="productDetail-detailTop-name">
                 {productDetailData?.name}
               </Title>
@@ -236,11 +260,6 @@ export const ProductWebDetail = () => {
                 }}
               ></div>
 
-              {/* <HStack>
-                <div className="productDetail-detailBottom-description-content">
-                  {productDetailData?.details}
-                </div>
-              </HStack> */}
               <div
                 style={{
                   display: 'flex',
@@ -250,7 +269,6 @@ export const ProductWebDetail = () => {
                 className="priceContainer"
               >
                 <p
-                  // subheading
                   style={{color: '#FB2E86'}}
                   className="originalPrice"
                 >
@@ -277,7 +295,6 @@ export const ProductWebDetail = () => {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-
                             borderRadius: '50%',
                             boxSizing: 'border-box',
                             padding: '3px'
@@ -289,7 +306,6 @@ export const ProductWebDetail = () => {
                             }}
                             className="productDetail-detailTop-color-item"
                             onClick={() => handleColorClicked(item._id, index)}
-                            key={index}
                           ></div>
                         </div>
                       )
@@ -307,7 +323,7 @@ export const ProductWebDetail = () => {
                   }
                   !!auth.isLoggedin
                     ? handleAddToCart(productDetailData)
-                    : toast.success('Product Updated SuccessFully')
+                    : toast.error('Please login first to add products')
                 }}
               >
                 <p>ADD TO CART</p>
@@ -322,31 +338,18 @@ export const ProductWebDetail = () => {
                 <Title subheading> In Stock:</Title>
                 <Chip
                   title={`${productDetailData?.stockQuantity ?? 0} pics`}
-                  // color="rgb(241 233 214)"
                   color="rgb(219 247 241)"
-                  // style={{width: 'max-content'}}
-
-                  // icon={<FaCartArrowDown size={12} fill="black" />}
-
-                  // style={{color: 'black'}}
                 ></Chip>
               </HStack>
+              
               <VStack className="productDetail-detailBottom" gap="$8">
                 <VStack
                   className="productDetail-detailBottom-description"
                   gap="$4"
                 >
-                  {/* <Chip color="success"></Chip> */}
-
                   <Chip
                     title={productDetailData?.subCategory?.name}
-                    // color="rgb(241 233 214)"
                     color="rgb(219 247 241)"
-                    // style={{width: 'max-content'}}
-
-                    // icon={<FaCartArrowDown size={12} fill="black" />}
-
-                    // style={{color: 'black'}}
                   ></Chip>
 
                   <HStack
@@ -362,24 +365,29 @@ export const ProductWebDetail = () => {
                       width: '40%'
                     }}
                   >
-                    {/* <Title heading>Video</Title> */}
-                    {/* <video controls width="640" height="360">
-                      <source src={productDetailData?.video} type="video/mp4" />
-                    </video> */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: position.x,
-                        top: position.y
-                        // cursor: 'grab'
-                      }}
-                      onMouseDown={handleMouseDown}
-                    >
-                      <CustomVideoPlayer
-                        videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
-                        thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
-                      ></CustomVideoPlayer>
-                    </div>
+                    {productDetailData?.video && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: position.x,
+                          top: position.y,
+                          cursor: isDragging ? 'grabbing' : 'grab',
+                          touchAction: 'none',
+                          userSelect: 'none',
+                          WebkitUserSelect: 'none',
+                          MozUserSelect: 'none',
+                          msUserSelect: 'none',
+                          zIndex: 1000
+                        }}
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleTouchStart}
+                      >
+                        <CustomVideoPlayer
+                          videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
+                          thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
+                        ></CustomVideoPlayer>
+                      </div>
+                    )}
                   </HStack>
                 </VStack>
               </VStack>
@@ -387,14 +395,13 @@ export const ProductWebDetail = () => {
           </div>
         </VStack>
       </div>
+      
       <div style={{marginBottom: '20px', padding: '2vw'}}>
         <ProductSection
           header="Similar Products"
           isProfilePage={true}
         ></ProductSection>
       </div>
-
-      {/* <ZoomSlider></ZoomSlider> */}
     </ActivityIndicator>
   )
 }
