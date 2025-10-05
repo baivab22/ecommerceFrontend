@@ -33,6 +33,11 @@ export const ProductCard = ({data}: {data: any}) => {
       className="productCard-container"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() =>{
+        
+        console.log("product clicked")
+        navigate(`/products/view/${data?.id}`)
+      }}
     >
       <VStack className="productCard" gap="$3">
         <div className="productCard-image-wrapper">
@@ -71,8 +76,8 @@ export const ProductCard = ({data}: {data: any}) => {
               <button 
                 className="productCard-action-btn primary"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  navigate(`/product/view/${data?.id}`)
+                  // e.stopPropagation()
+           
                 }}
               >
                 <FiEye size={20} />

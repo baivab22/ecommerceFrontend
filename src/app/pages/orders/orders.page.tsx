@@ -178,7 +178,9 @@ export const OrderListPage = () => {
 
   // WhatsApp message sender
   const sendWhatsAppMessage = (order: any) => {
-    const phoneNumber = order.userId?.phone || '9841934343'
+
+    console.log(order,"order finally")
+    const phoneNumber = order.phoneNumber || '9841934343'
     const customerName = order.userId?.name || order.userId?.email || 'Customer'
     const orderId = order.productOrderId || order._id
     

@@ -61,6 +61,7 @@ export const USER_ROLES: UserRoles = {
       '/return-policy',
       '/shipping-policy',
       'orderDetails/*',
+       '/product/*',
       '/dash-subCategorynested/*',
           '/my-profile/*',
               '/contact-us',
