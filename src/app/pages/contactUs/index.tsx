@@ -240,15 +240,15 @@ export const ContactUs = () => {
               height: '250px',
               boxShadow: '0 4px 6px rgba(244, 143, 177, 0.1)'
             }}>
-              <iframe
+              {/* <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.3097!2d85.2799!3d27.6957!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDQxJzQ0LjUiTiA4NcKwMTYnNDcuNiJF!5e0!3m2!1sen!2snp!4v1234567890"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                // style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"
                 title="Abhushan Gallery Location"
-              />
+              /> */}
             </div>
           </div>
         </div>
