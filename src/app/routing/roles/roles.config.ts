@@ -40,7 +40,8 @@ export const USER_ROLES: UserRoles = {
       '/about-us',
       '/privacy-policy',
       '/styling-guide',
-      '/dash-banners'
+      '/dash-banners',
+ 'dash-holiday-mode/*'
     ]
   },
   USER: {
@@ -58,6 +59,7 @@ export const USER_ROLES: UserRoles = {
       '/orders/*',
       // '/dash-product/*',
       '/product/*',
+      'holiday-mode/*',
       '/return-policy',
       '/shipping-policy',
       'orderDetails/*',
@@ -67,7 +69,8 @@ export const USER_ROLES: UserRoles = {
               '/contact-us',
       '/about-us',
       '/privacy-policy',
-      '/styling-guide'
+      '/styling-guide',
+       'dash-holiday-mode/*'
     ]
   }
 }

@@ -132,6 +132,10 @@ const SideNavComponent = React.memo(() => {
             <MdReport size={18} />
           ))}
 
+
+   {getNav('Holiday Mode', '/dash-holiday-mode', () => (
+            <MdReport size={18} />
+          ))}
           {getNav('Social Links', '/dash-social-links', () => (
             <MdReport size={18} />
           ))}

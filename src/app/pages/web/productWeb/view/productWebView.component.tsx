@@ -31,6 +31,7 @@ import {getCookie} from 'src/helpers'
 import {useMedia} from 'src/hooks'
 import {useAuth} from 'src/app/routing'
 import {FILE_URL} from 'src/config'
+import { fetchHolidayModeAction, selectHolidayMode } from 'src/app/pages/holidayMode/holidayMode.slice'
 
 export const ProductWebDetail = () => {
   const media = useMedia()
@@ -59,6 +60,11 @@ export const ProductWebDetail = () => {
     })
   }
 
+
+
+
+   
+  
   const handleMouseUp = () => {
     setIsDragging(false)
   }

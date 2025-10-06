@@ -43,6 +43,7 @@ import PrivacyPolicy from 'src/app/pages/privacyPolicy'
 import TermsAndConditions from 'src/app/pages/termsAndCondition.tsx'
 import ReturnPolicy from 'src/app/pages/returnPolicy'
 import ShippingPolicy from 'src/app/pages/shippingPolicy'
+import HolidayModePage from 'src/app/pages/holidayMode/holidayMode.page'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -175,6 +176,18 @@ export const Router: RouteObject[] = [
       {
         path: '',
         element: <Sample />
+      }
+    ]
+  },
+
+    {
+    path: '/dash-holiday-mode',
+    // element: <Sample />
+    element: <ProtectedAuth />,
+    children: [
+      {
+        path: '',
+        element: <HolidayModePage />
       }
     ]
   },

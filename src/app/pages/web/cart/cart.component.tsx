@@ -4,9 +4,7 @@ import { getCookie } from 'src/helpers'
 import { CartCard } from 'src/app/components'
 import {
   createOrderByUserIdAction,
-  
   deleteCartByIdAction,
-  
   delteProductFromCartAction,
   getCartlistAction,
   updatedCartByProductIdAction
@@ -27,6 +25,7 @@ import toast from 'react-hot-toast'
 import { useMeasure, useMedia } from 'src/hooks'
 import { TextArea } from 'src/app/common/textArea'
 import { CONTACT_NUMBER } from 'src/config/constant.config'
+import { fetchHolidayModeAction, selectHolidayMode } from '../../holidayMode/holidayMode.slice'
 
 // Types
 interface Option {
@@ -102,6 +101,23 @@ export const CartPage = () => {
 
   // Payment state
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null)
+
+  // Holiday mode state
+  const settings = useSelector(selectHolidayMode);
+
+  // Fetch holiday mode settings
+  useEffect(() => {
+    dispatch(fetchHolidayModeAction({
+      onSuccess: (data) => {
+        console.log('Holiday mode settings fetched:', data);
+      }
+    }));
+  }, [dispatch]);
+
+  // Check if holiday mode is active and orders are not allowed
+  const isHolidayModeActive = useMemo(() => {
+    return settings?.isActive && !settings?.allowOrders;
+  }, [settings]);
 
   // Computed values
   const isOutsideValley = selectedValleyOption?.value === 'outside'
@@ -316,6 +332,12 @@ export const CartPage = () => {
 
   // FIXED: Corrected checkout handler with proper price calculations
   const handleCheckout = useCallback(() => {
+    // Check if holiday mode is active and orders are not allowed
+    if (isHolidayModeActive) {
+      toast.error(settings?.message || 'We are currently on holiday. Orders will be processed after we return.');
+      return;
+    }
+
     const validationErrors = validateForm()
 
     if (validationErrors.length > 0) {
@@ -338,9 +360,6 @@ export const CartPage = () => {
       const quantity = item.quantity || 0
       const totalPriceForProduct = unitPrice * quantity
 
-
-      
-      
       console.log(`Order Product ${item.productId.id}: Unit ${unitPrice} × Qty ${quantity} = ${totalPriceForProduct}`)
       
       return {
@@ -418,6 +437,8 @@ export const CartPage = () => {
       })
     )
   }, [
+    isHolidayModeActive,
+    settings?.message,
     validateForm,
     userId,
     generateOrderId,
@@ -488,6 +509,31 @@ export const CartPage = () => {
     </div>
   )
 
+  // Holiday Mode Banner
+  const HolidayModeBanner = () => {
+    if (!isHolidayModeActive) return null;
+
+    return (
+      <div style={{
+        backgroundColor: '#fff3cd',
+        border: '1px solid #ffeaa7',
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '24px',
+        textAlign: 'center'
+      }}>
+        <p style={{
+          color: '#856404',
+          fontWeight: '600',
+          margin: '0',
+          fontSize: '16px'
+        }}>
+          {settings?.message || 'We are currently on holiday. Orders will be processed after we return.'}
+        </p>
+      </div>
+    );
+  };
+
   if (!hasProducts) {
     return (
       <div className="cartPage" style={{ width: '100%'}}>
@@ -522,6 +568,9 @@ export const CartPage = () => {
 
   return (
     <div className="cartPage">
+      {/* Holiday Mode Banner */}
+     
+
       {/* Products Section */}
       <VStack gap="$3" style={{ width: media.md ? '55%' : '100%' }}>
         {cartProducts.map((item, index) => (
@@ -757,17 +806,18 @@ export const CartPage = () => {
             padding: '16px',
             fontSize: '16px',
             fontWeight: 'bold',
-            backgroundColor: hasProducts ? '#007bff' : '#ccc',
+            backgroundColor: (hasProducts && !isHolidayModeActive) ? '#007bff' : '#ccc',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: hasProducts ? 'pointer' : 'not-allowed',
-            opacity: hasProducts ? 1 : 0.6,
+            cursor: (hasProducts && !isHolidayModeActive) ? 'pointer' : 'not-allowed',
+            opacity: (hasProducts && !isHolidayModeActive) ? 1 : 0.6,
             textAlign: 'center',
           }}
         >
-          Place Order
+          {isHolidayModeActive ? 'Orders Temporarily Unavailable' : 'Place Order'}
         </div>
+         <HolidayModeBanner />
 
         {/* Contact Info */}
         <p style={{ textAlign: 'center', fontSize: '14px', color: '#666' }}>

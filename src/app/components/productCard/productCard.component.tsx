@@ -3,7 +3,7 @@ import {FaCartArrowDown} from 'react-icons/fa'
 import {Chip, HStack, VStack} from 'src/app/common'
 import ReactStarsRating from 'react-awesome-stars-rating'
 import {useNavigate} from 'react-router-dom'
-import {useDispatch} from 'src/store'
+import {useDispatch, useSelector} from 'src/store'
 import {createCartByUserId} from 'src/app/pages/web/cart/cart.service'
 import {createCartByUserIdAction} from 'src/app/pages/web/cart/cart.slice'
 import {getCookie} from 'src/helpers'
@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import {FiEye, FiShoppingCart} from 'react-icons/fi'
 import {FILE_URL} from 'src/config'
+import { fetchHolidayModeAction, selectHolidayMode } from 'src/app/pages/holidayMode/holidayMode.slice'
 
 export const ProductCard = ({data}: {data: any}) => {
   const [activeImage, setActiveImage] = useState(0)
@@ -18,6 +19,9 @@ export const ProductCard = ({data}: {data: any}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [productImages, setProductImages] = useState([])
+
+
+
 
   useEffect(() => {
     const ProductImages = data?.images?.map((item: any) => item.coloredImage)
