@@ -934,9 +934,7 @@ Aabhushan Gallery Team`
                 totalCount: Number(filteredOrders?.length ?? 0),
                 perPage: 10
               }}
-              style={{
-                position: 'relative'
-              }}
+           
             />
           </div>
         )}
