@@ -655,279 +655,290 @@ Aabhushan Gallery Team`
         )}
 
         {!showDetails && (
-          <Table
-            columns={[
-              {
-                field: 'select',
-                name: 'Select',
-                colStyle: { width: '60px', minWidth: '60px' },
-                render: (_, itemvalue) => {
-                  const isSelected = activeData?.find((item) => item._id === itemvalue._id) !== undefined
-                  
-                  return (
-                    <div
-                      onClick={() => {
-                        if (isSelected) {
-                          setActiveData(
-                            activeData.filter((item) => item._id !== itemvalue._id)
-                          )
-                        } else {
-                          setActiveData((prev) => [...prev, itemvalue])
-                          BulkActionHandler(true, itemvalue)
-                        }
-                      }}
-                      style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center' }}
-                    >
-                      {isSelected ? (
-                        <IoCheckboxOutline size={20} color="#1976d2" />
-                      ) : (
-                        <MdCheckBoxOutlineBlank size={20} color="#666" />
-                      )}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'productOrderId',
-                name: 'Order ID',
-                colStyle: { width: '140px', minWidth: '140px' },
-                render: (orderId) => {
-                  return (
-                    <div style={{ 
-                      fontFamily: 'monospace', 
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      color: '#1976d2'
-                    }}>
-                      {truncateText(orderId, 20)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'products',
-                name: 'Products',
-                colStyle: { width: '300px', minWidth: '250px' },
-                render: (products) => {
-                  return renderProductsList(products)
-                }
-              },
-              {
-                field: 'userId',
-                name: 'Customer',
-                colStyle: { width: '180px', minWidth: '150px' },
-                render: (userData) => {
-                  return (
-                    <div style={{ fontSize: '12px' }}>
-                      <div style={{ fontWeight: '500' }}>
-                        {truncateText(userData?.email || 'N/A', 25)}
-                      </div>
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'products',
-                name: 'Qty',
-                colStyle: { width: '60px', minWidth: '60px', textAlign: 'center' },
-                render: (products) => {
-                  return (
-                    <div style={{ 
-                      fontWeight: 'bold', 
-                      fontSize: '14px',
-                      textAlign: 'center'
-                    }}>
-                      {getTotalQuantity(products)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'totalAmount',
-                name: 'Total Amount',
-                colStyle: { width: '120px', minWidth: '120px', textAlign: 'right' },
-                render: (totalAmount) => {
-                  return (
-                    <div style={{ 
-                      fontWeight: 'bold', 
-                      fontSize: '13px',
-                      color: '#2e7d32',
-                      textAlign: 'right'
-                    }}>
-                      {getNprPrice(totalAmount)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'shippingLocation',
-                name: 'Destination',
-                colStyle: { width: '160px', minWidth: '140px' },
-                render: (location) => {
-                  return (
-                    <div style={{ 
-                      fontSize: '12px',
-                      lineHeight: '1.3'
-                    }}>
-                      {truncateText(location, 25)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: '_id',
-                name: 'Exact Location',
-                colStyle: { width: '160px', minWidth: '150px' },
-                render: (_, item) => {
-                  const hasLocation = item.latitude && item.longitude
-                  
-                  if (!hasLocation) {
+          <div style={{
+            maxHeight: 'calc(100vh - 400px)',
+            overflowY: 'auto',
+            overflowX: 'auto',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px'
+          }}>
+            <Table
+              columns={[
+                {
+                  field: 'select',
+                  name: 'Select',
+                  colStyle: { width: '60px', minWidth: '60px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (_, itemvalue) => {
+                    const isSelected = activeData?.find((item) => item._id === itemvalue._id) !== undefined
+                    
                     return (
-                      <div style={{ 
-                        fontSize: '11px',
-                        color: '#999',
-                        fontStyle: 'italic'
-                      }}>
-                        No GPS data
+                      <div
+                        onClick={() => {
+                          if (isSelected) {
+                            setActiveData(
+                              activeData.filter((item) => item._id !== itemvalue._id)
+                            )
+                          } else {
+                            setActiveData((prev) => [...prev, itemvalue])
+                            BulkActionHandler(true, itemvalue)
+                          }
+                        }}
+                        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center' }}
+                      >
+                        {isSelected ? (
+                          <IoCheckboxOutline size={20} color="#1976d2" />
+                        ) : (
+                          <MdCheckBoxOutlineBlank size={20} color="#666" />
+                        )}
                       </div>
                     )
                   }
-                  
-                  const displayText = item.locationAddress 
-                    ? truncateText(item.locationAddress, 20)
-                    : `${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}`
-                  
-                  return (
-                    <a
-                      href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
+                },
+                {
+                  field: 'productOrderId',
+                  name: 'Order ID',
+                  colStyle: { width: '140px', minWidth: '140px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (orderId) => {
+                    return (
+                      <div style={{ 
+                        fontFamily: 'monospace', 
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        color: '#1976d2'
+                      }}>
+                        {truncateText(orderId, 20)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'products',
+                  name: 'Products',
+                  colStyle: { width: '300px', minWidth: '250px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (products) => {
+                    return renderProductsList(products)
+                  }
+                },
+                {
+                  field: 'userId',
+                  name: 'Customer',
+                  colStyle: { width: '180px', minWidth: '150px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (userData) => {
+                    return (
+                      <div style={{ fontSize: '12px' }}>
+                        <div style={{ fontWeight: '500' }}>
+                          {truncateText(userData?.email || 'N/A', 25)}
+                        </div>
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'products',
+                  name: 'Qty',
+                  colStyle: { width: '60px', minWidth: '60px', textAlign: 'center', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (products) => {
+                    return (
+                      <div style={{ 
+                        fontWeight: 'bold', 
+                        fontSize: '14px',
+                        textAlign: 'center'
+                      }}>
+                        {getTotalQuantity(products)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'totalAmount',
+                  name: 'Total Amount',
+                  colStyle: { width: '120px', minWidth: '120px', textAlign: 'right', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (totalAmount) => {
+                    return (
+                      <div style={{ 
+                        fontWeight: 'bold', 
+                        fontSize: '13px',
+                        color: '#2e7d32',
+                        textAlign: 'right'
+                      }}>
+                        {getNprPrice(totalAmount)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'shippingLocation',
+                  name: 'Destination',
+                  colStyle: { width: '160px', minWidth: '140px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (location) => {
+                    return (
+                      <div style={{ 
+                        fontSize: '12px',
+                        lineHeight: '1.3'
+                      }}>
+                        {truncateText(location, 25)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: '_id',
+                  name: 'Exact Location',
+                  colStyle: { width: '160px', minWidth: '150px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (_, item) => {
+                    const hasLocation = item.latitude && item.longitude
+                    
+                    if (!hasLocation) {
+                      return (
+                        <div style={{ 
+                          fontSize: '11px',
+                          color: '#999',
+                          fontStyle: 'italic'
+                        }}>
+                          No GPS data
+                        </div>
+                      )
+                    }
+                    
+                    const displayText = item.locationAddress 
+                      ? truncateText(item.locationAddress, 20)
+                      : `${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}`
+                    
+                    return (
+                      <a
+                        href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontSize: '11px',
+                          color: '#1976d2',
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        <span>📍</span>
+                        <span>{displayText}</span>
+                      </a>
+                    )
+                  }
+                },
+                {
+                  field: 'isInsideValley',
+                  name: 'Valley',
+                  colStyle: { width: '80px', minWidth: '80px', textAlign: 'center', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (isInsideValley) => {
+                    return (
+                      <div style={{
+                        padding: '2px 8px',
+                        borderRadius: '4px',
                         fontSize: '11px',
-                        color: '#1976d2',
-                        textDecoration: 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-                    >
-                      <span>📍</span>
-                      <span>{displayText}</span>
-                    </a>
-                  )
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        backgroundColor: isInsideValley ? '#e8f5e8' : '#fff3e0',
+                        color: isInsideValley ? '#2e7d32' : '#f57c00'
+                      }}>
+                        {isInsideValley ? 'Yes' : 'No'}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'OrderedAt',
+                  name: 'Order Date',
+                  colStyle: { width: '130px', minWidth: '130px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (orderedAt) => {
+                    return (
+                      <div style={{ 
+                        fontSize: '11px',
+                        color: '#666'
+                      }}>
+                        {formatDate(orderedAt)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'phoneNumber',
+                  name: 'Mobile Number',
+                  colStyle: { width: '130px', minWidth: '130px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (phoneNumber) => {
+                    return (
+                      <div style={{ 
+                        fontSize: '11px',
+                        color: '#666'
+                      }}>
+                        {phoneNumber ?? '-'}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'shippingPrice',
+                  name: 'Shipping',
+                  colStyle: { width: '100px', minWidth: '100px', textAlign: 'right', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (shippingPrice) => {
+                    return (
+                      <div style={{ 
+                        fontSize: '12px',
+                        color: '#666',
+                        textAlign: 'right'
+                      }}>
+                        {getNprPrice(shippingPrice)}
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: '_id',
+                  name: 'Actions',
+                  colStyle: { width: '140px', minWidth: '140px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (_, item) => {
+                    return (
+                      <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
+                        <Button
+                          title="View Details"
+                          onClick={() => {
+                            setShowDetails(true)
+                            setActiveOrderDetails(item)
+                            setActiveData([item])
+                          }}
+                          style={{
+                            fontSize: '10px',
+                            padding: '2px 6px',
+                            minHeight: '24px'
+                          }}
+                        />
+                        <Button
+                          title="Confirm Order"
+                          onClick={() => sendWhatsAppMessage(item)}
+                          style={{
+                            fontSize: '10px',
+                            padding: '2px 6px',
+                            minHeight: '24px',
+                            backgroundColor: '#25D366',
+                            color: 'white'
+                          }}
+                        />
+                      </div>
+                    )
+                  }
                 }
-              },
-              {
-                field: 'isInsideValley',
-                name: 'Valley',
-                colStyle: { width: '80px', minWidth: '80px', textAlign: 'center' },
-                render: (isInsideValley) => {
-                  return (
-                    <div style={{
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      backgroundColor: isInsideValley ? '#e8f5e8' : '#fff3e0',
-                      color: isInsideValley ? '#2e7d32' : '#f57c00'
-                    }}>
-                      {isInsideValley ? 'Yes' : 'No'}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'OrderedAt',
-                name: 'Order Date',
-                colStyle: { width: '130px', minWidth: '130px' },
-                render: (orderedAt) => {
-                  return (
-                    <div style={{ 
-                      fontSize: '11px',
-                      color: '#666'
-                    }}>
-                      {formatDate(orderedAt)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'phoneNumber',
-                name: 'Mobile Number',
-                colStyle: { width: '130px', minWidth: '130px' },
-                render: (phoneNumber) => {
-                  return (
-                    <div style={{ 
-                      fontSize: '11px',
-                      color: '#666'
-                    }}>
-                      {phoneNumber ?? '-'}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: 'shippingPrice',
-                name: 'Shipping',
-                colStyle: { width: '100px', minWidth: '100px', textAlign: 'right' },
-                render: (shippingPrice) => {
-                  return (
-                    <div style={{ 
-                      fontSize: '12px',
-                      color: '#666',
-                      textAlign: 'right'
-                    }}>
-                      {getNprPrice(shippingPrice)}
-                    </div>
-                  )
-                }
-              },
-              {
-                field: '_id',
-                name: 'Actions',
-                colStyle: { width: '140px', minWidth: '140px' },
-                render: (_, item) => {
-                  return (
-                    <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
-                      <Button
-                        title="View Details"
-                        onClick={() => {
-                          setShowDetails(true)
-                          setActiveOrderDetails(item)
-                          setActiveData([item])
-                        }}
-                        style={{
-                          fontSize: '10px',
-                          padding: '2px 6px',
-                          minHeight: '24px'
-                        }}
-                      />
-                      <Button
-                        title="Confirm Order"
-                        onClick={() => sendWhatsAppMessage(item)}
-                        style={{
-                          fontSize: '10px',
-                          padding: '2px 6px',
-                          minHeight: '24px',
-                          backgroundColor: '#25D366',
-                          color: 'white'
-                        }}
-                      />
-                    </div>
-                  )
-                }
-              }
-            ]}
-            data={filteredOrders ?? []}
-            actions={{}}
-            pagination={{
-              totalCount: Number(filteredOrders?.length ?? 0),
-              perPage: 10
-            }}
-          />
+              ]}
+              data={filteredOrders ?? []}
+              actions={{}}
+              pagination={{
+                totalCount: Number(filteredOrders?.length ?? 0),
+                perPage: 10
+              }}
+              style={{
+                position: 'relative'
+              }}
+            />
+          </div>
         )}
 
         {orderPdf}
@@ -974,7 +985,6 @@ const OrderPDf = ({data}) => {
       return ''
     }
   }
-
 
   console.log(data,"data value finally")
   const calculateOrderTotals = (products) => {
@@ -1032,7 +1042,6 @@ const OrderPDf = ({data}) => {
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNyE_y63CdiQwrOyaUDsNWmntsXiuAm4Izg&s"
                   />
                   <Text style={styles.headerTitle}>{item.productOrderId}</Text>
-         
                 </View>
 
                 <View style={styles.box}>
@@ -1051,10 +1060,8 @@ const OrderPDf = ({data}) => {
                         <Text style={styles.locationCoords}>
                           {item.locationAddress || `${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}`}
                         </Text>
-
-
                       )}
- <Text style={styles.value}>{item.phoneNumber}</Text>
+                      <Text style={styles.contactValue}>{item.phoneNumber}</Text>
                     </View>
                   </View>
                 </View>
