@@ -19,7 +19,7 @@ const fetchHolidayModeAction = createAsyncThunk(
     try {
       const response = await holidayModeService.getSettings();
       onSuccess && onSuccess(response);
-      return response;
+      return response as any;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || 'Failed to fetch holiday mode settings'
@@ -40,7 +40,7 @@ const toggleHolidayModeAction = createAsyncThunk(
     try {
       const response = await holidayModeService.toggle();
       onSuccess && onSuccess(response);
-      return response;
+      return response as any;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || 'Failed to toggle holiday mode'
@@ -65,7 +65,7 @@ const updateHolidayModeAction = createAsyncThunk(
     try {
       const response = await holidayModeService.updateSettings(settings);
       onSuccess && onSuccess(response);
-      return response;
+      return response as any;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || 'Failed to update holiday mode settings'

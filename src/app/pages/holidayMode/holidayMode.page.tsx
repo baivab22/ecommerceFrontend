@@ -347,8 +347,8 @@ const HolidayModePage = () => {
             }}
             onClick={handleToggle}
             disabled={loading}
-            onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
-            onMouseLeave={(e) => (e.target.style.transform = 'translateY(0)')}
+            onMouseEnter={(e) => !loading && ((e.target as any).style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => ((e.target as any).style.transform = 'translateY(0)')}
           >
             {settings.isActive ? 'Disable' : 'Enable'}
           </button>
@@ -613,8 +613,8 @@ const HolidayModePage = () => {
                   opacity: loading ? '0.6' : '1'
                 }}
                 disabled={loading}
-                onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => (e.target.style.transform = 'translateY(0)')}
+                onMouseEnter={(e) => !loading && ((e.target as any).style.transform = 'translateY(-2px)')}
+                onMouseLeave={(e) => ((e.target as any).style.transform = 'translateY(0)')}
               >
                 Save Settings
               </button>
@@ -636,8 +636,8 @@ const HolidayModePage = () => {
                 }}
                 onClick={handleReset}
                 disabled={loading}
-                onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => (e.target.style.transform = 'translateY(0)')}
+                onMouseEnter={(e) => !loading && ((e.target as any).style.transform = 'translateY(-2px)')}
+                onMouseLeave={(e) => ((e.target as any).style.transform = 'translateY(0)')}
               >
                 Reset Changes
               </button>
