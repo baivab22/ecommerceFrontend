@@ -389,8 +389,10 @@ export const ProductListForWeb: React.FC = () => {
           //@ts-ignore
           
           nestedSubCategoryId: query.nestedSubCategoryId,
-          isBestSelling: !!query.isBestSelling as boolean,
-          isNewArrivals: !!query.isNewArrivals as boolean
+                   //@ts-ignore
+          isBestSelling: query.isBestSelling,
+                   //@ts-ignore
+          isNewArrivals: query.isNewArrivals 
         }
       })
     )
