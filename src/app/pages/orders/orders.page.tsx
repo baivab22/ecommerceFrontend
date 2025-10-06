@@ -154,6 +154,7 @@ export const OrderListPage = () => {
         if (order.userId?.name?.toLowerCase().includes(query)) return true
         if (order.userId?.phone?.toLowerCase().includes(query)) return true
         if (order.shippingLocation?.toLowerCase().includes(query)) return true
+        if (order.locationAddress?.toLowerCase().includes(query)) return true
         if (order.products?.some((product: any) => 
           product.productId?.name?.toLowerCase().includes(query)
         )) return true
@@ -176,9 +177,27 @@ export const OrderListPage = () => {
     return products?.reduce((total, product) => total + product.price, 0) || 0
   }
 
+  // Helper function to open Google Maps location
+  const openGoogleMaps = (latitude: number, longitude: number) => {
+    if (latitude && longitude) {
+      const url = `https://www.google.com/maps?q=${latitude},${longitude}`
+      window.open(url, '_blank')
+    }
+  }
+
+  // Helper function to get location display name
+  const getLocationDisplayName = (order: any) => {
+    if (order.locationAddress) {
+      return order.locationAddress
+    }
+    if (order.latitude && order.longitude) {
+      return `${order.latitude.toFixed(6)}, ${order.longitude.toFixed(6)}`
+    }
+    return 'No location data'
+  }
+
   // WhatsApp message sender
   const sendWhatsAppMessage = (order: any) => {
-
     console.log(order,"order finally")
     const phoneNumber = order.phoneNumber || '9841934343'
     const customerName = order.userId?.name || order.userId?.email || 'Customer'
@@ -189,9 +208,14 @@ export const OrderListPage = () => {
     ).join('\n') || 'No products listed'
     
     const totalAmount = getNprPrice(order.totalAmount)
-    const shippingLocation = order.shippingLocation
+    const shippingLocation = order.shippingLocation || order.locationAddress
     const deliveryType = order.isInsideValley ? 'Home Delivery (Inside Valley)' : 'Office Delivery (Outside Valley)'
     const paymentType = order.paymentMethod === 'phonepay' ? 'PhonePay' : 'Cash on Delivery (COD)'
+    
+    let locationInfo = ''
+    if (order.latitude && order.longitude) {
+      locationInfo = `\n📍 *Location:* https://www.google.com/maps?q=${order.latitude},${order.longitude}`
+    }
     
     const message = `🎉 *ORDER CONFIRMED* 🎉
 
@@ -209,7 +233,7 @@ Payment Method: ${paymentType}
 
 🚚 *Delivery Information:*
 Delivery Type: ${deliveryType}
-Address: ${shippingLocation}
+Address: ${shippingLocation}${locationInfo}
 Estimated Delivery: 2-5 working days
 
 Thank you for shopping with us! 
@@ -751,6 +775,51 @@ Aabhushan Gallery Team`
                 }
               },
               {
+                field: '_id',
+                name: 'Exact Location',
+                colStyle: { width: '160px', minWidth: '150px' },
+                render: (_, item) => {
+                  const hasLocation = item.latitude && item.longitude
+                  
+                  if (!hasLocation) {
+                    return (
+                      <div style={{ 
+                        fontSize: '11px',
+                        color: '#999',
+                        fontStyle: 'italic'
+                      }}>
+                        No GPS data
+                      </div>
+                    )
+                  }
+                  
+                  const displayText = item.locationAddress 
+                    ? truncateText(item.locationAddress, 20)
+                    : `${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}`
+                  
+                  return (
+                    <a
+                      href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '11px',
+                        color: '#1976d2',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      <span>📍</span>
+                      <span>{displayText}</span>
+                    </a>
+                  )
+                }
+              },
+              {
                 field: 'isInsideValley',
                 name: 'Valley',
                 colStyle: { width: '80px', minWidth: '80px', textAlign: 'center' },
@@ -785,8 +854,7 @@ Aabhushan Gallery Team`
                   )
                 }
               },
-
-                  {
+              {
                 field: 'phoneNumber',
                 name: 'Mobile Number',
                 colStyle: { width: '130px', minWidth: '130px' },
@@ -796,7 +864,7 @@ Aabhushan Gallery Team`
                       fontSize: '11px',
                       color: '#666'
                     }}>
-                  {phoneNumber ?? '-'}
+                      {phoneNumber ?? '-'}
                     </div>
                   )
                 }
@@ -907,6 +975,8 @@ const OrderPDf = ({data}) => {
     }
   }
 
+
+  console.log(data,"data value finally")
   const calculateOrderTotals = (products) => {
     if (!products || products.length === 0) return { totalQuantity: 0, totalPrice: 0 }
     
@@ -930,6 +1000,13 @@ const OrderPDf = ({data}) => {
     return Math.floor(availableHeight / productItemHeight)
   }
 
+  const generateLocationQrUrl = (latitude: number, longitude: number) => {
+    if (latitude && longitude) {
+      return `https://www.google.com/maps?q=${latitude},${longitude}`
+    }
+    return 'No location available'
+  }
+
   return (
     <PDFViewer style={styles.viewer}>
       <Document>
@@ -937,8 +1014,11 @@ const OrderPDf = ({data}) => {
           ?.filter((item) => Object.keys(item).length !== 0)
           ?.map((item, index) => {
             const { totalQuantity, totalPrice } = calculateOrderTotals(item?.products || [])
-            const deliveryType = item.isInsideValley ? 'Home Delivery' : 'Office Pickup'
+            const deliveryType = item?.isHomeDelivery 
             const maxProducts = getMaxProductsPerPage(item?.products?.length || 0)
+            const locationQrData = generateLocationQrUrl(item.latitude, item.longitude)
+
+            console.log('delivery type final',item,deliveryType)
 
             return (
               <Page
@@ -952,6 +1032,7 @@ const OrderPDf = ({data}) => {
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNyE_y63CdiQwrOyaUDsNWmntsXiuAm4Izg&s"
                   />
                   <Text style={styles.headerTitle}>{item.productOrderId}</Text>
+         
                 </View>
 
                 <View style={styles.box}>
@@ -959,13 +1040,21 @@ const OrderPDf = ({data}) => {
                     <View style={styles.column}>
                       <Text style={styles.label}>Origin</Text>
                       <Text style={styles.value}>Aabhushan Gallery</Text>
-                      <Text style={styles.smallValue}>Kathmandu, Nepal 44600</Text>
-                      <Text style={styles.contactValue}>9841934343</Text>
+                      <Text style={styles.smallValue}>Kathmandu,Kalimati Nepal 44600</Text>
+                      <Text style={styles.contactValue}>9861394245</Text>
                     </View>
                     <View style={styles.column}>
                       <Text style={styles.label}>Destination</Text>
                       <Text style={styles.value}>{item.shippingLocation}</Text>
-                      <Text style={styles.deliveryType}>{deliveryType}</Text>
+                      <Text style={styles.deliveryType}>{item?.isHomeDelivery?'Home Delivery':'Office Delivery' }</Text>
+                      {item.latitude && item.longitude && (
+                        <Text style={styles.locationCoords}>
+                          {item.locationAddress || `${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}`}
+                        </Text>
+
+
+                      )}
+ <Text style={styles.value}>{item.phoneNumber}</Text>
                     </View>
                   </View>
                 </View>
@@ -1015,11 +1104,12 @@ const OrderPDf = ({data}) => {
                 </View>
 
                 <View style={styles.qrContainer}>
+                  <Text style={styles.qrLabel}>
+                    {item.latitude && item.longitude ? 'Scan for delivery location' : 'Scan for order details'}
+                  </Text>
                   <Image
                     style={styles.qrCode}
-                    src={generateQrCodeUrl(
-                      `http://localhost:3000/orderDetails?orderId=${item?._id}&isForOrder=true`
-                    )}
+                    src={generateQrCodeUrl(locationQrData)}
                   />
                 </View>
 
@@ -1109,6 +1199,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 2
   },
+  locationCoords: {
+    fontSize: 5,
+    color: '#666',
+    marginTop: 1,
+    fontStyle: 'italic'
+  },
   box: {
     padding: 4,
     backgroundColor: '#f8f8f8',
@@ -1175,6 +1271,12 @@ const styles = StyleSheet.create({
   qrContainer: {
     alignItems: 'center',
     marginTop: 4
+  },
+  qrLabel: {
+    fontSize: 5,
+    color: '#666',
+    marginBottom: 2,
+    fontStyle: 'italic'
   },
   qrCode: {
     width: 35,

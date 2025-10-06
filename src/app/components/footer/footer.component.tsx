@@ -41,7 +41,7 @@ export const Footer = () => {
                     console.log("return policy clicked")
                     navigate('/return-policy')}}
                 >
-                  Return Policy
+                  Return Policyyyyyy
                 </button>
               </li>
               <li>

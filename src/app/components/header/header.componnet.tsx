@@ -1215,8 +1215,8 @@ export const TopHeader = () => {
   }, [])
 
   const handleOutSideClick = (event) => {
-    const target = document.getElementById('openModalButtons')
-    const children = target.getElementsByTagName('svg')
+    const target = document?.getElementById('openModalButtons')
+    const children = target?.getElementsByTagName('svg')
 
     if (
       sortRefs.current &&

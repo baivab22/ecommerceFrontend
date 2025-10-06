@@ -323,38 +323,38 @@ export const districtArray = [
       }
     ]
   },
-  {
-    district: 'BHAKTAPUR',
-    municipalities: [
-      {
-        name: 'Suryabinayak Municipality',
-        areas: {
-          Suryabinayak: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      },
-      {
-        name: 'Changunarayan Municipality',
-        areas: {
-          Nagarkot: {
-            homeDelivery: 170,
-            officeDelivery: 120
-          }
-        }
-      },
-      {
-        name: 'Madhyapur Thimi Municipality',
-        areas: {
-          'Naya Thimi': {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      }
-    ]
-  },
+  // {
+  //   district: 'BHAKTAPUR',
+  //   municipalities: [
+  //     {
+  //       name: 'Suryabinayak Municipality',
+  //       areas: {
+  //         Suryabinayak: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     },
+  //     {
+  //       name: 'Changunarayan Municipality',
+  //       areas: {
+  //         Nagarkot: {
+  //           homeDelivery: 170,
+  //           officeDelivery: 120
+  //         }
+  //       }
+  //     },
+  //     {
+  //       name: 'Madhyapur Thimi Municipality',
+  //       areas: {
+  //         'Naya Thimi': {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     }
+  //   ]
+  // },
   {
     district: 'BHOJPUR',
     municipalities: [
@@ -1559,72 +1559,72 @@ export const districtArray = [
       }
     ]
   },
-  {
-    district: 'KATHMANDU',
-    municipalities: [
-      {
-        name: 'KATHMANDU METROPOLITAN CITY',
-        areas: {
-          TINKUNE: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          'NAYA BUSPARK': {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          NEWROAD: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          CHABAHIL: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          KALANKI: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          KAPAN: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          THANKOT: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          SWOYAMBHU: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          BASUNDHARA: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          BUDHANILKANTHA: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          SANKHU: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          KAVRESTHALI: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          SUNDARIJAL: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          TOKHA: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      }
-    ]
-  },
+  // {
+  //   district: 'KATHMANDU',
+  //   municipalities: [
+  //     {
+  //       name: 'KATHMANDU METROPOLITAN CITY',
+  //       areas: {
+  //         TINKUNE: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         'NAYA BUSPARK': {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         NEWROAD: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         CHABAHIL: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         KALANKI: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         KAPAN: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         THANKOT: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         SWOYAMBHU: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         BASUNDHARA: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         BUDHANILKANTHA: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         SANKHU: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         KAVRESTHALI: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         SUNDARIJAL: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         TOKHA: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     }
+  //   ]
+  // },
   {
     district: 'KAVREPALANCHOK',
     municipalities: [
@@ -1697,42 +1697,42 @@ export const districtArray = [
       }
     ]
   },
-  {
-    district: 'LALITPUR',
-    municipalities: [
-      {
-        name: 'LALITPUR METROPOLITIAN CITY',
-        areas: {
-          SATDOBATO: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      },
-      {
-        name: 'MAHALAXMI MUNICIPALITY (LALITPUR)',
-        areas: {
-          LUBHU: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      },
-      {
-        name: 'GODAWARI MUNICIPALITY (LALITPUR)',
-        areas: {
-          CHAPAGAUN: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          },
-          GODAWARI: {
-            homeDelivery: 120,
-            officeDelivery: 70
-          }
-        }
-      }
-    ]
-  },
+  // {
+  //   district: 'LALITPUR',
+  //   municipalities: [
+  //     {
+  //       name: 'LALITPUR METROPOLITIAN CITY',
+  //       areas: {
+  //         SATDOBATO: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     },
+  //     {
+  //       name: 'MAHALAXMI MUNICIPALITY (LALITPUR)',
+  //       areas: {
+  //         LUBHU: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     },
+  //     {
+  //       name: 'GODAWARI MUNICIPALITY (LALITPUR)',
+  //       areas: {
+  //         CHAPAGAUN: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         },
+  //         GODAWARI: {
+  //           homeDelivery: 120,
+  //           officeDelivery: 70
+  //         }
+  //       }
+  //     }
+  //   ]
+  // },
   {
     district: 'LAMJUNG',
     municipalities: [

@@ -491,7 +491,7 @@ const HolidayModePage = () => {
             </div>
 
             {/* Permissions */}
-            <div style={{
+            {/* <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '16px',
@@ -568,7 +568,7 @@ const HolidayModePage = () => {
                   </label>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Info Note */}
             <div style={{
