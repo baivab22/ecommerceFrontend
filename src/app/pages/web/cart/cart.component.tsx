@@ -45,6 +45,12 @@ interface CartProduct {
   price: number
 }
 
+interface LocationCoordinates {
+  latitude: number
+  longitude: number
+  address?: string
+}
+
 // Constants
 const VALLEY_OPTIONS: Option[] = [
   {
@@ -93,6 +99,11 @@ export const CartPage = () => {
   const [selectedAreaOption, setSelectedAreaOption] = useState<Option | null>(null)
   const [selectedDeliveryTypeOption, setSelectedDeliveryTypeOption] = useState<Option | null>(null)
 
+  // Geolocation state
+  const [locationCoordinates, setLocationCoordinates] = useState<LocationCoordinates | null>(null)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const [showMapPicker, setShowMapPicker] = useState(false)
+
   // Form state
   const [shippingLocation, setShippingLocation] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -123,6 +134,7 @@ export const CartPage = () => {
   const isOutsideValley = selectedValleyOption?.value === 'outside'
   const isInsideValley = selectedValleyOption?.value === 'inside'
   const isPhonePaySelected = selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY
+  const isHomeDelivery = selectedDeliveryTypeOption?.value === 'home'
   const hasProducts = cartProducts.length > 0
 
   // Check if all required location fields are selected
@@ -175,10 +187,9 @@ export const CartPage = () => {
     }))
   }, [selectedMunicipalityOption])
 
-  // FIXED: Correct subtotal calculation using actual unit price * quantity
+  // Subtotal calculation
   const subtotal = useMemo(() => {
     return cartProducts.reduce((acc, item) => {
-      // Use unit price * quantity instead of the stored total price
       const unitPrice = item.productId?.discountedPrice || 0
       const quantity = item.quantity || 0
       const itemTotal = unitPrice * quantity
@@ -189,14 +200,12 @@ export const CartPage = () => {
     }, 0)
   }, [cartProducts])
 
-  // Shipping price calculation - only return actual price when location is complete
+  // Shipping price calculation
   const shippingPrice = useMemo(() => {
-    // Return 0 if location is not complete
     if (!isLocationComplete) {
       return 0
     }
 
-    // If no area data or delivery type, return 0 (no default charge)
     if (!selectedAreaOption?.areaData || !selectedDeliveryTypeOption) {
       return 0
     }
@@ -206,6 +215,86 @@ export const CartPage = () => {
   }, [selectedAreaOption, selectedDeliveryTypeOption, isLocationComplete])
 
   const total = subtotal + shippingPrice
+
+  // Geolocation functions
+  const getCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser')
+      return
+    }
+
+    setIsLoadingLocation(true)
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        
+        // Get address from coordinates using reverse geocoding
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          )
+          const data = await response.json()
+          const address = data.display_name || `${latitude}, ${longitude}`
+          
+          setLocationCoordinates({
+            latitude,
+            longitude,
+            address
+          })
+          
+          toast.success('Location captured successfully')
+        } catch (error) {
+          console.error('Error getting address:', error)
+          setLocationCoordinates({
+            latitude,
+            longitude,
+            address: `${latitude}, ${longitude}`
+          })
+          toast.success('Location captured (coordinates only)')
+        } finally {
+          setIsLoadingLocation(false)
+        }
+      },
+      (error) => {
+        setIsLoadingLocation(false)
+        console.error('Geolocation error:', error)
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error('Location permission denied. Please enable location access.')
+            break
+          case error.POSITION_UNAVAILABLE:
+            toast.error('Location information unavailable.')
+            break
+          case error.TIMEOUT:
+            toast.error('Location request timed out.')
+            break
+          default:
+            toast.error('Failed to get location.')
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    )
+  }, [])
+
+  const openMapPicker = useCallback(() => {
+    setShowMapPicker(true)
+  }, [])
+
+  const handleMapLocationSelect = useCallback((lat: number, lng: number, address?: string) => {
+    setLocationCoordinates({
+      latitude: lat,
+      longitude: lng,
+      address: address || `${lat}, ${lng}`
+    })
+    setShowMapPicker(false)
+    toast.success('Location selected from map')
+  }, [])
 
   // Effects
   useEffect(() => {
@@ -228,24 +317,28 @@ export const CartPage = () => {
     setSelectedAreaOption(null)
   }, [selectedMunicipalityOption])
 
-  // FIXED: Corrected quantity change handler
+  // Clear location when delivery type changes
+  useEffect(() => {
+    if (selectedDeliveryTypeOption?.value !== 'home') {
+      setLocationCoordinates(null)
+    }
+  }, [selectedDeliveryTypeOption])
+
+  // Quantity change handler
   const handleQuantityChange = useCallback(
     (newQuantity: number, product: CartProduct) => {
       if (!userId) return
       
-      // Validate quantity
       if (newQuantity < 1) {
         toast.error('Quantity must be at least 1')
         return
       }
 
-      // FIXED: Calculate price correctly using unit price
       const unitPrice = product.productId?.discountedPrice || 0
       const updatedPrice = Number(unitPrice * newQuantity)
 
       console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`)
 
-      // Optimistic update
       setCartProducts(prev =>
         prev.map(item =>
           item._id === product._id 
@@ -267,7 +360,6 @@ export const CartPage = () => {
             dispatch(getCartlistAction({ userId }))
           },
           onFailure: () => {
-            // Revert optimistic update on failure
             setCartProducts(datas?.cartData?.[0]?.products ?? [])
             toast.error('Failed to update product')
           }
@@ -279,13 +371,11 @@ export const CartPage = () => {
 
   const handleValleyChange = useCallback((option: Option) => {
     setSelectedValleyOption(option)
-    // Clear all location selections when valley type changes
     setSelectedDistrictOption(null)
     setSelectedMunicipalityOption(null)
     setSelectedAreaOption(null)
   }, [])
 
-  // Updated payment method change handler for radio button behavior
   const handlePaymentMethodChange = useCallback((method: string) => {
     console.log('Payment method changed:', method)
     setSelectedPaymentMethod(method)
@@ -306,9 +396,14 @@ export const CartPage = () => {
     if (!selectedMunicipalityOption) errors.push('Please select municipality')
     if (!selectedAreaOption) errors.push('Please select area')
     if (!selectedDeliveryTypeOption) errors.push('Please select delivery type')
+    
+    // Validate location for home delivery
+    if (isHomeDelivery && !locationCoordinates) {
+      errors.push('Please provide your location for home delivery')
+    }
+    
     if (!shippingLocation.trim()) errors.push('Please enter shipping address')
     
-    // Validate phone number
     if (!phoneNumber.trim()) {
       errors.push('Please enter phone number')
     } else if (!/^[0-9+\-\s()]+$/.test(phoneNumber.trim())) {
@@ -325,14 +420,14 @@ export const CartPage = () => {
     selectedMunicipalityOption,
     selectedAreaOption,
     selectedDeliveryTypeOption,
+    isHomeDelivery,
+    locationCoordinates,
     shippingLocation,
     phoneNumber,
     selectedPaymentMethod
   ])
 
-  // FIXED: Corrected checkout handler with proper price calculations
   const handleCheckout = useCallback(() => {
-    // Check if holiday mode is active and orders are not allowed
     if (isHolidayModeActive) {
       toast.error(settings?.message || 'We are currently on holiday. Orders will be processed after we return.');
       return;
@@ -341,7 +436,6 @@ export const CartPage = () => {
     const validationErrors = validateForm()
 
     if (validationErrors.length > 0) {
-      // Show only the first error to avoid spam
       toast.error(validationErrors[0])
       return
     }
@@ -354,7 +448,6 @@ export const CartPage = () => {
     const orderId = generateOrderId()
     const isPhonePay = selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY
 
-    // FIXED: Calculate correct prices for products in order
     const orderProducts = cartProducts.map(item => {
       const unitPrice = item.productId?.discountedPrice || 0
       const quantity = item.quantity || 0
@@ -365,7 +458,7 @@ export const CartPage = () => {
       return {
         productId: item.productId.id,
         quantity: quantity,
-        price: totalPriceForProduct // This should be total price for this product (unit * quantity)
+        price: totalPriceForProduct
       }
     })
 
@@ -373,8 +466,7 @@ export const CartPage = () => {
     console.log('Subtotal:', subtotal)
     console.log('Shipping:', shippingPrice)
     console.log('Total:', total)
-
-    console.log(cartProducts, "cartProducts to be deleted outside")
+    console.log('Location Coordinates:', locationCoordinates)
 
     dispatch(
       createOrderByUserIdAction({
@@ -391,13 +483,17 @@ export const CartPage = () => {
           phoneNumber: phoneNumber.trim(),
           orderNote: orderNote.trim(),
           shippingPrice: shippingPrice,
-          totalAmount: total
+          totalAmount: total,
+          // Add location coordinates for home delivery
+          ...(isHomeDelivery && locationCoordinates && {
+            latitude: locationCoordinates.latitude,
+            longitude: locationCoordinates.longitude,
+            locationAddress: locationCoordinates.address
+          })
         },
         onSuccess: (response) => {
-          // Get the order ID from backend response
           const backendOrderId = response?.data?.orderId || response?.orderId || orderId
           
-          // Show success message with order ID
           toast.success(
             <div style={{ lineHeight: '1.6' }}>
               <strong>Order placed successfully with orderId </strong>
@@ -409,25 +505,20 @@ export const CartPage = () => {
             { duration: 30000 }
           )
 
-          // Clear cart items
           const clearCartItems = async () => {
             dispatch(deleteCartByIdAction({
               cartId: userId,
               onSuccess: () => {
-                // Refresh cart after deletion
                 dispatch(getCartlistAction({ userId }))
               },
             }))
           }
 
           clearCartItems()
-
-          // Reset form
           resetForm()
 
-          // Open WhatsApp if phone payment is selected
           if (isPhonePay) {
-            setTimeout(() => openWhatsApp(backendOrderId), 1500) // Delay to show success message
+            setTimeout(() => openWhatsApp(backendOrderId), 1500)
           }
         },
         onFailure: error => {
@@ -455,7 +546,9 @@ export const CartPage = () => {
     shippingPrice,
     shippingLocation,
     total,
-    subtotal
+    subtotal,
+    isHomeDelivery,
+    locationCoordinates
   ])
 
   const resetForm = useCallback(() => {
@@ -469,6 +562,7 @@ export const CartPage = () => {
     setOrderNote('')
     setSelectedPaymentMethod(null)
     setIsShippingSame(true)
+    setLocationCoordinates(null)
   }, [])
 
   const openWhatsApp = useCallback((orderId: string) => {
@@ -508,6 +602,412 @@ export const CartPage = () => {
       </p>
     </div>
   )
+
+  // Location Picker Component
+  const LocationPickerSection = () => {
+    if (!isHomeDelivery) return null
+
+    return (
+      <VStack style={{ width: '100%' }} gap="$3">
+        <Label>Delivery Location * (Required for Home Delivery)</Label>
+        
+        {locationCoordinates ? (
+          <div style={{
+            padding: '16px',
+            backgroundColor: '#e8f5e9',
+            borderRadius: '8px',
+            border: '1px solid #4caf50'
+          }}>
+            <HStack justify="space-between" align="center">
+              <VStack gap="$1">
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#2e7d32' }}>
+                  ✓ Location Captured
+                </p>
+                <p style={{ fontSize: '12px', color: '#666' }}>
+                  Lat: {locationCoordinates.latitude.toFixed(6)}, 
+                  Lng: {locationCoordinates.longitude.toFixed(6)}
+                </p>
+                {locationCoordinates.address && (
+                  <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                    {locationCoordinates.address}
+                  </p>
+                )}
+              </VStack>
+              <div
+                onClick={() => setLocationCoordinates(null)}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Clear
+              </div>
+            </HStack>
+          </div>
+        ) : (
+          <VStack gap="$2">
+            <div
+              onClick={getCurrentLocation}
+              // disabled={isLoadingLocation}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '15px',
+                fontWeight: '600',
+                backgroundColor: isLoadingLocation ? '#ccc' : '#4caf50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isLoadingLocation ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoadingLocation) {
+                  e.currentTarget.style.backgroundColor = '#45a049'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoadingLocation) {
+                  e.currentTarget.style.backgroundColor = '#4caf50'
+                }
+              }}
+            >
+              {isLoadingLocation ? (
+                <>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '16px',
+                    height: '16px',
+                    border: '3px solid #ffffff',
+                    borderTop: '3px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                  <span>Getting Location...</span>
+                  <style dangerouslySetInnerHTML={{
+                    __html: `
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `
+                  }} />
+                </>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span>Use Current Location</span>
+                </>
+              )}
+            </div>
+
+            <div style={{
+              textAlign: 'center',
+              fontSize: '14px',
+              color: '#666',
+              fontWeight: '500',
+              margin: '12px 0'
+            }}>
+              or
+            </div>
+
+            <div
+              onClick={openMapPicker}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '15px',
+                fontWeight: '600',
+                backgroundColor: '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1976d2'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#2196f3'
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                <line x1="8" y1="2" x2="8" y2="18"></line>
+                <line x1="16" y1="6" x2="16" y2="22"></line>
+              </svg>
+              <span>Select Location on Map</span>
+            </div>
+
+            <p style={{
+              fontSize: '12px',
+              color: '#888',
+              textAlign: 'center',
+              marginTop: '12px',
+              lineHeight: '1.5'
+            }}>
+              📍 Location is required for accurate home delivery
+            </p>
+          </VStack>
+        )}
+      </VStack>
+    )
+  }
+
+  // Map Picker Modal with Leaflet integration
+  const MapPickerModal = () => {
+    const [mapCenter, setMapCenter] = React.useState<[number, number]>([27.7172, 85.3240]) // Kathmandu default
+    const [selectedPosition, setSelectedPosition] = React.useState<[number, number] | null>(null)
+    const mapContainerRef = React.useRef<HTMLDivElement>(null)
+    const mapRef = React.useRef<any>(null)
+    const markerRef = React.useRef<any>(null)
+
+    React.useEffect(() => {
+      if (!showMapPicker || !mapContainerRef.current) return
+
+      // Load Leaflet CSS
+      if (!document.getElementById('leaflet-css')) {
+        const link = document.createElement('link')
+        link.id = 'leaflet-css'
+        link.rel = 'stylesheet'
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+        document.head.appendChild(link)
+      }
+
+      // Load Leaflet JS
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+      script.async = true
+      
+      script.onload = () => {
+        if (mapRef.current) return // Map already initialized
+
+        const L = (window as any).L
+        
+        // Initialize map
+        const map = L.map(mapContainerRef.current).setView(mapCenter, 13)
+        mapRef.current = map
+
+        // Define base layers
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        })
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles © Esri',
+          maxZoom: 19
+        })
+
+        const hybridLayer = L.layerGroup([
+          L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri',
+            maxZoom: 19
+          }),
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+            opacity: 0.3
+          })
+        ])
+
+        // Add default layer (street view)
+        streetLayer.addTo(map)
+
+        // Add layer control
+        const baseLayers = {
+          "Street View": streetLayer,
+          "Satellite View": satelliteLayer,
+          "Hybrid View": hybridLayer
+        }
+
+        L.control.layers(baseLayers).addTo(map)
+
+        // Add marker
+        const marker = L.marker(mapCenter, { draggable: true }).addTo(map)
+        markerRef.current = marker
+
+        // Handle marker drag
+        marker.on('dragend', function() {
+          const position = marker.getLatLng()
+          setSelectedPosition([position.lat, position.lng])
+        })
+
+        // Handle map click
+        map.on('click', function(e: any) {
+          const { lat, lng } = e.latlng
+          marker.setLatLng([lat, lng])
+          setSelectedPosition([lat, lng])
+        })
+
+        // Set initial position
+        setSelectedPosition(mapCenter)
+
+        // Try to get user's current location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords
+              const userLocation: [number, number] = [latitude, longitude]
+              map.setView(userLocation, 15)
+              marker.setLatLng(userLocation)
+              setSelectedPosition(userLocation)
+            },
+            (error) => {
+              console.log('Could not get current location:', error)
+            }
+          )
+        }
+      }
+
+      document.body.appendChild(script)
+
+      return () => {
+        if (mapRef.current) {
+          mapRef.current.remove()
+          mapRef.current = null
+          markerRef.current = null
+        }
+      }
+    }, [showMapPicker])
+
+    if (!showMapPicker) return null
+
+    const handleConfirm = async () => {
+      if (!selectedPosition) return
+
+      const [lat, lng] = selectedPosition
+
+      // Get address from coordinates
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        )
+        const data = await response.json()
+        const address = data.display_name || `${lat}, ${lng}`
+        handleMapLocationSelect(lat, lng, address)
+      } catch (error) {
+        console.error('Error getting address:', error)
+        handleMapLocationSelect(lat, lng, `${lat}, ${lng}`)
+      }
+    }
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          maxWidth: '800px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'auto'
+        }}>
+          <h3 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: '600' }}>
+            Select Delivery Location
+          </h3>
+          <p style={{ marginBottom: '16px', fontSize: '14px', color: '#666' }}>
+            Click on the map or drag the marker to select your delivery location
+          </p>
+          
+          {/* Map Container */}
+          <div 
+            ref={mapContainerRef}
+            style={{
+              width: '100%',
+              height: '450px',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              border: '2px solid #e0e0e0'
+            }}
+          />
+
+          {selectedPosition && (
+            <div style={{
+              padding: '12px',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '6px',
+              marginBottom: '16px',
+              fontSize: '13px',
+              color: '#495057'
+            }}>
+              <strong>Selected Coordinates:</strong> {selectedPosition[0].toFixed(6)}, {selectedPosition[1].toFixed(6)}
+            </div>
+          )}
+
+          <HStack gap="$2" justify="flex-end">
+            <button
+              onClick={() => {
+                setShowMapPicker(false)
+                if (mapRef.current) {
+                  mapRef.current.remove()
+                  mapRef.current = null
+                  markerRef.current = null
+                }
+              }}
+              style={{
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '500',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={!selectedPosition}
+              style={{
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '500',
+                backgroundColor: selectedPosition ? '#007bff' : '#ccc',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: selectedPosition ? 'pointer' : 'not-allowed'
+              }}
+            >
+              Confirm Location
+            </button>
+          </HStack>
+        </div>
+      </div>
+    )
+  }
 
   // Holiday Mode Banner
   const HolidayModeBanner = () => {
@@ -556,20 +1056,10 @@ export const CartPage = () => {
     )
   }
 
-  console.log(selectedPaymentMethod, "selectedPaymentMethod ")
-  console.log('Current subtotal calculation:', subtotal)
-  console.log('Cart products for debugging:', cartProducts.map(item => ({
-    id: item._id,
-    unitPrice: item.productId?.discountedPrice,
-    quantity: item.quantity,
-    storedPrice: item.price,
-    calculatedPrice: (item.productId?.discountedPrice || 0) * (item.quantity || 0)
-  })))
-
   return (
     <div className="cartPage">
-      {/* Holiday Mode Banner */}
-     
+      {/* Map Picker Modal */}
+      <MapPickerModal />
 
       {/* Products Section */}
       <VStack gap="$3" style={{ width: media.md ? '55%' : '100%' }}>
@@ -663,6 +1153,9 @@ export const CartPage = () => {
               />
             </VStack>
           </HStack>
+
+          {/* Location Picker Section - Only for Home Delivery */}
+          <LocationPickerSection />
 
           {/* Shipping Details */}
           <VStack style={{ width: '100%' }} gap="$2">
@@ -817,7 +1310,7 @@ export const CartPage = () => {
         >
           {isHolidayModeActive ? 'Orders Temporarily Unavailable' : 'Place Order'}
         </div>
-         <HolidayModeBanner />
+        <HolidayModeBanner />
 
         {/* Contact Info */}
         <p style={{ textAlign: 'center', fontSize: '14px', color: '#666' }}>

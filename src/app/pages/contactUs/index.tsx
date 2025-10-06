@@ -145,7 +145,7 @@ export const ContactUs = () => {
                     color: '#4a4a4a',
                     lineHeight: '1.6'
                   }}>
-                    +977 986-1394245
+                    +977 9861698400
                   </div>
                 </div>
               </div>
@@ -190,46 +190,7 @@ export const ContactUs = () => {
                 </div>
               </div>
 
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                marginBottom: '0',
-                gap: '15px'
-              }}>
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  background: 'linear-gradient(135deg, #f48fb1, #c2185b)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.5rem',
-                  flexShrink: 0
-                }}>
-                  ⏰
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{
-                    fontSize: '0.9rem',
-                    color: '#f48fb1',
-                    fontWeight: '600',
-                    marginBottom: '5px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    Business Hours
-                  </div>
-                  <div style={{
-                    fontSize: '1.1rem',
-                    color: '#4a4a4a',
-                    lineHeight: '1.6'
-                  }}>
-                    Sun - Fri: 10:00 AM - 7:00 PM<br />
-                    Saturday: Closed
-                  </div>
-                </div>
-              </div>
+      
             </div>
 
             {/* Map */}

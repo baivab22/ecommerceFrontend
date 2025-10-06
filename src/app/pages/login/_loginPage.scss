@@ -30,6 +30,13 @@ container {
     rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
 
   padding: 20px;
+
+
+
+@media only screen and (max-width: 576px) {
+width: 90% !important;
+// border: 2px solid red ;
+}
 }
 
 .login-form label {

@@ -206,11 +206,11 @@ export const Router: RouteObject[] = [
   {
     path: '/shipping-policy',
     // element: <Sample />
-    element: <ProtectedAuth />,
+    element: <PublicAuth />,
     children: [
       {
         path: '',
-        element: <ShippingPolicy />
+        element: <ReturnPolicy />
       }
     ]
   },
