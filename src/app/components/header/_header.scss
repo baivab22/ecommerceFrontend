@@ -82,8 +82,9 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
               top:unset;
 
     @include responsive-for(md) {
-top:0;
+top:-13px;
 left:0px;
+height: 90px;
 // border: 2px solid red;
     }
 
@@ -99,6 +100,9 @@ left:0px;
 
     &-search {
       width: 50%;
+      @include responsive-for(md){
+        width: 100%;
+      }
     }
 
     &-cartProfile {
@@ -106,6 +110,14 @@ left:0px;
       justify-content: flex-start;
       align-items: center;
       gap: map-get($space, 4);
+
+
+      @include responsive-for(md){
+        // border: 2px solid blue;
+            position: absolute;
+    right: 0;
+    top: 34px;
+      }
 
       &-cart {
         cursor: pointer;

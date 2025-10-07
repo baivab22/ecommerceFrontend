@@ -28,6 +28,13 @@
   flex-direction: column;
   gap: 40px;
   width: 20%;
+  justify-content: space-between;
+
+
+  @include responsive-for(md){
+    // border: 2px solid red;
+    flex-direction: row;
+  }
 }
 .img_wrap {
   width: 80px;

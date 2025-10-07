@@ -507,6 +507,8 @@ useEffect(() => {
       
       return {
         productId: item.productId.id,
+
+        //@ts-ignore
         colorName:item.colorName,
         quantity: quantity,
         price: totalPriceForProduct,

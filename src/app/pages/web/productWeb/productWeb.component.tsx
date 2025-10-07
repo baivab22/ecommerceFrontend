@@ -321,6 +321,10 @@ export const ProductListSideComp: React.FC = () => {
       nestedSubCategoryName: ''
     })
   }
+  const isMobile = !media.md
+  const [showFilters, setShowFilters] = React.useState(!isMobile)
+
+
 
   return (
     <VStack
@@ -329,24 +333,48 @@ export const ProductListSideComp: React.FC = () => {
       style={{ width: '100%' }}
       gap="$4"
     >
-      <HStack justify="space-between" align="center" style={{ width: '100%' }}>
-        <Title primaryHeading>Categories</Title>
-        {(selectedFilters.categoryId || selectedFilters.subCategoryId || selectedFilters.nestedSubCategoryId) && (
-          <button 
-            onClick={clearAllFilters}
-            style={{
-              background: 'transparent',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            Clear All
-          </button>
-        )}
-      </HStack>
+      {isMobile && (
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: '#e3f2fd',
+            border: '1px solid #2196f3',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <span>Filters & Categories</span>
+          <span>{showFilters ? '▲' : '▼'}</span>
+        </button>
+      )}
+
+      {(!isMobile || showFilters) && (
+        <>
+          <HStack justify="space-between" align="center" style={{ width: '100%' }}>
+            <Title primaryHeading>Categories</Title>
+            {(selectedFilters.categoryId || selectedFilters.subCategoryId || selectedFilters.nestedSubCategoryId) && (
+              <button 
+                onClick={clearAllFilters}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                Clear All
+              </button>
+            )}
+          </HStack>
 
       {/* Display current selection path */}
       {(selectedFilters.categoryName || selectedFilters.subCategoryName || selectedFilters.nestedSubCategoryName) && (
@@ -354,7 +382,7 @@ export const ProductListSideComp: React.FC = () => {
           background: '#f5f5f5',
           padding: '8px',
           borderRadius: '4px',
-          fontSize: '12px',
+          fontSize: '11px',
           width: '100%'
         }}>
           <strong>Selected:</strong>
@@ -376,13 +404,28 @@ export const ProductListSideComp: React.FC = () => {
       <div
         style={{
           width: '100%',
-          maxHeight: '400px',
+          maxHeight: isMobile ? '150px' : '300px',
           overflowY: 'auto',
           border: '1px solid #eee',
           borderRadius: '4px',
           padding: '8px'
         }}
       >
+        {/* All option */}
+        <div
+          onClick={clearAllFilters}
+          style={{
+            padding: '8px',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            background: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? '#e3f2fd' : 'transparent',
+            fontWeight: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? 'bold' : 'normal',
+            marginBottom: '4px'
+          }}
+        >
+          All Categories
+        </div>
+        
         {categoryData?.map((category) => (
           <CategoryItem
             key={category.id}
@@ -395,70 +438,78 @@ export const ProductListSideComp: React.FC = () => {
       </div>
 
       {/* Price Range Filter */}
-      <Title primaryHeading>Price Range</Title>
-      <HStack
-        style={{ width: '100%' }}
-        gap="$3"
-        align="center"
-        justify="center"
-      >
-        <VStack gap="$2" style={{ flex: 1 }}>
-          <Title subheading>FROM</Title>
-          <InputField
-            type="number"
-            value={query.minPrice || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              updateQuery({
-                minPrice: e.target.value
-              })
-            }}
-            placeholder="Min price"
-          />
-        </VStack>
-        <HStack justify="center" align="center" style={{ padding: '0 8px' }}>
-          -
+      <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
+        <Title primaryHeading>Price Range</Title>
+        <HStack
+          style={{ width: '100%' }}
+          gap="$2"
+          align="center"
+          justify="center"
+        >
+          <VStack gap="$1" style={{ flex: 1 }}>
+            <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>FROM</Title>
+            <InputField
+              type="number"
+              value={query.minPrice || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                updateQuery({
+                  minPrice: e.target.value
+                })
+              }}
+              placeholder="Min"
+              style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
+            />
+          </VStack>
+          <HStack justify="center" align="center" style={{ padding: isMobile ? '0 4px' : '0 8px', marginTop: '20px' }}>
+            -
+          </HStack>
+          <VStack gap="$1" style={{ flex: 1 }}>
+            <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>TO</Title>
+            <InputField
+              type="number"
+              value={query.maxPrice || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                updateQuery({
+                  maxPrice: e.target.value
+                })
+              }}
+              placeholder="Max"
+              style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
+            />
+          </VStack>
         </HStack>
-        <VStack gap="$2" style={{ flex: 1 }}>
-          <Title subheading>TO</Title>
-          <InputField
-            type="number"
-            value={query.maxPrice || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              updateQuery({
-                maxPrice: e.target.value
-              })
-            }}
-            placeholder="Max price"
-          />
-        </VStack>
-      </HStack>
+      </VStack>
 
       {/* Best Selling and New Arrivals Filters */}
-      <VStack align="flex-start" style={{ width: '100%' }} gap="$3">
+      <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
         <Title primaryHeading>Filters</Title>
         
-        <CheckBox
-          name="isBestSelling"
-          label="Best Selling"
-          handleCheckboxChange={(checked: boolean) => {
-            updateQuery({
-              isBestSelling: checked ? 'true' : ''
-            })
-          }}
-          check={query.isBestSelling === 'true'}
-        />
-        
-        <CheckBox
-          name="isNewArrivals"
-          label="New Arrivals"
-          handleCheckboxChange={(checked: boolean) => {
-            updateQuery({
-              isNewArrivals: checked ? 'true' : ''
-            })
-          }}
-          check={query.isNewArrivals === 'true'}
-        />
+        <HStack gap={isMobile ? '$3' : '$2'} style={{ width: '100%', flexWrap: 'wrap' }}>
+          <CheckBox
+            name="isBestSelling"
+            label="Best Selling"
+            handleCheckboxChange={(checked: boolean) => {
+              updateQuery({
+                isBestSelling: checked ? 'true' : ''
+              })
+            }}
+            check={query.isBestSelling === 'true'}
+          />
+          
+          <CheckBox
+            name="isNewArrivals"
+            label="New Arrivals"
+            handleCheckboxChange={(checked: boolean) => {
+              updateQuery({
+                isNewArrivals: checked ? 'true' : ''
+              })
+            }}
+            check={query.isNewArrivals === 'true'}
+          />
+        </HStack>
       </VStack>
+        </>
+      )}
     </VStack>
   )
 }
