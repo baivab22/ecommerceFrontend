@@ -277,6 +277,22 @@ Aabhushan Gallery Team`
               justifyContent: 'space-between'
             }}>
               <span>Qty: {product.quantity}</span>
+
+             <div>
+  Variant:
+  <span
+    style={{
+      display: 'inline-block',
+      height: '20px',
+      width: '20px',
+      backgroundColor: product.colorName,
+      marginLeft: '8px',
+      border: '1px solid #ccc',
+      borderRadius: '4px'
+    }}
+  ></span>
+</div>
+
               <span>{getNprPrice(product.price)}</span>
             </div>
             {index < products.length - 1 && (

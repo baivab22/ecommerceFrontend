@@ -114,7 +114,7 @@ export const HomePage = () => {
   // console.log(loginData,'loginData in profile from home')
 
   return (
-    <div className="home">
+    <div className="home" style={{background:'white'}}>
       <MainCarousel></MainCarousel>
       <CompWrapper>
         <CategoryContainer data={categoryData}></CategoryContainer>

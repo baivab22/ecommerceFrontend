@@ -95,7 +95,7 @@ export const Router: RouteObject[] = [
     path: '/shipping-policy',
     // element: <PublicAuth />,/
 
-    element: <ShippingPolicy />
+    element: <ReturnPolicy />
   },
       {
     path: '/styling-guide',
@@ -193,26 +193,26 @@ export const Router: RouteObject[] = [
   },
   {
     path: '/return-policy',
-    // element: <Sample />
-    element: <PublicAuth />,
-    children: [
-      {
-        path: '',
-        element: <ReturnPolicy />
-      }
-    ]
+    element: <ReturnPolicy />
+    // element: <PublicAuth />,
+    // children: [
+    //   {
+    //     path: '',
+    //     element: <ReturnPolicy />
+    //   }
+    // ]
   },
 
   {
     path: '/shipping-policy',
-    // element: <Sample />
-    element: <PublicAuth />,
-    children: [
-      {
-        path: '',
-        element: <ReturnPolicy />
-      }
-    ]
+    element: <ReturnPolicy />
+    // element: <PublicAuth />,
+    // children: [
+    //   {
+    //     path: '',
+    //     element: <ReturnPolicy />
+    //   }
+    // ]
   },
   // {
   //   path: '/products',

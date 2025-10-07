@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { setCookie } from 'src/helpers'
 import { useAuth } from 'src/app/routing'
 import { Eye, EyeOff } from 'lucide-react'
+import { useMeasure, useMedia } from 'src/hooks'
 
 export const LoginPage = () => {
   const dispatch = useDispatch()
@@ -183,10 +184,12 @@ export const LoginPage = () => {
     console.log('LoginPage mounted')
   }, [])
 
+  const media=useMedia()
+
   return (
     <>
       <h2 className="login-title">Log in</h2>
-      <div className="container">
+      <div className="container" style={{paddingTop:0}}>
         <div className="login-form">
           <div>
             <label htmlFor="email">Email </label>
@@ -257,7 +260,8 @@ export const LoginPage = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              width: '100%'
+              width: '100%',
+              flexDirection:!media.md?'column':'row'
             }}
           >
             <p

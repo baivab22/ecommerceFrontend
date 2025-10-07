@@ -183,6 +183,7 @@ export const GlobalStyle = createGlobalStyle`
     body {
         background-color: ${Theme.colors.$white};
         color: ${Theme.colors.$gray800};
+        background-color:red !important;
     }
 
     ul { list-style: none }

@@ -363,6 +363,10 @@ useEffect(() => {
     setCartProducts(datas?.cartData?.[0]?.products ?? [])
   }, [datas?.cartData?.[0]?.products])
 
+
+
+  console.log(datas.cartData,cartProducts,"datas and cart datas")
+
   // Clear dependent selections when parent changes
   useEffect(() => {
     setSelectedMunicipalityOption(null)
@@ -496,12 +500,17 @@ useEffect(() => {
       const quantity = item.quantity || 0
       const totalPriceForProduct = unitPrice * quantity
 
+
+      console.log(item,"item products ordered")
+
       console.log(`Order Product ${item.productId.id}: Unit ${unitPrice} × Qty ${quantity} = ${totalPriceForProduct}`)
       
       return {
         productId: item.productId.id,
+        colorName:item.colorName,
         quantity: quantity,
-        price: totalPriceForProduct
+        price: totalPriceForProduct,
+
       }
     })
 
@@ -509,7 +518,7 @@ useEffect(() => {
     console.log('Subtotal:', subtotal)
     // console.log('Shipping:', shippingPrice)
     console.log('Total:', total)
-    console.log('Location Coordinates:', locationCoordinates)
+    console.log('Location Coordinates:',isOutsideValley, locationCoordinates)
 
     dispatch(
       createOrderByUserIdAction({
@@ -520,7 +529,7 @@ useEffect(() => {
           isInsideValley: JSON.stringify(!isOutsideValley),
           OrderedAt: new Date().toLocaleString(),
           productOrderId: orderId,
-          shippingLocation: `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}, ${shippingLocation}`,
+          shippingLocation:isOutsideValley===false ? shippingLocation: `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}, ${shippingLocation}`,
           paymentMethod: selectedPaymentMethod,
           deliveryType: selectedDeliveryTypeOption?.value,
           phoneNumber: phoneNumber.trim(),

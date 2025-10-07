@@ -1377,7 +1377,7 @@ console.log(auth.isLoggedin,auth,"data value final")
                 navigate('cart')
               }}
             >
-              {datas?.cartData?.[0]?.products?.length > 0 && (
+              {datas?.cartData?.[0]?.products?.length > 0 && auth.isLoggedin && (
                 <HStack
                   justify="center"
                   align="center"
@@ -1404,10 +1404,12 @@ console.log(auth.isLoggedin,auth,"data value final")
               <FaCartArrowDown size={24} />
             </div>
 
-            <div className="topHeader-cartProfile-profile">
+            <div className="topHeader-cartProfile-profile" onClick={() => setSortVisible((prev) => !prev)}
+            style={{padding:'10px'}}
+           >
               <VStack
                 className="sortMainContainer"
-                onClick={() => setSortVisible((prev) => !prev)}
+          
               >
                 <HStack id="openModalButtons" style={{cursor: 'pointer'}}>
                   <FaUserAlt

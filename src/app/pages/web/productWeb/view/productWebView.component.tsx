@@ -162,11 +162,13 @@ export const ProductWebDetail = () => {
   
   const datas = useSelector((state: any) => state.cart)
 
-  const handleAddToCart = (data: any) => {
+  const handleAddToCart = (data: any,activeColorIndex:number) => {
     const userId = getCookie('userId')
     const roles = getCookie('userRoles')
 
-    console.log(userId, roles, 'userIduserIduserId')
+    console.log(activeColorIndex,"active color index value data");
+
+    console.log(userId, roles, 'userIduserIduserId',productDetailData.images[activeColorIndex])
 
     if (userId && !!roles) {
       const isAlreadyExist = datas?.cartData?.[0]?.products?.some(
@@ -187,7 +189,8 @@ export const ProductWebDetail = () => {
             {
               productId: data?.id,
               quantity: 1,
-              price: data?.discountedPrice
+              price: data?.discountedPrice,
+              colorName:productDetailData.images[activeColorIndex].colorName
             }
           ]
         }
@@ -290,6 +293,8 @@ export const ProductWebDetail = () => {
                 <HStack gap="$3">
                   {productDetailData?.images?.map(
                     (item: any, index: number) => {
+
+                      console.log(item,"item data value")
                       return (
                         <div
                           key={index}
@@ -328,7 +333,7 @@ export const ProductWebDetail = () => {
                     return
                   }
                   !!auth.isLoggedin
-                    ? handleAddToCart(productDetailData)
+                    ? handleAddToCart(productDetailData,activeColorIndex)
                     : toast.error('Please login first to add products')
                 }}
               >

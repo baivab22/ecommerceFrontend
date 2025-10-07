@@ -6,12 +6,14 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { setCookie } from 'src/helpers'
 import { Eye, EyeOff } from 'lucide-react'
+import { useMedia } from 'src/hooks'
 
 export const RegisterPage = () => {
   const dispatch = useDispatch()
   const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
+  const media=useMedia()
 
   // ✅ Email validation helper
   const isValidEmail = (email: string) => {
@@ -50,7 +52,9 @@ export const RegisterPage = () => {
   return (
     <>
       <h2 className="login-title">Create Your Account</h2>
-      <div className="container">
+      <div className="container"
+      style={{paddingTop:0}}
+      >
         <div className="login-form">
           <div>
             <label htmlFor="email">Email </label>
@@ -104,7 +108,8 @@ export const RegisterPage = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              width: '100%'
+              width: '100%',
+              flexDirection:!media.md?'column':'row'
             }}
           >
             <button
