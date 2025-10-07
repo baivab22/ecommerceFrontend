@@ -337,7 +337,7 @@ export const ProductWebDetail = () => {
                     : toast.error('Please login first to add products')
                 }}
               >
-                <p>ADD TO CART</p>
+                <p>{productDetailData?.stockQuantity === 0 ? "OUT OF STOCK":"ADD TO CART"}</p>
               </div>
 
               <HStack
