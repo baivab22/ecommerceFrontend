@@ -62,7 +62,7 @@ export const OrderListPage = () => {
 
   const orderPdf = useMemo(() => {
     if (!!activeOrderDetails) {
-      return <OrderPDf data={activeData} />
+      return <OrderPDF data={activeData} />
     }
   }, [activeOrderDetails, showDetails])
 
@@ -720,9 +720,10 @@ Aabhushan Gallery Team`
                         fontFamily: 'monospace', 
                         fontSize: '12px',
                         fontWeight: 'bold',
-                        color: '#1976d2'
+                        // color: '#1976d2'
                       }}>
-                        {truncateText(orderId, 20)}
+                        {orderId}
+                        
                       </div>
                     )
                   }
@@ -984,7 +985,7 @@ Aabhushan Gallery Team`
   )
 }
 
-const OrderPDf = ({data}) => {
+const OrderPDF = ({data}) => {
   const currentDate = new Date()
 
   const generateQrCodeUrl = async (text: string) => {
@@ -1000,7 +1001,6 @@ const OrderPDf = ({data}) => {
     }
   }
 
-  console.log(data,"data value finally")
   const calculateOrderTotals = (products) => {
     if (!products || products.length === 0) return { totalQuantity: 0, totalPrice: 0 }
     
@@ -1008,20 +1008,6 @@ const OrderPDf = ({data}) => {
     const totalPrice = products.reduce((sum, product) => sum + (product.price || 0), 0)
     
     return { totalQuantity, totalPrice }
-  }
-
-  const getMaxProductsPerPage = (productsCount) => {
-    const headerHeight = 30
-    const originDestHeight = 40
-    const summaryHeight = 50
-    const qrHeight = 40
-    const footerHeight = 20
-    const margins = 24
-    
-    const availableHeight = 288 - headerHeight - originDestHeight - summaryHeight - qrHeight - footerHeight - margins
-    const productItemHeight = 16
-    
-    return Math.floor(availableHeight / productItemHeight)
   }
 
   const generateLocationQrUrl = (latitude: number, longitude: number) => {
@@ -1038,106 +1024,138 @@ const OrderPDf = ({data}) => {
           ?.filter((item) => Object.keys(item).length !== 0)
           ?.map((item, index) => {
             const { totalQuantity, totalPrice } = calculateOrderTotals(item?.products || [])
-            const deliveryType = item?.isHomeDelivery 
-            const maxProducts = getMaxProductsPerPage(item?.products?.length || 0)
             const locationQrData = generateLocationQrUrl(item.latitude, item.longitude)
-
-            console.log('delivery type final',item,deliveryType)
+            const maxProductsToShow = 6
 
             return (
-              <Page
-                size={{width: 216, height: 288}}
-                style={styles.page}
-                key={index}
-              >
+              <Page size="A5" style={styles.page} key={index}>
+                {/* Elegant Header */}
                 <View style={styles.header}>
-                  <Image
-                    style={styles.logo}
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNyE_y63CdiQwrOyaUDsNWmntsXiuAm4Izg&s"
-                  />
-                  <Text style={styles.headerTitle}>{item.productOrderId}</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <View style={styles.row}>
-                    <View style={styles.column}>
-                      <Text style={styles.label}>Origin</Text>
-                      <Text style={styles.value}>Aabhushan Gallery</Text>
-                      <Text style={styles.smallValue}>Kathmandu,Kalimati Nepal 44600</Text>
-                      <Text style={styles.contactValue}>9861394245</Text>
+                  <View style={styles.brandSection}>
+                    <Image style={styles.logo} src="/assets/images/logosss.png" />
+                    <View>
+                      <Text style={styles.brandName}>AABHUSHAN GALLERY</Text>
+                      <Text style={styles.tagline}>Kathmandu, Nepal</Text>
                     </View>
-                    <View style={styles.column}>
-                      <Text style={styles.label}>Destination</Text>
-                      <Text style={styles.value}>{item.shippingLocation}</Text>
-                      <Text style={styles.deliveryType}>{item?.isHomeDelivery?'Home Delivery':'Office Delivery' }</Text>
-                      {item.latitude && item.longitude && (
-                        <Text style={styles.locationCoords}>
-                          {item.locationAddress || `${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}`}
-                        </Text>
-                      )}
-                      <Text style={styles.contactValue}>{item.phoneNumber}</Text>
-                    </View>
+                  </View>
+                  <View style={styles.orderSection}>
+                    <Text style={styles.orderLabel}>ORDER</Text>
+                    <Text style={styles.orderNumber}>#{item.productOrderId}</Text>
                   </View>
                 </View>
 
-                <View style={[styles.box, {backgroundColor: '#f9f9f9', flex: 1}]}>
-                  <Text style={styles.sectionTitle}>Products Details</Text>
-                  <View style={styles.productsContainer}>
-                    {item?.products?.slice(0, maxProducts).map((product, productIndex) => (
-                      <View key={productIndex} style={styles.compactProductRow}>
-                        <View style={styles.productNameContainer}>
-                          <Text style={styles.compactProductName}>
-                            {(product?.productId?.name || 'Unknown Product').substring(0, 35)}
-                            {(product?.productId?.name || '').length > 35 ? '...' : ''}
-                          </Text>
-                        </View>
-                        <View style={styles.productStatsContainer}>
-                          <Text style={styles.productStat}>Qty: {product?.quantity || 0}</Text>
-                          <Text style={styles.productStat}>Rs. {product?.price.toFixed(2) || 0}</Text>
-                        </View>
+                {/* Shipping Information Grid */}
+                <View style={styles.shippingGrid}>
+                  <View style={styles.addressCard}>
+                    <Text style={styles.addressTitle}>ORIGIN</Text>
+                    <View style={styles.divider} />
+                    <Text style={styles.name}>Aabhushan Gallery</Text>
+                    <Text style={styles.address}>Kalimati, Kathmandu</Text>
+                    <Text style={styles.address}>Nepal 44600</Text>
+                    <Text style={styles.contact}>T: 9861394245</Text>
+                  </View>
+
+                  <View style={[styles.addressCard, styles.destinationCard]}>
+                    <View style={styles.destinationHeader}>
+                      <Text style={styles.addressTitle}>DESTINATION</Text>
+                      <Text style={styles.deliveryType}>{item?.isHomeDelivery ? 'HOME DELIVERY' : 'OFFICE DELIVERY'}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <Text style={styles.name}>{item.customerName || 'Customer'}</Text>
+                    <Text style={styles.address}>{item.shippingLocation}</Text>
+                    {item.locationAddress && <Text style={styles.address}>{item.locationAddress}</Text>}
+                    <Text style={styles.contact}>T: {item.phoneNumber}</Text>
+                  </View>
+                </View>
+
+                {/* Financial Summary - Highlighted */}
+                <View style={styles.financialSection}>
+                  <View style={styles.summaryGrid}>
+                    <View style={styles.summaryItem}>
+                      <Text style={styles.summaryLabel}>ITEMS</Text>
+                      <Text style={styles.summaryValue}>{item?.products?.length || 0}</Text>
+                    </View>
+                    <View style={styles.summaryItem}>
+                      <Text style={styles.summaryLabel}>QTY</Text>
+                      <Text style={styles.summaryValue}>{totalQuantity}</Text>
+                    </View>
+                    <View style={styles.summaryItem}>
+                      <Text style={styles.summaryLabel}>SUBTOTAL</Text>
+                      <Text style={styles.summaryValue}>Rs. {totalPrice.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.summaryItem}>
+                      <Text style={styles.summaryLabel}>SHIPPING</Text>
+                      <Text style={styles.summaryValue}>Rs. {item?.shippingPrice || 0}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.totalSection}>
+                    <View style={styles.totalRow}>
+                      <Text style={styles.totalLabel}>TOTAL AMOUNT</Text>
+                      <Text style={styles.totalAmount}>Rs. {item?.totalAmount?.toFixed(2) || 0}</Text>
+                    </View>
+                  </View>
+
+                  {item.isInsideValley === false && (
+                    <View style={styles.paymentHighlight}>
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentLabel}>ADVANCE PAID</Text>
+                        <Text style={styles.paymentValue}>Rs. 300.00</Text>
+                      </View>
+                      <View style={[styles.paymentRow, styles.balanceRow]}>
+                        <Text style={styles.balanceLabel}>BALANCE DUE</Text>
+                        <Text style={styles.balanceAmount}>Rs. {(item?.totalAmount - 300).toFixed(2)}</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+                {/* Products List */}
+                <View style={styles.productsSection}>
+                  <Text style={styles.productsTitle}>ITEMS IN SHIPMENT</Text>
+                  <View style={styles.productsTable}>
+                    <View style={styles.tableHeader}>
+                      <Text style={[styles.headerCell, {flex: 4}]}>DESCRIPTION</Text>
+                      <Text style={[styles.headerCell, {flex: 1, textAlign: 'center'}]}>QTY</Text>
+                      <Text style={[styles.headerCell, {flex: 1.5, textAlign: 'right'}]}>AMOUNT</Text>
+                    </View>
+                    {item?.products?.slice(0, maxProductsToShow).map((product, idx) => (
+                      <View key={idx} style={styles.tableRow}>
+                        <Text style={[styles.tableCell, {flex: 4}]}>
+                          {(product?.productId?.name || 'Unknown Product').substring(0, 35)}
+                          {(product?.productId?.name || '').length > 35 ? '...' : ''}
+                        </Text>
+                        <Text style={[styles.tableCell, {flex: 1, textAlign: 'center'}]}>
+                          {product?.quantity || 0}
+                        </Text>
+                        <Text style={[styles.tableCell, {flex: 1.5, textAlign: 'right'}]}>
+                          Rs. {product?.price?.toFixed(2) || '0.00'}
+                        </Text>
                       </View>
                     ))}
-                    
-                    {item?.products?.length > maxProducts && (
-                      <View style={styles.moreProductsIndicator}>
-                        <Text style={styles.moreProductsText}>
-                          +{item.products.length - maxProducts} more items
+                    {item?.products?.length > maxProductsToShow && (
+                      <View style={styles.moreItemsRow}>
+                        <Text style={styles.moreItemsText}>
+                          +{item.products.length - maxProductsToShow} additional items (see full invoice)
                         </Text>
                       </View>
                     )}
                   </View>
                 </View>
 
-                <View style={[styles.box, {backgroundColor: '#f0f7ff'}]}>
-                  <View style={styles.summaryRow}>
-                    <View style={styles.summaryColumn}>
-                      <Text style={styles.summaryLabel}>Items: {item?.products?.length || 0}</Text>
-                      <Text style={styles.summaryLabel}>Qty: {totalQuantity}</Text>
-                    </View>
-                    <View style={styles.summaryColumn}>
-                      <Text style={styles.summaryLabel}>Products: Rs. {totalPrice.toFixed(2)}</Text>
-                      <Text style={styles.summaryLabel}>Shipping: Rs. {item?.shippingPrice || 0}</Text>
-                    </View>
-                    <View style={styles?.summaryColumn}>
-                      <Text style={styles?.totalLabel}>Total: Rs. {item?.totalAmount?.toFixed(2) || (totalPrice.toFixed(2) + parseFloat(item.shippingPrice || 0))}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View style={styles.qrContainer}>
-                  <Text style={styles.qrLabel}>
-                    {item.latitude && item.longitude ? 'Scan for delivery location' : 'Scan for order details'}
-                  </Text>
-                  <Image
-                    style={styles.qrCode}
-                    src={generateQrCodeUrl(locationQrData)}
-                  />
-                </View>
-
+                {/* Footer */}
                 <View style={styles.footer}>
-                  <Text style={styles.printDate}>
-                    Print Date: {currentDate.toLocaleDateString()}
-                  </Text>
+                  <View style={styles.footerInfo}>
+                    <Text style={styles.printLabel}>PRINTED</Text>
+                    <Text style={styles.printDate}>{currentDate.toLocaleDateString()} • {currentDate.toLocaleTimeString()}</Text>
+                    <Text style={styles.pageInfo}>Shipping Label {index + 1} of {data.length}</Text>
+                  </View>
+                  {item.latitude && item.longitude && (
+                    <View style={styles.qrSection}>
+                      <Image style={styles.qrCode} src={generateQrCodeUrl(locationQrData)} />
+                      <Text style={styles.qrLabel}>DELIVERY LOCATION</Text>
+                    </View>
+                  )}
                 </View>
               </Page>
             )
@@ -1156,162 +1174,290 @@ const styles = StyleSheet.create({
     left: '0'
   },
   page: {
-    padding: 12,
-    backgroundColor: 'white',
-    display: 'flex',
-    flexDirection: 'column'
+    padding: 20,
+    backgroundColor: '#ffffff',
+    fontFamily: 'Helvetica'
   },
+  
+  // Elegant Header
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingBottom: 12,
+    marginBottom: 12,
+    borderBottom: '2px solid #000000'
+  },
+  brandSection: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
-    paddingBottom: 4,
-    borderBottom: '0.5px solid #666'
+    gap: 10
   },
   logo: {
-    width: 20,
-    height: 20,
-    marginRight: 8
+    width: 35,
+    height: 45
   },
-  headerTitle: {
-    fontSize: 10,
-    fontWeight: 'bold'
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  column: {
-    flex: 1,
-    paddingRight: 4
-  },
-  summaryColumn: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  label: {
-    fontSize: 6,
-    color: '#444',
-    marginBottom: 1
-  },
-  value: {
-    fontSize: 7,
+  brandName: {
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 1
+    color: '#000000',
+    letterSpacing: 1.5
   },
-  smallValue: {
-    fontSize: 6,
-    color: '#666',
-    marginBottom: 1
+  tagline: {
+    fontSize: 7,
+    color: '#666666',
+    letterSpacing: 0.5,
+    marginTop: 1
   },
-  contactValue: {
-    fontSize: 6,
-    fontWeight: 'bold'
+  orderSection: {
+    alignItems: 'flex-end'
+  },
+  orderLabel: {
+    fontSize: 7,
+    color: '#666666',
+    letterSpacing: 1,
+    marginBottom: 2
+  },
+  orderNumber: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 0.5
+  },
+
+  // Shipping Grid
+  shippingGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12
+  },
+  addressCard: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#fafafa',
+    borderLeft: '3px solid #cccccc'
+  },
+  destinationCard: {
+    backgroundColor: '#ffffff',
+    borderLeft: '3px solid #000000',
+    border: '1px solid #000000'
+  },
+  destinationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  addressTitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 1.2
   },
   deliveryType: {
     fontSize: 6,
-    color: '#2563eb',
     fontWeight: 'bold',
-    marginTop: 2
+    color: '#666666',
+    letterSpacing: 0.8,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    backgroundColor: '#f0f0f0'
   },
-  locationCoords: {
-    fontSize: 5,
-    color: '#666',
-    marginTop: 1,
-    fontStyle: 'italic'
+  divider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 6
   },
-  box: {
-    padding: 4,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 2,
-    marginBottom: 4
-  },
-  sectionTitle: {
-    fontSize: 7,
+  name: {
+    fontSize: 9,
     fontWeight: 'bold',
-    marginBottom: 3,
-    color: '#333',
-    textAlign: 'center'
+    color: '#000000',
+    marginBottom: 3
   },
-  productsContainer: {
-    flexDirection: 'column'
+  address: {
+    fontSize: 8,
+    color: '#666666',
+    marginBottom: 1,
+    lineHeight: 1.4
   },
-  compactProductRow: {
+  contact: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginTop: 4
+  },
+
+  // Financial Section - Highlighted
+  financialSection: {
+    marginBottom: 12,
+    border: '2px solid #000000',
+    backgroundColor: '#fafafa'
+  },
+  summaryGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-    paddingBottom: 2,
-    borderBottom: '0.3px solid #eee'
+    borderBottom: '1px solid #e0e0e0'
   },
-  productNameContainer: {
-    flex: 2,
-    paddingRight: 4
-  },
-  compactProductName: {
-    fontSize: 6,
-    fontWeight: 'bold',
-    color: '#333'
-  },
-  productStatsContainer: {
+  summaryItem: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  productStat: {
-    fontSize: 5,
-    color: '#666'
-  },
-  moreProductsIndicator: {
-    alignItems: 'center',
-    marginTop: 2,
-    paddingTop: 2,
-    borderTop: '0.5px solid #ccc'
-  },
-  moreProductsText: {
-    fontSize: 6,
-    fontStyle: 'italic',
-    color: '#888'
+    padding: 8,
+    borderRight: '1px solid #e0e0e0',
+    alignItems: 'center'
   },
   summaryLabel: {
     fontSize: 6,
-    color: '#666',
-    marginBottom: 1
+    color: '#666666',
+    letterSpacing: 1,
+    marginBottom: 3
+  },
+  summaryValue: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#000000'
+  },
+  totalSection: {
+    backgroundColor: '#000000',
+    padding: 10
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   totalLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    letterSpacing: 1.5
+  },
+  totalAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    letterSpacing: 0.5
+  },
+  paymentHighlight: {
+    backgroundColor: '#ffffff',
+    padding: 10,
+    borderTop: '2px solid #000000'
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 3
+  },
+  paymentLabel: {
+    fontSize: 8,
+    color: '#666666',
+    letterSpacing: 0.8
+  },
+  paymentValue: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#2563eb'
+    color: '#000000'
   },
-  qrContainer: {
-    alignItems: 'center',
-    marginTop: 4
+  balanceRow: {
+    borderTop: '1px solid #e0e0e0',
+    paddingTop: 6,
+    marginTop: 3
   },
-  qrLabel: {
-    fontSize: 5,
-    color: '#666',
-    marginBottom: 2,
-    fontStyle: 'italic'
+  balanceLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 1
   },
-  qrCode: {
-    width: 35,
-    height: 35,
-    objectFit: 'contain'
+  balanceAmount: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000000'
   },
+
+  // Products Table
+  productsSection: {
+    marginBottom: 12,
+    border: '1px solid #e0e0e0'
+  },
+  productsTitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 1.2,
+    padding: 8,
+    backgroundColor: '#fafafa',
+    borderBottom: '1px solid #e0e0e0'
+  },
+  productsTable: {
+    backgroundColor: '#ffffff'
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    padding: 6,
+    backgroundColor: '#f5f5f5',
+    borderBottom: '1px solid #e0e0e0'
+  },
+  headerCell: {
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: '#666666',
+    letterSpacing: 0.8
+  },
+  tableRow: {
+    flexDirection: 'row',
+    padding: 6,
+    borderBottom: '0.5px solid #f0f0f0'
+  },
+  tableCell: {
+    fontSize: 8,
+    color: '#333333'
+  },
+  moreItemsRow: {
+    padding: 8,
+    backgroundColor: '#fafafa',
+    alignItems: 'center'
+  },
+  moreItemsText: {
+    fontSize: 7,
+    color: '#666666',
+    fontStyle: 'italic',
+    letterSpacing: 0.3
+  },
+
+  // Footer
   footer: {
-    position: 'absolute',
-    bottom: 8,
-    right: 12,
-    textAlign: 'right'
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingTop: 10,
+    borderTop: '1px solid #e0e0e0'
+  },
+  footerInfo: {
+    flex: 1
+  },
+  printLabel: {
+    fontSize: 6,
+    color: '#999999',
+    letterSpacing: 1,
+    marginBottom: 2
   },
   printDate: {
-    fontSize: 5,
-    color: '#666'
+    fontSize: 7,
+    color: '#666666',
+    marginBottom: 2
+  },
+  pageInfo: {
+    fontSize: 6,
+    color: '#999999'
+  },
+  qrSection: {
+    alignItems: 'center'
+  },
+  qrCode: {
+    width: 45,
+    height: 45,
+    marginBottom: 3
+  },
+  qrLabel: {
+    fontSize: 6,
+    color: '#666666',
+    letterSpacing: 1
   }
 })
