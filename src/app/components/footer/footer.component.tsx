@@ -96,7 +96,7 @@ export const Footer = () => {
               </div>
               <div className="footer__contact-item">
                 <Phone className="footer__contact-icon" />
-                <span>+977-9861394245</span>
+                <span>+977-9861698400</span>
               </div>
               <div className="footer__contact-item">
                 <Clock className="footer__contact-icon" />

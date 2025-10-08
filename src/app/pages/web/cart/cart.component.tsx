@@ -572,9 +572,8 @@ useEffect(() => {
 
           clearCartItems()
           resetForm()
-
-          if (isPhonePay) {
-            setTimeout(() => openWhatsApp(backendOrderId), 1500)
+          if (!(isCashOnDelivery && isInsideValley)) {
+      openWhatsApp(backendOrderId)
           }
         },
         onFailure: error => {
@@ -653,15 +652,123 @@ useEffect(() => {
     setLocationCoordinates(null)
   }, [])
 
-  const openWhatsApp = useCallback((orderId: string) => {
-    const message = `नमस्ते, मैले यो अर्डर ID को लागि भुक्तानीको फोटो (screenshot) जोडेको छु: ${orderId}।\n\nकृपया मेरो अर्डरको स्टाटस जानकारी दिनुहोस्।`
-    const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
-  }, [])
+const openWhatsApp = useCallback((orderId: string) => {
+  // Determine payment scenario
+  const isOutsideValley = isInsideValley === false;
+  const isPhonePay = isPhonePaySelected; // Assuming isHomeDelivery true means phone pay
+  
+  let message = '';
+  
+  if (isOutsideValley) {
+
+    if(isPhonePaySelected){
+          message = `नमस्ते! 🙏
+
+Order ID: ${orderId}
+
+मैले पूरा रकम पेमेन्ट गरिसकेको छु।
+
+Payment Screenshot यसै म्यासेजमा पठाउँदै छु।
+
+कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
+
+धन्यवाद! 🙏`;
+    }else{
+   // Outside valley - Advance payment (Rs. 300)
+    message = `नमस्ते! 🙏
+
+Order ID: ${orderId}
+
+मैले Rs. 300 एडभान्स पेमेन्ट गरिसकेको छु।
+
+Payment Screenshot यसै म्यासेजमा पठाउँदै छु।
+
+कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
+
+धन्यवाद! 🙏`;
+    }
+ 
+  } else if (isInsideValley && isPhonePay) {
+    // Inside valley + Phone Pay - Full payment
+    message = `नमस्ते! 🙏
+
+Order ID: ${orderId}
+
+मैले पूरा रकम पेमेन्ट गरिसकेको छु।
+
+Payment Screenshot यसै म्यासेजमा पठाउँदै छु।
+
+कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
+
+धन्यवाद! 🙏`;
+  } else {
+    // Inside valley + COD - No advance payment needed
+    message = `नमस्ते! 🙏
+
+Order ID: ${orderId}
+
+मैले Cash on Delivery को लागि अर्डर गरेको छु।
+
+कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
+
+धन्यवाद! 🙏`;
+  }
+  
+  const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+}, [isInsideValley, isPhonePaySelected]);
 
   // QR Modal Component
 const QRPaymentModal = () => {
-  if (!showQRModal) return null
+  if (!showQRModal) return null;
+
+  // Determine payment scenario
+  const isOutsideValleyCOD = isInsideValley===false && isPhonePaySelected===false
+  const requiresAdvancePayment = isOutsideValleyCOD;
+  const advanceAmount = 300;
+
+  console.log(isInsideValley, isHomeDelivery, "is Inside valley data from model");
+
+  // Get payment amount based on scenario
+  const getPaymentAmount = () => {
+    if (requiresAdvancePayment) {
+      return getNprPrice(advanceAmount);
+    }
+    return getNprPrice(total);
+  };
+
+  // Get payment title based on scenario
+  const getPaymentTitle = () => {
+    if (requiresAdvancePayment) {
+      return "Advance Payment Required";
+    }
+    return "Amount to Pay";
+  };
+
+  // Get steps based on scenario
+  const getPaymentSteps = () => {
+    if (requiresAdvancePayment) {
+      // Outside valley + COD: Advance payment required
+      return [
+        'Scan / Screenshot this QR code',
+        'Open any wallet / mobile banking app',
+        `Pay NPR ${advanceAmount} advance payment`,
+        // 'Take a screenshot of successful payment',
+        'Send payment screenshot to WhatsApp: 977-9861698400',
+        // 'Or email the screenshot to confirm order',
+        'We will confirm your order via WhatsApp'
+      ];
+    } else {
+      // Inside valley OR outside valley with full phone pay
+      return [
+        'Scan / Screenshot this QR code',
+        'Open any wallet / mobile banking app',
+        'Pay the complete amount shown above',
+        'Complete the payment transaction',
+        'Click "Check Payment" button below'
+      ];
+    }
+  };
 
   return (
     <div style={{
@@ -696,7 +803,7 @@ const QRPaymentModal = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           flexShrink: 0,
-          position:'relative'
+          position: 'relative'
         }}>
           <img 
             src="/assets/images/fonepay-logo.png" 
@@ -707,14 +814,14 @@ const QRPaymentModal = () => {
               objectFit: 'contain'
             }}
             onError={(e) => {
-              e.currentTarget.style.display = 'none'
+              e.currentTarget.style.display = 'none';
             }}
           />
           <div
             onClick={() => setShowQRModal(false)}
             style={{
               width: '28px',
-              position:'absolute',
+              position: 'absolute',
               height: '28px',
               borderRadius: '50%',
               backgroundColor: '#f5f5f5',
@@ -725,8 +832,7 @@ const QRPaymentModal = () => {
               fontSize: '18px',
               color: '#666',
               flexShrink: 0,
-              right:'20px'
-           
+              right: '20px'
             }}
           >
             ×
@@ -740,7 +846,8 @@ const QRPaymentModal = () => {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'auto',
+          overflowX: 'hidden'
         }}>
           {/* QR Code - Fixed size */}
           <div style={{
@@ -762,16 +869,16 @@ const QRPaymentModal = () => {
                 objectFit: 'contain'
               }}
               onError={(e) => {
-                console.error('QR Code image failed to load')
-                e.currentTarget.style.display = 'none'
+                console.error('QR Code image failed to load');
+                e.currentTarget.style.display = 'none';
               }}
             />
           </div>
 
           {/* Amount - Compact */}
           <div style={{
-            backgroundColor: '#f0f9ff',
-            border: '2px dashed #3b82f6',
+            backgroundColor: requiresAdvancePayment ? '#fff7ed' : '#f0f9ff',
+            border: `2px dashed ${requiresAdvancePayment ? '#f97316' : '#3b82f6'}`,
             borderRadius: '12px',
             padding: '14px',
             marginBottom: '20px',
@@ -779,20 +886,34 @@ const QRPaymentModal = () => {
           }}>
             <div style={{ 
               fontSize: '14px', 
-              color: '#1e40af',
+              color: requiresAdvancePayment ? '#c2410c' : '#1e40af',
               marginBottom: '6px',
               fontWeight: '500'
             }}>
-              Amount to Pay
+              {getPaymentTitle()}
             </div>
             <div style={{ 
               fontSize: '26px', 
               fontWeight: 'bold',
-              color: '#1e3a8a',
+              color: requiresAdvancePayment ? '#9a3412' : '#1e3a8a',
               lineHeight: '1.2'
             }}>
-              {getNprPrice(total)}
+              {getPaymentAmount()}
             </div>
+            {requiresAdvancePayment && (
+              <div style={{
+                fontSize: '13px',
+                color: '#9a3412',
+                marginTop: '10px',
+                padding: '8px 12px',
+                backgroundColor: '#fed7aa',
+                borderRadius: '6px',
+                fontWeight: '600',
+                border: '1px solid #f97316'
+              }}>
+                Balance {getNprPrice(total - advanceAmount)} payable on delivery
+              </div>
+            )}
           </div>
 
           {/* Instructions - Compact */}
@@ -808,21 +929,16 @@ const QRPaymentModal = () => {
               marginBottom: '12px',
               color: '#1f2937'
             }}>
-              Steps to complete payment:
+              {requiresAdvancePayment ? 'Steps to confirm your order:' : 'Steps to complete payment:'}
             </div>
             
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
               gap: '10px',
-              fontSize: '15px'
+              fontSize: '13px'
             }}>
-              {[
-                'Scan / Screenshot this QR',
-                'Open any wallet / mobile banking App',
-                'Complete the payment',
-                'Check Payment Below'
-              ].map((step, index) => (
+              {getPaymentSteps().map((step, index) => (
                 <div key={index} style={{
                   display: 'flex',
                   alignItems: 'flex-start',
@@ -837,53 +953,114 @@ const QRPaymentModal = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
+                    fontSize: '11px',
+                    fontWeight: '600',
                     flexShrink: 0,
                     marginTop: '1px'
                   }}>
-                    ✓
+                    {index + 1}
                   </div>
                   <div style={{
                     color: '#4b5563',
-                    lineHeight: '1.4'
+                    lineHeight: '1.5'
                   }}>
                     {step}
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Contact Info for COD */}
+            {/* {requiresAdvancePayment && (
+              <div style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#f0fdf4',
+                borderRadius: '8px',
+                border: '1px solid #86efac'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#166534',
+                  marginBottom: '6px'
+                }}>
+                  Contact Information:
+                </div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#15803d',
+                  lineHeight: '1.6'
+                }}>
+                  <div>📱 WhatsApp: <strong>977-9861698400</strong></div>
+                  <div style={{ marginTop: '4px' }}>
+                    ✉️ Email payment screenshot to confirm
+                  </div>
+                </div>
+              </div>
+            )} */}
           </div>
 
           {/* Action Button */}
-          <button
-            onClick={processOrder}
-            style={{
-              width: '100%',
-              padding: '14px',
-              fontSize: '15px',
-              fontWeight: '600',
-              backgroundColor: '#ec4899',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              flexShrink: 0
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#db2777'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#ec4899'
-            }}
-          >
-            Check Payment
-          </button>
+          {!requiresAdvancePayment ? (
+            <button
+              onClick={processOrder}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '15px',
+                fontWeight: '600',
+                backgroundColor: '#ec4899',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#db2777';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#ec4899';
+              }}
+            >
+              Check Payment
+            </button>
+          ) : (
+            <button
+              onClick={() => {processOrder();
+                setShowQRModal(false)}}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '15px',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#059669';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#10b981';
+              }}
+            >
+              {/* I've Sent the Payment Screenshot */}
+
+              Place order
+            </button>
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
   // Map Picker Modal with Leaflet integration
   const MapPickerModal = () => {
     const [mapCenter, setMapCenter] = React.useState<[number, number]>([27.7172, 85.3240])

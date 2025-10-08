@@ -6,8 +6,8 @@ export const districtArray = [
         name: 'Sanphebagar Municipality',
         areas: {
           Sanfebagar: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -15,8 +15,8 @@ export const districtArray = [
         name: 'Mangalsen Municipality',
         areas: {
           Mangalsen: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -29,8 +29,8 @@ export const districtArray = [
         name: 'Sandhikharka Municipality',
         areas: {
           Sandhikharka: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -43,8 +43,8 @@ export const districtArray = [
         name: 'Baglung Municipality',
         areas: {
           'Baglung Bazar': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -52,8 +52,8 @@ export const districtArray = [
         name: 'Galkot Municipality',
         areas: {
           Galkot: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -61,8 +61,8 @@ export const districtArray = [
         name: 'Dhorpatan Municipality',
         areas: {
           Burtibang: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -70,8 +70,8 @@ export const districtArray = [
         name: 'Jaimuni Municipality',
         areas: {
           Kushmishera: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -79,8 +79,8 @@ export const districtArray = [
         name: 'Tarakhola Rural Municipality',
         areas: {
           'Tarakhola Baglung': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -93,17 +93,17 @@ export const districtArray = [
         name: 'Dasharathchand Municipality',
         areas: {
           Gothalapani: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Patam Municipality',
+        name: 'Patan Municipality',
         areas: {
           'Patan Baitadi': {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -116,8 +116,8 @@ export const districtArray = [
         name: 'Jayaprithbi Municipality',
         areas: {
           'Chainpur Bajhang': {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -130,8 +130,8 @@ export const districtArray = [
         name: 'Badimalika Municipality',
         areas: {
           Martadi: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -144,8 +144,8 @@ export const districtArray = [
         name: 'Nepalgunj Submetropolitan City',
         areas: {
           Nepalgunj: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -153,8 +153,8 @@ export const districtArray = [
         name: 'Kohalpur Municipality',
         areas: {
           Kohalpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -162,8 +162,8 @@ export const districtArray = [
         name: 'Khajura Rural Municipality',
         areas: {
           Khajura: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -171,8 +171,8 @@ export const districtArray = [
         name: 'Rapti Sonari Rural Municipality',
         areas: {
           Samshergunj: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -180,8 +180,8 @@ export const districtArray = [
         name: 'Baijanath Rural Municipality',
         areas: {
           Chyama: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -194,8 +194,8 @@ export const districtArray = [
         name: 'Kalaiya Submetropolitan City',
         areas: {
           Kalaiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -203,17 +203,21 @@ export const districtArray = [
         name: 'Nijgadh Municipality',
         areas: {
           Nijgadh: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Jitpur Simara Sub-Metropolitan City',
+        name: 'Jitpur Simara Sub-metropolitan City',
         areas: {
           Simara: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
+          },
+          Amlekhgunj: {
+            homeDelivery: 200,
+            officeDelivery: 145
           }
         }
       },
@@ -221,17 +225,8 @@ export const districtArray = [
         name: 'Kolhabi Municipality',
         areas: {
           Kolhabi: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Jitpur Simara Sub-Metropolitan City',
-        areas: {
-          Amlekhgunj: {
-            homeDelivery: 195,
-            officeDelivery: 145
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -239,8 +234,8 @@ export const districtArray = [
         name: 'Mahagadhimai Municipality',
         areas: {
           Bariyarpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -248,8 +243,8 @@ export const districtArray = [
         name: 'Simroungadh Municipality',
         areas: {
           Simrangadh: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -257,8 +252,8 @@ export const districtArray = [
         name: 'Aadarsha Kotwal Rural Municipality',
         areas: {
           Harnaiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -271,8 +266,8 @@ export const districtArray = [
         name: 'Thakurbaba Municipality',
         areas: {
           Bhurigaun: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -280,8 +275,8 @@ export const districtArray = [
         name: 'Gulariya Municipality',
         areas: {
           Gulariya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -289,8 +284,8 @@ export const districtArray = [
         name: 'Bansgadhi Municipality',
         areas: {
           Bansgadhi: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -298,8 +293,8 @@ export const districtArray = [
         name: 'Rajapur Municipality',
         areas: {
           Rajapur: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -307,8 +302,8 @@ export const districtArray = [
         name: 'Madhuwan Municipality',
         areas: {
           Taratal: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -316,8 +311,8 @@ export const districtArray = [
         name: 'Barbardiya Municipality',
         areas: {
           Jayanagar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -330,17 +325,17 @@ export const districtArray = [
   //       name: 'Suryabinayak Municipality',
   //       areas: {
   //         Suryabinayak: {
-  //           homeDelivery: 120,
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         }
   //       }
   //     },
   //     {
-  //       name: 'Changunarayan Municipality',
+  //       name: 'Changunaryan Municipality',
   //       areas: {
   //         Nagarkot: {
-  //           homeDelivery: 170,
-  //           officeDelivery: 120
+  //           homeDelivery: 150,
+  //           officeDelivery: 100
   //         }
   //       }
   //     },
@@ -348,7 +343,7 @@ export const districtArray = [
   //       name: 'Madhyapur Thimi Municipality',
   //       areas: {
   //         'Naya Thimi': {
-  //           homeDelivery: 120,
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         }
   //       }
@@ -362,8 +357,8 @@ export const districtArray = [
         name: 'Bhojpur Municipality',
         areas: {
           Bhojpur: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -371,8 +366,8 @@ export const districtArray = [
         name: 'Shadananda Municipality',
         areas: {
           Dingla: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -385,8 +380,24 @@ export const districtArray = [
         name: 'Bharatpur Metropolitan City',
         areas: {
           Narayanghat: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
+          },
+          Chanauli: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Meghauli: {
+            homeDelivery: 150,
+            officeDelivery: 100
+          },
+          Jagatpur: {
+            homeDelivery: 150,
+            officeDelivery: 100
+          },
+          Jugedi: {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -394,8 +405,12 @@ export const districtArray = [
         name: 'Ratnanagar Municipality',
         areas: {
           Tandi: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
+          },
+          Sauraha: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -403,8 +418,12 @@ export const districtArray = [
         name: 'Kalika Municipality',
         areas: {
           Shaktikhor: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Padampur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -412,8 +431,12 @@ export const districtArray = [
         name: 'Ichchha Kamana Rural Municipality',
         areas: {
           Kurintar: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
+          },
+          Mungling: {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -421,8 +444,8 @@ export const districtArray = [
         name: 'Rapti Municipality',
         areas: {
           Bhandara: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -430,80 +453,17 @@ export const districtArray = [
         name: 'Khairahani Municipality',
         areas: {
           Khairahani: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Bharatpur Metropolitan City',
-        areas: {
-          Chanauli: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Madi Municipality (Chitwan)',
+        name: 'Madi Municipality',
         areas: {
           'Basantapur Bazar': {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Kalika Municipality',
-        areas: {
-          Padampur: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Ratnanagar Municipality',
-        areas: {
-          Sauraaha: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Bharatpur Metropolitan City',
-        areas: {
-          Meghauli: {
-            homeDelivery: 170,
-            officeDelivery: 120
-          }
-        }
-      },
-      {
-        name: 'Bharatpur Metropolitan City',
-        areas: {
-          Jagatpur: {
-            homeDelivery: 170,
-            officeDelivery: 120
-          }
-        }
-      },
-      {
-        name: 'Bharatpur Metropolitan City',
-        areas: {
-          Jugedi: {
-            homeDelivery: 170,
-            officeDelivery: 120
-          }
-        }
-      },
-      {
-        name: 'Ichchha Kamana Rural Municipality',
-        areas: {
-          Mungling: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -516,8 +476,8 @@ export const districtArray = [
         name: 'Amargadhi Municipality',
         areas: {
           Amargadhi: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -525,8 +485,8 @@ export const districtArray = [
         name: 'Parashuram Municipality',
         areas: {
           Jogbuda: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -539,8 +499,8 @@ export const districtArray = [
         name: 'Narayan Municipality',
         areas: {
           'Dailekh Bazaar': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -553,8 +513,8 @@ export const districtArray = [
         name: 'Tulsipur Submetropolitan City',
         areas: {
           Tulsipur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -562,8 +522,12 @@ export const districtArray = [
         name: 'Ghorahi Submetropolitan City',
         areas: {
           Ghorahi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Narayanpur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -571,8 +535,8 @@ export const districtArray = [
         name: 'Rapti Rural Municipality',
         areas: {
           Bhaluwang: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -580,17 +544,8 @@ export const districtArray = [
         name: 'Lamahi Municipality',
         areas: {
           Lamahi: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Ghorahi Submetropolitan City',
-        areas: {
-          Narayanpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -598,8 +553,8 @@ export const districtArray = [
         name: 'Babai Rural Municipality',
         areas: {
           Hapure: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -607,8 +562,8 @@ export const districtArray = [
         name: 'Gadhawa Rural Municipality',
         areas: {
           Gadhawa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -618,20 +573,20 @@ export const districtArray = [
     district: 'DARCHULA',
     municipalities: [
       {
-        name: 'Mahakali Municipality (Darchula)',
+        name: 'Mahakali Municipality',
         areas: {
           'Darchula Khalanga': {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
         name: 'Shailyashikhar Municipality',
         areas: {
-          Gokuleshwar: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Gokuleshwor: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -641,11 +596,11 @@ export const districtArray = [
     district: 'DHADING',
     municipalities: [
       {
-        name: 'Nilkantha Municipality',
+        name: 'Nilkhantha Municipality',
         areas: {
           'Dhading Besi': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -653,17 +608,12 @@ export const districtArray = [
         name: 'Gajuri Rural Municipality',
         areas: {
           Malekhu: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Gajuri Rural Municipality',
-        areas: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
           Gajuri: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -671,8 +621,8 @@ export const districtArray = [
         name: 'Galchhi Rural Municipality',
         areas: {
           Galchi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -680,13 +630,14 @@ export const districtArray = [
         name: 'Dhunibenshi Municipality',
         areas: {
           Dharke: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       }
     ]
   },
+
   {
     district: 'DHANKUTA',
     municipalities: [
@@ -694,17 +645,12 @@ export const districtArray = [
         name: 'Dhankuta Municipality',
         areas: {
           'Dhankuta Bazaar': {
-            homeDelivery: 270,
-            officeDelivery: 220
-          }
-        }
-      },
-      {
-        name: 'Dhankuta Municipality',
-        areas: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          },
           Hile: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -712,8 +658,8 @@ export const districtArray = [
         name: 'Chhathar Jorpati Rural Municipality',
         areas: {
           Sidhuwa: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -721,8 +667,8 @@ export const districtArray = [
         name: 'Chaubise Rural Municipality',
         areas: {
           Rajarani: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -735,26 +681,26 @@ export const districtArray = [
         name: 'Janakpur Submetropolitan City',
         areas: {
           Janakpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Mithila Municipality',
         areas: {
-          Dhalkeber: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Dhalkebar: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Chhireshwornath Municipality',
         areas: {
-          Sakuwamahendranagar: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Sakuwa Mahendranagar': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -762,8 +708,8 @@ export const districtArray = [
         name: 'Ganeshman Charnath Municipality',
         areas: {
           'Birendra Bazar': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -771,8 +717,8 @@ export const districtArray = [
         name: 'Sabaila Municipality',
         areas: {
           Sabaila: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -780,8 +726,8 @@ export const districtArray = [
         name: 'Shahidnagar Municipality',
         areas: {
           Yadukush: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -789,8 +735,8 @@ export const districtArray = [
         name: 'Bideha Municipality',
         areas: {
           Tinkoriya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -798,8 +744,8 @@ export const districtArray = [
         name: 'Dhanushadham Municipality',
         areas: {
           Dhanusadham: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -807,8 +753,8 @@ export const districtArray = [
         name: 'Nagarain Municipality',
         areas: {
           Nagarain: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -816,8 +762,8 @@ export const districtArray = [
         name: 'Hansapur Municipality',
         areas: {
           'Hanspur Kathpulla': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -825,26 +771,26 @@ export const districtArray = [
         name: 'Laxminiya Rural Municipality',
         areas: {
           Sapahi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Mukhipatti Musaharmiya Rural Municipality',
+        name: 'Mukhiyapatti Musaharmiya Rural Municipality',
         areas: {
-          TulsiYahi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Tulsiyahi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Bateshwar Rural Municipality',
+        name: 'Bateshwor Rural Municipality',
         areas: {
-          Bateshwar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bateshwor: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -857,8 +803,8 @@ export const districtArray = [
         name: 'Bhimeshwor Municipality',
         areas: {
           Charikot: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -866,8 +812,8 @@ export const districtArray = [
         name: 'Jiri Municipality',
         areas: {
           Jiri: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -875,8 +821,8 @@ export const districtArray = [
         name: 'Baiteshwor Rural Municipality',
         areas: {
           Mainapokhari: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -889,8 +835,8 @@ export const districtArray = [
         name: 'Thulibheri Municipality',
         areas: {
           Dunai: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -903,8 +849,8 @@ export const districtArray = [
         name: 'Dipayal Silgadhi Municipality',
         areas: {
           'Dipayal Silgadhi': {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -917,17 +863,12 @@ export const districtArray = [
         name: 'Gorkha Municipality',
         areas: {
           'Gorkha Bazar': {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Gorkha Municipality',
-        areas: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
           Palungtar: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -935,8 +876,8 @@ export const districtArray = [
         name: 'Shahid Lakhan Rural Municipality',
         areas: {
           Manakamana: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -944,17 +885,17 @@ export const districtArray = [
         name: 'Sulikot Rural Municipality',
         areas: {
           Barpak: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Aarughath Rural Municipality',
+        name: 'Aarughat Rural Municipality',
         areas: {
-          Aarughath: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Aarughat: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -964,42 +905,42 @@ export const districtArray = [
     district: 'GULMI',
     municipalities: [
       {
-        name: 'RESUNGA MUNICIPALITY',
+        name: 'Resunga Municipality',
         areas: {
-          TAMGHAS: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Tamghas: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'RURU RURAL MUNICIPALITY',
+        name: 'Ruru Rural Municipality',
         areas: {
-          RIDI: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Ridi: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          BALETAXAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Baletaxar: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'CHANDRAKOT RURAL MUNICIPALITY',
+        name: 'Chandrakot Rural Municipality',
         areas: {
-          SHANTIPUR: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Shantipur: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'MUSIKOT MUNICIPALITY (GULMI)',
+        name: 'Musikot Municipality',
         areas: {
-          WAMITAKSAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Wamitaksar: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1009,11 +950,11 @@ export const districtArray = [
     district: 'HUMLA',
     municipalities: [
       {
-        name: 'SIMKOT RURAL MUNICIPALITY',
+        name: 'Simkot Rural Municipality',
         areas: {
-          SIMIKOT: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Simikot: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1023,49 +964,58 @@ export const districtArray = [
     district: 'ILAM',
     municipalities: [
       {
-        name: 'ILAM MUNCIPALITY',
+        name: 'Ilam Municipality',
         areas: {
-          'ILAM BAZAR': {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Ilam Bazar': {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          'NEPALTAR ILAM': {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Nepaltar Ilam': {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          GODAK: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Godak: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'SURYODAYA MUNICIPALITY',
+        name: 'Suryodaya Municipality',
         areas: {
-          FIKKAL: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Fikkal: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          PASHUPATINAGAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Pashupatinagar: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          'SHREE ANTU': {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Shree Antu': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'DEUMAI MUNICIPALITY',
+        name: 'Deumai Municipality',
         areas: {
-          'MANGALBARE ILAM': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Mangalbare Ilam': {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          RANKE: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Ranke: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Mai Municipality',
+        areas: {
+          Danabari: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1075,11 +1025,11 @@ export const districtArray = [
     district: 'JAJARKOT',
     municipalities: [
       {
-        name: 'BHERI MALIKA MUNICIPALITY',
+        name: 'Bheri Malika Municipality',
         areas: {
-          'JAJARKOT KHALANGA': {
-            homeDelivery: 270,
-            officeDelivery: 220
+          'Jajarkot Khalanga': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1089,175 +1039,178 @@ export const districtArray = [
     district: 'JHAPA',
     municipalities: [
       {
-        name: 'BIRTAMOD MUNICIPALITY',
+        name: 'Birtamod Municipality',
         areas: {
-          BIRTAMOD: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Birtamod: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BHADRAPUR MUNICIPALITY',
+        name: 'Bhadrapur Municipality',
         areas: {
-          BHADRAPUR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bhadrapur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'DAMAK MUNICIPALITY',
+        name: 'Damak Municipality',
         areas: {
-          DAMAK: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Damak: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MECHINAGAR MUNCIPALITY',
+        name: 'Mechinagar Municipality',
         areas: {
-          KAKARBHITTA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Kakarbhitta: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          DHULABARI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Dhulabari: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          BAHUNDANGI: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Bahundangi: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          CHARAALI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Charaali: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'KANKAI MUNCIPALITY',
+        name: 'Kankai Municipality',
         areas: {
-          SURUNGA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Surunga: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'GAURADAHA MUNICIPALITY',
+        name: 'Gauradaha Municipality',
         areas: {
-          GAURADAHA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Gauradaha: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BUDDHASHANTI RURAL MUNICIPALITY',
+        name: 'Buddhashanti Rural Municipality',
         areas: {
-          BUDHABARE: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Budhabare: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'JHAPA RURAL MUNICIPALITY',
+        name: 'Jhapa Rural Municipality',
         areas: {
-          SHARANAMATI: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'SHIVASATAKSHI MUNICIPALITY',
-        areas: {
-          BELDANGI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Sharanamati: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          JHILJHILE: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Jhapa Bazar': {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Shivasatakshi Municipality',
+        areas: {
+          Beldangi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          SHIVAGUNJ: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'KACHANAKAWAL RURAL MUNICIPALITY',
-        areas: {
-          BANIYANI: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'GAURIGANJ RURAL MUNICIPALITY',
-        areas: {
-          GAURIGANJ: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'BARHADASHI RURAL MUNICIPALITY',
-        areas: {
-          RAJGADH: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'ARJUNDHARA MUNICIPALITY',
-        areas: {
-          KHUDUNABARI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Jhiljhile: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          SANISCHARE: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Shivagunj: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'SHIVASATAKSHI MUNICIPALITY',
+        name: 'Kachanakawal Rural Municipality',
         areas: {
-          'KERKHA BAZAR': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Baniyani: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'JHAPA RURAL MUNICIPALITY',
+        name: 'Gauriganj Rural Municipality',
         areas: {
-          'JHAPA BAZAR': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Gauriganj: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Barhadashi Rural Municipality',
+        areas: {
+          Rajgadh: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Arjundhara Municipality',
+        areas: {
+          Khudunabari: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Sanischare: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Kamal Rural Municipality',
+        areas: {
+          'Kerkha Bazar': {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Haldibari Rural Municipality',
+        areas: {
+          Haldibari: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
     ]
-  },
-  {
+  }, {
     district: 'JUMLA',
     municipalities: [
       {
-        name: 'CHANDANNATH MUNICIPALITY',
+        name: 'Chandannath Municipality',
         areas: {
-          JUMLA: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Jumla: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1267,116 +1220,143 @@ export const districtArray = [
     district: 'KAILALI',
     municipalities: [
       {
-        name: 'DHANGADHI SUBMETROPOLITIAN CITY',
+        name: 'Dhangadhi Submetropolitan City',
         areas: {
-          DHANGADHI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Dhangadhi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          'PHULBARI KAILALI': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Phulbari Kailali': {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          JUGEDA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Jugeda: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'TIKAPUR MUNICIPALITY',
+        name: 'Tikapur Municipality',
         areas: {
-          TIKAPUR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Tikapur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'LAMKI CHUHA MUNICIPALITY',
+        name: 'Lamki Chuha Municipality',
         areas: {
-          LAMKI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Lamki: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          CHISAPANI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Chisapani: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BARDAGORIYA RURAL MUNICIPALITY',
+        name: 'Bardagoriya Rural Municipality',
         areas: {
-          BAUNIYA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bauniya: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'GODAWARI MUNICIPALITY (KAILALI)',
+        name: 'Godawari Municipality',
         areas: {
-          ATTARIYA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Attariya: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          GETA: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'GHODAGHODI MUNICIPALITY',
-        areas: {
-          SUKKHAD: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Geta: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          PAHALMANPUR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Godawari Kailali': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'GAURIGANGA MUNICIPALITY',
+        name: 'Ghodaghodi Municipality',
         areas: {
-          CHAUMALA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Sukkhad: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          MASURIYA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Pahalmanpur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'JOSHIPUR RURAL MUNICIPALITY',
+        name: 'Bhajani Municipality',
         areas: {
-          JOSHIPUR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bhajani: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'KAILARI RURAL MUNICIPALITY',
+        name: 'Gauriganga Municipality',
         areas: {
-          HASULIYA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Chaumala: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Masuriya: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'JANAKI RURAL MUNICIPALITY (KAILALI)',
+        name: 'Joshipur Rural Municipality',
         areas: {
-          DURGAULI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Joshipur: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Kailari Rural Municipality',
+        areas: {
+          Hasuliya: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Janaki Rural Municipality',
+        areas: {
+          Durgauli: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      }
+    ]
+  },
+  {
+    district: 'KALIKOT',
+    municipalities: [
+      {
+        name: 'Khandachakra Municipality',
+        areas: {
+          Manma: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1386,55 +1366,95 @@ export const districtArray = [
     district: 'KANCHANPUR',
     municipalities: [
       {
-        name: 'BHIMDATTA MUNCIPALITY',
+        name: 'Bhimdatta Municipality',
         areas: {
-          MAHENDRANAGAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Mahendranagar: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          BANI: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'BELOURI MUNICIPALITY',
-        areas: {
-          BELAURI: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'PUNARBAS MUNICIPALITY',
-        areas: {
-          PUNARBAS: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'SHUKLAPHANTA MUNICIPALITY',
-        areas: {
-          JHALARI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bani: {
+            homeDelivery: 250,
+            officeDelivery: 200
           },
-          KALAGAUDI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Brahmadev: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MAHAKALI MUNICIPALITY (KANCHANPUR)',
+        name: 'Belouri Municipality',
         areas: {
-          'DODHARA CHADANI': {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Belauri: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Punarbas Municipality',
+        areas: {
+          Punarbas: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Shuklaphanta Municipality',
+        areas: {
+          Jhalari: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Kalagaudi: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Mahakali Municipality',
+        areas: {
+          'Dodhara Chadani': {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Bedkot Municipality',
+        areas: {
+          Daijee: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Beldandi Rural Municipality',
+        areas: {
+          'Chawanni Beldandi': {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Laljhadi Rural Municipality',
+        areas: {
+          Laljhadi: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Krishnapur Municipality',
+        areas: {
+          Krishnapur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1444,69 +1464,69 @@ export const districtArray = [
     district: 'KAPILBASTU',
     municipalities: [
       {
-        name: 'KAPILBASTU MUNICIPALITY',
+        name: 'Kapilbastu Municipality',
         areas: {
-          TAULIHAWA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Taulihawa: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'SHIVARAJ MUNICIPALITY',
+        name: 'Shivaraj Municipality',
         areas: {
-          CHANDRAUTA: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Chandauta: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'KRISHNANAGAR MUNICIPALITY',
+        name: 'Krishnanagar Municipality',
         areas: {
-          KRISHNANAGAR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Krishnanagar: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BANGANGA MUNICIPALITY',
+        name: 'Banganga Municipality',
         areas: {
-          'JITPUR CHARNUMBER': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Jitpur Charnumber': {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          ODARI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Odari: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MAHARAJGANJ MUNICIPALITY',
+        name: 'Maharajganj Municipality',
         areas: {
-          'MAHARAJGUNJ KAPILBAS': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Maharajgunj Kapilbas': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MAYADEVI RURAL MUNICIPALITY (KAPILBASTU)',
+        name: 'Mayadevi Rural Municipality',
         areas: {
-          PAKADI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Pakadi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BUDDHABHUMI MUNICIPALITY',
+        name: 'Buddhabhumi Municipality',
         areas: {
-          GORUSINGE: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Gorusinge: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1516,159 +1536,93 @@ export const districtArray = [
     district: 'KASKI',
     municipalities: [
       {
-        name: 'POKHARA LEKHNATH METROPOLITIAN CITY',
+        name: 'Pokhara Lekhnath Metropolitan City',
         areas: {
-          POKHARA: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Pokhara: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          LEKHNATH: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Lekhnath: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          HEMJA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Hemja: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          PAME: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Pame: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          PURANCHAUR: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Puranchaure: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          SARANGKOT: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Sarangkot: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          BAGMARA: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Bagmara: {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
       {
-        name: 'ANNAPURNA RURAL MUNICIPALITY (KASKI)',
+        name: 'Annapurna Rural Municipality',
         areas: {
-          'NAUDANDA KASKI': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Naudanda Kaski': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
     ]
   },
-  // {
-  //   district: 'KATHMANDU',
-  //   municipalities: [
-  //     {
-  //       name: 'KATHMANDU METROPOLITAN CITY',
-  //       areas: {
-  //         TINKUNE: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         'NAYA BUSPARK': {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         NEWROAD: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         CHABAHIL: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         KALANKI: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         KAPAN: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         THANKOT: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         SWOYAMBHU: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         BASUNDHARA: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         BUDHANILKANTHA: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         SANKHU: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         KAVRESTHALI: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         SUNDARIJAL: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         },
-  //         TOKHA: {
-  //           homeDelivery: 120,
-  //           officeDelivery: 70
-  //         }
-  //       }
-  //     }
-  //   ]
-  // },
-  {
+    {
     district: 'KAVREPALANCHOK',
     municipalities: [
       {
-        name: 'BANEPA MUNICIPALITY',
+        name: 'Banepa Municipality',
         areas: {
-          BANEPA: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Banepa: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          DHULIKHEL: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Dhulikhel: {
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          PANAUTI: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Panauti: {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
       {
-        name: 'PANCHKHAL MUNICIPALITY',
+        name: 'Panchkhal Municipality',
         areas: {
-          PANCHKHAL: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Panchkhal: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'MANDAN DEUPUR MUNICIPALITY',
+        name: 'Mandan Deupur Municipality',
         areas: {
-          KUNTABESI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Kuntabesi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'NAMOBUDDHA MUNICIPALITY',
+        name: 'Namobuddha Municipality',
         areas: {
-          BHAKUNDEBESI: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Bhakundebesi: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1678,20 +1632,20 @@ export const districtArray = [
     district: 'KHOTANG',
     municipalities: [
       {
-        name: 'RUPAKOT MAJHUWAGADHI MUNICIPALITY',
+        name: 'Rupakot Majhuwagadhi Municipality',
         areas: {
-          DIKTEL: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Diktel: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'HALESI TUWACHUNG MUNICIPALITY',
+        name: 'Halesi Tuwachung Municipality',
         areas: {
-          HALESI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Halesi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1701,32 +1655,32 @@ export const districtArray = [
   //   district: 'LALITPUR',
   //   municipalities: [
   //     {
-  //       name: 'LALITPUR METROPOLITIAN CITY',
+  //       name: 'Lalitpur Metropolitan City',
   //       areas: {
-  //         SATDOBATO: {
-  //           homeDelivery: 120,
+  //         Satdobato: {
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         }
   //       }
   //     },
   //     {
-  //       name: 'MAHALAXMI MUNICIPALITY (LALITPUR)',
+  //       name: 'Mahalaxmi Municipality',
   //       areas: {
-  //         LUBHU: {
-  //           homeDelivery: 120,
+  //         Lubhu: {
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         }
   //       }
   //     },
   //     {
-  //       name: 'GODAWARI MUNICIPALITY (LALITPUR)',
+  //       name: 'Godawari Municipality',
   //       areas: {
-  //         CHAPAGAUN: {
-  //           homeDelivery: 120,
+  //         Chapagaun: {
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         },
-  //         GODAWARI: {
-  //           homeDelivery: 120,
+  //         Godawari: {
+  //           homeDelivery: 100,
   //           officeDelivery: 70
   //         }
   //       }
@@ -1737,38 +1691,38 @@ export const districtArray = [
     district: 'LAMJUNG',
     municipalities: [
       {
-        name: 'BENSI SHAHAR MUNICIPALITY',
+        name: 'Bensi Shahar Municipality',
         areas: {
-          BESISAHAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'SUNDARBAZAR MUNICIPALITY',
-        areas: {
-          SUNDARBAZAR: {
-            homeDelivery: 245,
-            officeDelivery: 195
-          }
-        }
-      },
-      {
-        name: 'MADHYA NEPAL MUNICIPALITY',
-        areas: {
-          DUIPIPLE: {
+          Besisahar: {
             homeDelivery: 250,
             officeDelivery: 200
           }
         }
       },
       {
-        name: 'RAINAS MUNICIPALITY',
+        name: 'Sundarbazar Municipality',
         areas: {
-          TINPIPLE: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Sundarbazar: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Madhya Nepal Municipality',
+        areas: {
+          Duipiple: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          }
+        }
+      },
+      {
+        name: 'Rainas Municipality',
+        areas: {
+          Tinpiple: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1778,119 +1732,119 @@ export const districtArray = [
     district: 'MAHOTTARI',
     municipalities: [
       {
-        name: 'BARDIBAS MUNICIPALITY',
+        name: 'Bardibas Municipality',
         areas: {
-          BARDIBAS: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bardibas: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'JALESHWOR MUNICIPALITY',
+        name: 'Jaleshwor Municipality',
         areas: {
-          JALESHWOR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Jaleshwor: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'GAUSHALA MUNICIPALITY',
+        name: 'Gaushala Municipality',
         areas: {
-          GAUSHALA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Gaushala: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'AURAHI MUNICIPALITY',
+        name: 'Aurahi Municipality',
         areas: {
-          AURAHI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Aurahi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'RAM GOPALPUR MUNICIPALITY',
+        name: 'Ram Gopalpur Municipality',
         areas: {
-          RAMGOPALPUR: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Ramgopalpur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'SAMSI RURAL MUNICIPALITY',
+        name: 'Samsi Rural Municipality',
         areas: {
-          SAMSI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Samsi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'LOHARPATTI MUNICIPALITY',
+        name: 'Loharpatti Municipality',
         areas: {
-          LOHARPATTI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Loharpatti: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MATIHANI MUNICIPALITY',
+        name: 'Matihani Municipality',
         areas: {
-          MATIHANI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Matihani: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BALAWA MUNICIPALITY',
+        name: 'Balawa Municipality',
         areas: {
-          BALAWA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Balawa: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'EKADARA RURAL MUNICIPALITY',
+        name: 'Ekadara Rural Municipality',
         areas: {
-          EKADARA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Ekadara: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'PIPARA RURAL MUNICIPALITY',
+        name: 'Pipara Rural Municipality',
         areas: {
-          PIPRA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Pipra: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'BHANGAHA MUNICIPALITY',
+        name: 'Bhangaha Municipality',
         areas: {
-          BHANGAHA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bhangaha: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MANARA SHISAWA MUNICIPALITY',
+        name: 'Manara Shisawa Municipality',
         areas: {
-          MANARA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Manara: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1900,42 +1854,42 @@ export const districtArray = [
     district: 'MAKWANPUR',
     municipalities: [
       {
-        name: 'HETAUDA SUBMETROPOLITAN CITY',
+        name: 'Hetauda Submetropolitan City',
         areas: {
-          HETAUDA: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Hetauda: {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          'BASTIPUR MAKAWANPUR': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Bastipur Makawanpur': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'MANAHARI RURAL MUNICIPALITY',
+        name: 'Manahari Rural Municipality',
         areas: {
-          MANAHARI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Manahari: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'THAHA MUNICIPALITY',
+        name: 'Thaha Municipality',
         areas: {
-          DAMAN: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Daman: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'BHIMPHEDI RURAL MUNICIPALITY',
+        name: 'Bhimphedi Rural Municipality',
         areas: {
-          BHIMPHEDI: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Bhimphedi: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -1945,11 +1899,11 @@ export const districtArray = [
     district: 'MANANG',
     municipalities: [
       {
-        name: 'CHAME RURAL MUNICIPALITY',
+        name: 'Chame Rural Municipality',
         areas: {
-          CHAME: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          Chame: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -1962,26 +1916,26 @@ export const districtArray = [
         name: 'Biratnagar Metropolitan City',
         areas: {
           Biratnagar: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
       {
-        name: 'Sundar Haraicha Municipality',
+        name: 'Sundarharaicha Municipality',
         areas: {
           Biratchowk: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Urlabari Municipality',
         areas: {
-          Urlabari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Urlabaari: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -1998,17 +1952,17 @@ export const districtArray = [
         name: 'Belbari Municipality',
         areas: {
           Belbari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Miklajung Rural Municipality (Morang)',
+        name: 'Miklajung Rural Municipality',
         areas: {
           Madhumalla: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2016,8 +1970,8 @@ export const districtArray = [
         name: 'Pathari Shanishchare Municipality',
         areas: {
           Pathari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2025,35 +1979,35 @@ export const districtArray = [
         name: 'Letang Municipality',
         areas: {
           Letang: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Ratuwamai Municipality',
         areas: {
-          Damrabhatta: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Damrabhitta: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Kerabari Rural Municipality',
         areas: {
-          Kerabari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Kerabari Morang': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Sunwarshi Municipality',
         areas: {
-          Amardaaha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Amardaha: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2070,8 +2024,8 @@ export const districtArray = [
         name: 'Gramthan Rural Municipality',
         areas: {
           Netachowk: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -2079,8 +2033,8 @@ export const districtArray = [
         name: 'Jahada Rural Municipality',
         areas: {
           Jahada: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2088,17 +2042,17 @@ export const districtArray = [
         name: 'Katahari Rural Municipality',
         areas: {
           Katahari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Budhiganga Rural Municipality',
         areas: {
-          Bansbari: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          'Bansbari Morang': {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       }
@@ -2111,8 +2065,8 @@ export const districtArray = [
         name: 'Chhayanath Rara Municipality',
         areas: {
           Gamgadhi: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2125,8 +2079,8 @@ export const districtArray = [
         name: 'Gharpajhong Rural Municipality',
         areas: {
           Jomsom: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2139,40 +2093,34 @@ export const districtArray = [
         name: 'Beni Municipality',
         areas: {
           Beni: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          'Tatopani Myagdi': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Malika Rural Municipality (Myagdi)',
+        name: 'Malika Rural Municipality',
         areas: {
           Darbang: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Beni Municipality',
-        areas: {
-          Tatopani: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
     ]
-  },
-  {
+  },  {
     district: 'NAWALPARASI EAST',
     municipalities: [
       {
         name: 'Kawasoti Municipality',
         areas: {
           Kawasoti: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2180,8 +2128,8 @@ export const districtArray = [
         name: 'Gaidakot Municipality',
         areas: {
           Gaidakot: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2189,12 +2137,12 @@ export const districtArray = [
         name: 'Devchuli Municipality',
         areas: {
           Daldale: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           },
           Rajahar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2202,12 +2150,12 @@ export const districtArray = [
         name: 'Madhya Bindu Municipality',
         areas: {
           Chormara: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           },
           Arunkhola: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2215,12 +2163,12 @@ export const districtArray = [
         name: 'Binayi Tribeni Rural Municipality',
         areas: {
           Dumkibas: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           },
           Sardi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2233,8 +2181,8 @@ export const districtArray = [
         name: 'Sunawal Municipality',
         areas: {
           Sunawal: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2242,8 +2190,8 @@ export const districtArray = [
         name: 'Bardaghat Municipality',
         areas: {
           Bardaghat: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2251,8 +2199,8 @@ export const districtArray = [
         name: 'Ramgram Municipality',
         areas: {
           Parasi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2260,8 +2208,8 @@ export const districtArray = [
         name: 'Susta Rural Municipality',
         areas: {
           'Gopigunj Jamuniya': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2274,8 +2222,8 @@ export const districtArray = [
         name: 'Bidur Municipality',
         areas: {
           Trishuli: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2288,8 +2236,8 @@ export const districtArray = [
         name: 'Siddhicharan Municipality',
         areas: {
           Okhaldhunga: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2302,8 +2250,8 @@ export const districtArray = [
         name: 'Tansen Municipality',
         areas: {
           Tansen: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2311,26 +2259,26 @@ export const districtArray = [
         name: 'Baganaskali Rural Municipality',
         areas: {
           'Arya Bhanjyang': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
         name: 'Rampur Municipality',
         areas: {
-          Rampur: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Rampur Palpa': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
         name: 'Mathagadhi Rural Municipality',
         areas: {
-          Madi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Madi Palpa': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2343,8 +2291,8 @@ export const districtArray = [
         name: 'Phidim Municipality',
         areas: {
           Phidim: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -2352,8 +2300,8 @@ export const districtArray = [
         name: 'Hilihang Rural Municipality',
         areas: {
           Gopetar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2366,14 +2314,9 @@ export const districtArray = [
         name: 'Kushma Municipality',
         areas: {
           Kushma: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Kushma Municipality',
-        areas: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
           Patichaur: {
             homeDelivery: 250,
             officeDelivery: 200
@@ -2384,8 +2327,8 @@ export const districtArray = [
         name: 'Phalebas Municipality',
         areas: {
           Phalebas: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2398,8 +2341,8 @@ export const districtArray = [
         name: 'Birgunj Metropolitan City',
         areas: {
           Birgunj: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2407,8 +2350,8 @@ export const districtArray = [
         name: 'Pokhariya Municipality',
         areas: {
           Pokhariya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2416,8 +2359,8 @@ export const districtArray = [
         name: 'Parsagadhi Municipality',
         areas: {
           Badnihar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2425,8 +2368,8 @@ export const districtArray = [
         name: 'Jagarnathpur Rural Municipality',
         areas: {
           Jagarnathpur: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -2434,17 +2377,17 @@ export const districtArray = [
         name: 'Jirabhawani Rural Municipality',
         areas: {
           Sedhawa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Kalika Mai Rural Municipality',
+        name: 'Kalikamai Rural Municipality',
         areas: {
           Kalikamai: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2452,17 +2395,17 @@ export const districtArray = [
         name: 'Pakaha Mainpur Rural Municipality',
         areas: {
           'Pakaha Mainpur': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Paterwa Sugauli Rural Municipality',
+        name: 'Paterwa Sugault Rural Municipality',
         areas: {
-          'Paterwa Sugauli': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Paterwa Sugault': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2470,8 +2413,8 @@ export const districtArray = [
         name: 'Bahudarmai Municipality',
         areas: {
           'Bahauri Pidari': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2479,8 +2422,8 @@ export const districtArray = [
         name: 'Bindabasini Rural Municipality',
         areas: {
           Bindabasini: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2488,8 +2431,8 @@ export const districtArray = [
         name: 'Chhipaharmai Rural Municipality',
         areas: {
           'Bhisawa Shikta': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2497,8 +2440,8 @@ export const districtArray = [
         name: 'Dhobini Rural Municipality',
         areas: {
           Dhobini: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2511,8 +2454,8 @@ export const districtArray = [
         name: 'Pyuthan Municipality',
         areas: {
           Bijuwar: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -2520,8 +2463,8 @@ export const districtArray = [
         name: 'Sworgadwari Municipality',
         areas: {
           Bhingri: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2529,8 +2472,8 @@ export const districtArray = [
         name: 'Sarumarani Rural Municipality',
         areas: {
           Darvan: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2543,17 +2486,17 @@ export const districtArray = [
         name: 'Manthali Municipality',
         areas: {
           Manthali: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Likhu Rural Municipality (Ramechhap)',
+        name: 'Likhu Rural Municipality',
         areas: {
           Khimti: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2561,8 +2504,8 @@ export const districtArray = [
         name: 'Gokulganga Rural Municipality',
         areas: {
           Gokulganga: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2570,8 +2513,8 @@ export const districtArray = [
         name: 'Ramechhap Municipality',
         areas: {
           'Ramechhap Bazar': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2581,11 +2524,11 @@ export const districtArray = [
     district: 'RASUWA',
     municipalities: [
       {
-        name: 'Gosainkunda Rural Municipality',
+        name: 'Gosaikunda Rural Municipality',
         areas: {
           Dhunche: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2598,8 +2541,8 @@ export const districtArray = [
         name: 'Chandrapur Municipality',
         areas: {
           Chandranigahapur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2607,8 +2550,8 @@ export const districtArray = [
         name: 'Gaur Municipality',
         areas: {
           Gaur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2616,8 +2559,8 @@ export const districtArray = [
         name: 'Garuda Municipality',
         areas: {
           Garuda: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2625,8 +2568,8 @@ export const districtArray = [
         name: 'Rajdevi Municipality',
         areas: {
           Rajdevi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2634,8 +2577,8 @@ export const districtArray = [
         name: 'Rajpur Municipality',
         areas: {
           'Damar Chowk': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2643,8 +2586,8 @@ export const districtArray = [
         name: 'Paroha Municipality',
         areas: {
           Lokaha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2652,8 +2595,8 @@ export const districtArray = [
         name: 'Ishanath Municipality',
         areas: {
           Auraiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2661,7 +2604,7 @@ export const districtArray = [
         name: 'Maulapur Municipality',
         areas: {
           Maulapur: {
-            homeDelivery: 195,
+            homeDelivery: 200,
             officeDelivery: 145
           }
         }
@@ -2670,17 +2613,17 @@ export const districtArray = [
         name: 'Dewahi Gonahi Municipality',
         areas: {
           'Dewahi Gonahi': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Gadhimai Municipality',
+        name: 'Gadhimal Municipality',
         areas: {
           Samanpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2688,8 +2631,8 @@ export const districtArray = [
         name: 'Durga Bhagawati Rural Municipality',
         areas: {
           Matsari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2697,8 +2640,8 @@ export const districtArray = [
         name: 'Yamunamai Rural Municipality',
         areas: {
           Saruwatha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -2711,8 +2654,8 @@ export const districtArray = [
         name: 'Rolpa Municipality',
         areas: {
           Liwang: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -2720,8 +2663,8 @@ export const districtArray = [
         name: 'Subarnabati Rural Municipality',
         areas: {
           Sulichaur: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2734,8 +2677,8 @@ export const districtArray = [
         name: 'Sisne Rural Municipality',
         areas: {
           Rukumkot: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2745,11 +2688,11 @@ export const districtArray = [
     district: 'RUKUM WEST',
     municipalities: [
       {
-        name: 'Musikot Municipality (Rukum West)',
+        name: 'Musikot Municipality',
         areas: {
           Musikot: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -2757,8 +2700,8 @@ export const districtArray = [
         name: 'Chaurjahari Municipality',
         areas: {
           Chaurjahari: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2771,16 +2714,16 @@ export const districtArray = [
         name: 'Butwal Submetropolitan City',
         areas: {
           Butwal: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           },
           Tamnagar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           },
           Jogikuti: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -2788,8 +2731,8 @@ export const districtArray = [
         name: 'Siddharthanagar Municipality',
         areas: {
           Bhairahawa: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -2797,16 +2740,16 @@ export const districtArray = [
         name: 'Tilottama Municipality',
         areas: {
           Manigram: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           },
-          Kanchibajar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Kanchibajar': {
+            homeDelivery: 200,
+            officeDelivery: 150
           },
-          Kotihaawa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Kotihawa: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2814,43 +2757,66 @@ export const districtArray = [
         name: 'Suddhodhan Rural Municipality',
         areas: {
           Pharsatikar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           },
           Amuwa: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          },
-          Murgiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Mayadevi Rural Municipality (Rupandehi)',
+        name: 'Sainamaina Municipality',
+        areas: {
+          Murgiya: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Lumbini Sanskritik Municipality',
+        areas: {
+          Lumbini: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Mayadevi Rural Municipality',
         areas: {
           Motipur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          }
+        }
+      },
+      {
+        name: 'Rohini Rural Municipality',
+        areas: {
+          Dhakdai: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Devdaha Municipality',
         areas: {
-          Khaireini: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Khairani Rupandehi': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Kanchan Rural Municipality',
         areas: {
-          Haraiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Haraiya Rupandehi': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2858,22 +2824,21 @@ export const districtArray = [
         name: 'Om Satiya Rural Municipality',
         areas: {
           Thutipipal: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       }
     ]
-  },
-  {
+  }, {
     district: 'SALYAN',
     municipalities: [
       {
         name: 'Sharada Municipality',
         areas: {
           'Salyan Khalanga': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -2881,17 +2846,17 @@ export const districtArray = [
         name: 'Bagachour Municipality',
         areas: {
           Tharmare: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Tribeni Rural Municipality (Salyan)',
+        name: 'Tribeni Rural Municipality',
         areas: {
           Luham: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2904,26 +2869,21 @@ export const districtArray = [
         name: 'Khandabari Municipality',
         areas: {
           Khandbari: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
+          },
+          Tumlingtar: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
         name: 'Chainapur Municipality',
         areas: {
-          'Chainpur Sankhuwasabha': {
-            homeDelivery: 270,
-            officeDelivery: 220
-          }
-        }
-      },
-      {
-        name: 'Khandabari Municipality',
-        areas: {
-          Tumlingtar: {
-            homeDelivery: 270,
-            officeDelivery: 220
+          'Chainpur Sankhuwasab': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -2936,8 +2896,8 @@ export const districtArray = [
         name: 'Rajbiraj Municipality',
         areas: {
           Rajbiraj: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2945,8 +2905,8 @@ export const districtArray = [
         name: 'Saptakoshi Municipality',
         areas: {
           Fattepur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2954,8 +2914,8 @@ export const districtArray = [
         name: 'Kanchanrup Municipality',
         areas: {
           Rupnagar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2963,8 +2923,8 @@ export const districtArray = [
         name: 'Khadak Municipality',
         areas: {
           Kalyanpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2972,8 +2932,8 @@ export const districtArray = [
         name: 'Surunga Municipality',
         areas: {
           Kadmaha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2981,17 +2941,17 @@ export const districtArray = [
         name: 'Hanumannagar Kankalini Municipality',
         areas: {
           Hanumannagr: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Mahadewa Rural Municipality',
+        name: 'Mahadeva Rural Municipality',
         areas: {
           Mahadeva: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -2999,8 +2959,8 @@ export const districtArray = [
         name: 'Shambhunath Municipality',
         areas: {
           Arnaha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3008,8 +2968,8 @@ export const districtArray = [
         name: 'Bodebarsain Municipality',
         areas: {
           Bodebarsain: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3017,26 +2977,26 @@ export const districtArray = [
         name: 'Dakneshwori Municipality',
         areas: {
           Pato: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Agnisair Krishna Sabarana Rural Municipality',
+        name: 'Agnisair Krishna Sabaran Rural Municipality',
         areas: {
           Mahuli: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Bishnupur Rural Municipality (Saptari)',
+        name: 'Bishnupur Rural Municipality',
         areas: {
-          Bishnupur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Bishnupur Saptari': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3044,8 +3004,8 @@ export const districtArray = [
         name: 'Rupani Rural Municipality',
         areas: {
           Rupani: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3053,8 +3013,8 @@ export const districtArray = [
         name: 'Tirahut Rural Municipality',
         areas: {
           Diman: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3067,8 +3027,8 @@ export const districtArray = [
         name: 'Lalbandi Municipality',
         areas: {
           Lalbandi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3076,17 +3036,17 @@ export const districtArray = [
         name: 'Hariwan Municipality',
         areas: {
           Hariwon: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Malangawa Municipality',
+        name: 'Malangwa Municipality',
         areas: {
           Malangwa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3094,8 +3054,8 @@ export const districtArray = [
         name: 'Ishworpur Municipality',
         areas: {
           Bayalbas: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3103,8 +3063,8 @@ export const districtArray = [
         name: 'Barahathawa Municipality',
         areas: {
           Barahathawa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3112,8 +3072,8 @@ export const districtArray = [
         name: 'Bagmati Municipality',
         areas: {
           'Putali Chowk': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3121,17 +3081,17 @@ export const districtArray = [
         name: 'Kabilashi Municipality',
         areas: {
           'Gair Bazar': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Godaitha Municipality',
+        name: 'Godaita Municipality',
         areas: {
-          Godeeta: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Godeta: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3139,8 +3099,8 @@ export const districtArray = [
         name: 'Haripur Municipality',
         areas: {
           Haripur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3148,17 +3108,17 @@ export const districtArray = [
         name: 'Parsa Rural Municipality',
         areas: {
           Sangrampur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Ramnagar Rural Municipality',
         areas: {
-          'Ramnagar Khairawa': {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Ramnagar Khairava': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3166,8 +3126,8 @@ export const districtArray = [
         name: 'Basbariya Rural Municipality',
         areas: {
           Bhawanipur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3180,35 +3140,30 @@ export const districtArray = [
         name: 'Kamalamai Municipality',
         areas: {
           Sindhuli: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Bhiman: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Dudhohli Municipality',
+        name: 'Dudhouli Municipality',
         areas: {
           Dudhauli: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Sunkoshi Rural Municipality (Sindhuli)',
+        name: 'Sunkoshi Rural Municipality',
         areas: {
-          Khurkota: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Kamalamai Municipality',
-        areas: {
-          Bhiman: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Khurkot: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3221,8 +3176,8 @@ export const districtArray = [
         name: 'Melanchi Municipality',
         areas: {
           Melamchi: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3230,8 +3185,8 @@ export const districtArray = [
         name: 'Choutara Sangachowkgadhi Municipality',
         areas: {
           Chautara: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3239,8 +3194,8 @@ export const districtArray = [
         name: 'Bahrabise Municipality',
         areas: {
           Bahrabise: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -3253,8 +3208,8 @@ export const districtArray = [
         name: 'Lahan Municipality',
         areas: {
           Lahan: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3262,8 +3217,8 @@ export const districtArray = [
         name: 'Golbazar Municipality',
         areas: {
           Golbazar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3271,8 +3226,8 @@ export const districtArray = [
         name: 'Siraha Municipality',
         areas: {
           Siraha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3280,8 +3235,8 @@ export const districtArray = [
         name: 'Mirchaiya Municipality',
         areas: {
           Mirchaiya: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3289,8 +3244,8 @@ export const districtArray = [
         name: 'Dhangadhimai Municipality',
         areas: {
           Dhangadhimai: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3298,8 +3253,8 @@ export const districtArray = [
         name: 'Sukhipur Municipality',
         areas: {
           Sukhipur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3307,8 +3262,8 @@ export const districtArray = [
         name: 'Bhagawanpur Rural Municipality',
         areas: {
           Bhagwanpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3316,35 +3271,35 @@ export const districtArray = [
         name: 'Karjanha Municipality',
         areas: {
           Bastipur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Bishnupur Rural Municipality (Siraha)',
+        name: 'Bishnupur Rural Municipality',
         areas: {
           Bishnupur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Aurahi Rural Municipality (Siraha)',
+        name: 'Aurahi Rural Municipality',
         areas: {
-          Ganesha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Ganeshpur: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Kalyanpur Municipality',
         areas: {
-          Dumari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Dumari Kalyanpur': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3352,8 +3307,8 @@ export const districtArray = [
         name: 'Arnama Rural Municipality',
         areas: {
           Hakpara: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3361,8 +3316,8 @@ export const districtArray = [
         name: 'Bariyarpatti Rural Municipality',
         areas: {
           Bariyarpatti: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3370,17 +3325,17 @@ export const districtArray = [
         name: 'Laxmipur Patari Rural Municipality',
         areas: {
           'Laxmipur Patari': {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
-        name: 'Narah Rural Municipality',
+        name: 'Naraha Rural Municipality',
         areas: {
           Naraha: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3388,8 +3343,8 @@ export const districtArray = [
         name: 'Nawarajpur Rural Municipality',
         areas: {
           Nawarajpur: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3397,8 +3352,8 @@ export const districtArray = [
         name: 'Sakhuwa Nankarkatti Rural Municipality',
         areas: {
           Maheshwori: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3408,20 +3363,15 @@ export const districtArray = [
     district: 'SOLUKHUMBU',
     municipalities: [
       {
-        name: 'Khumbu Pasanglhamu Rural Municipality',
+        name: 'Khumbu Pasang Lhamu Rural Municipality',
         areas: {
           'Namche Bazar': {
-            homeDelivery: 270,
-            officeDelivery: 220
-          }
-        }
-      },
-      {
-        name: 'Khumbu Pasanglhamu Rural Municipality',
-        areas: {
+            homeDelivery: 250,
+            officeDelivery: 200
+          },
           Lukla: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3429,22 +3379,21 @@ export const districtArray = [
         name: 'Solu Dhudhakunda Municipality',
         areas: {
           Salleri: {
-            homeDelivery: 270,
-            officeDelivery: 220
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
     ]
-  },
-  {
+  },  {
     district: 'SUNSARI',
     municipalities: [
       {
         name: 'Itahari Submetropolitan City',
         areas: {
           Itahari: {
-            homeDelivery: 170,
-            officeDelivery: 120
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -3452,8 +3401,16 @@ export const districtArray = [
         name: 'Dharan Submetropolitan City',
         areas: {
           Dharan: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Chatara: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Panmara: {
+            homeDelivery: 200,
+            officeDelivery: 145
           }
         }
       },
@@ -3461,8 +3418,8 @@ export const districtArray = [
         name: 'Inaruwa Municipality',
         areas: {
           Inaruwa: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3470,35 +3427,21 @@ export const districtArray = [
         name: 'Duhabi Municipality',
         areas: {
           Duhabi: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Baraha Municipality',
         areas: {
-          Kalabanjhar: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Dharan Submetropolitan City',
-        areas: {
-          Chatara: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Baraha Municipality',
-        areas: {
-          Chakargatti: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          Kalabanjar: {
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Chakarghatti: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3506,8 +3449,8 @@ export const districtArray = [
         name: 'Ramdhuni Municipality',
         areas: {
           Jhumka: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3515,8 +3458,8 @@ export const districtArray = [
         name: 'Barju Rural Municipality',
         areas: {
           Barju: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3524,17 +3467,8 @@ export const districtArray = [
         name: 'Koshi Rural Municipality',
         areas: {
           Laukahi: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Dharan Submetropolitan City',
-        areas: {
-          Panmara: {
-            homeDelivery: 195,
-            officeDelivery: 145
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3542,8 +3476,8 @@ export const districtArray = [
         name: 'Dewanganj Rural Municipality',
         areas: {
           Dewanganj: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3551,8 +3485,8 @@ export const districtArray = [
         name: 'Gadhi Rural Municipality',
         areas: {
           Aurabani: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3560,8 +3494,8 @@ export const districtArray = [
         name: 'Harinagara Rural Municipality',
         areas: {
           Harinagara: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3574,17 +3508,17 @@ export const districtArray = [
         name: 'Birendranagar Municipality',
         areas: {
           Surkhet: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
       {
         name: 'Bheriganga Municipality',
         areas: {
-          Chinchhu: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Chinchu: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3592,8 +3526,8 @@ export const districtArray = [
         name: 'Gurbhakot Municipality',
         areas: {
           Mehelkuna: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -3606,8 +3540,8 @@ export const districtArray = [
         name: 'Waling Municipality',
         areas: {
           Waling: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3615,8 +3549,8 @@ export const districtArray = [
         name: 'Putalibazar Municipality',
         areas: {
           Putalibazar: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3624,8 +3558,8 @@ export const districtArray = [
         name: 'Phedikhola Rural Municipality',
         areas: {
           Phedikhola: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3633,8 +3567,8 @@ export const districtArray = [
         name: 'Galyang Municipality',
         areas: {
           Galyang: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3642,8 +3576,8 @@ export const districtArray = [
         name: 'Aandhikhola Rural Municipality',
         areas: {
           Jugle: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3651,8 +3585,8 @@ export const districtArray = [
         name: 'Chapakot Municipality',
         areas: {
           Chapakot: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3660,8 +3594,8 @@ export const districtArray = [
         name: 'Bhirkot Municipality',
         areas: {
           Bayarghari: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -3674,8 +3608,8 @@ export const districtArray = [
         name: 'Byas Municipality',
         areas: {
           Damauli: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3683,26 +3617,30 @@ export const districtArray = [
         name: 'Bandipur Rural Municipality',
         areas: {
           Dumre: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Bandipur: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Bhima Municipality',
+        name: 'Bhimad Municipality',
         areas: {
-          Bhima: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Bhimad: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Aanbu Khaireini Rural Municipality',
+        name: 'Aanbu Khaireni Rural Municipality',
         areas: {
-          Anbukhaireini: {
-            homeDelivery: 170,
-            officeDelivery: 120
+          Anbukhaireni: {
+            homeDelivery: 150,
+            officeDelivery: 100
           }
         }
       },
@@ -3710,17 +3648,8 @@ export const districtArray = [
         name: 'Shuklagandaki Municipality',
         areas: {
           Dulegauda: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Bandipur Rural Municipality',
-        areas: {
-          Bandipur: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3728,8 +3657,8 @@ export const districtArray = [
         name: 'Devghat Rural Municipality',
         areas: {
           Devghat: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
@@ -3739,11 +3668,11 @@ export const districtArray = [
     district: 'TAPLEJUNG',
     municipalities: [
       {
-        name: 'Phunling Municipality',
+        name: 'Phungling Municipality',
         areas: {
-          Phunling: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          Phungling: {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -3756,17 +3685,17 @@ export const districtArray = [
         name: 'Myanglung Municipality',
         areas: {
           Myanglung: {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
         name: 'Laligurans Municipality',
         areas: {
-          Basantapur: {
-            homeDelivery: 245,
-            officeDelivery: 195
+          'Terhathum Basantapur': {
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       }
@@ -3779,8 +3708,8 @@ export const districtArray = [
         name: 'Triyuga Municipality',
         areas: {
           Gaighat: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3788,8 +3717,8 @@ export const districtArray = [
         name: 'Chaudandigadhi Municipality',
         areas: {
           'Beltar Basaha': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
@@ -3797,8 +3726,12 @@ export const districtArray = [
         name: 'Katari Municipality',
         areas: {
           Katari: {
-            homeDelivery: 220,
-            officeDelivery: 170
+            homeDelivery: 200,
+            officeDelivery: 150
+          },
+          Belsot: {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       },
@@ -3806,29 +3739,22 @@ export const districtArray = [
         name: 'Belaka Municipality',
         areas: {
           'Belaka Rampur': {
-            homeDelivery: 245,
-            officeDelivery: 195
+            homeDelivery: 250,
+            officeDelivery: 200
           }
         }
       },
       {
-        name: 'Udayapur Gadhi Rural Municipality',
+        name: 'Udayapurgadhi Rural Municipality',
         areas: {
-          Nepaltar: {
-            homeDelivery: 220,
-            officeDelivery: 170
-          }
-        }
-      },
-      {
-        name: 'Katari Municipality',
-        areas: {
-          Belsot: {
-            homeDelivery: 220,
-            officeDelivery: 170
+          'Nepaltar Udayapur': {
+            homeDelivery: 200,
+            officeDelivery: 150
           }
         }
       }
     ]
   }
+
+
 ]
