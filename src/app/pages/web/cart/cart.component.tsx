@@ -688,9 +688,10 @@ Payment Screenshot यसै म्यासेजमा पठाउँदै �
 धन्यवाद! 🙏`;
     }
  
-  } else if (isInsideValley && isPhonePay) {
+  } else if (isInsideValley) {
     // Inside valley + Phone Pay - Full payment
-    message = `नमस्ते! 🙏
+if(isPhonePaySelected){
+ message = `नमस्ते! 🙏
 
 Order ID: ${orderId}
 
@@ -698,11 +699,12 @@ Order ID: ${orderId}
 
 Payment Screenshot यसै म्यासेजमा पठाउँदै छु।
 
-कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
-
-धन्यवाद! 🙏`;
-  } else {
-    // Inside valley + COD - No advance payment needed
+कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।धन्यवाद! 🙏`;
+}
+else{
+  
+    
+       // Inside valley + COD - No advance payment needed
     message = `नमस्ते! 🙏
 
 Order ID: ${orderId}
@@ -712,7 +714,9 @@ Order ID: ${orderId}
 कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
 
 धन्यवाद! 🙏`;
-  }
+
+
+  } }
   
   const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
