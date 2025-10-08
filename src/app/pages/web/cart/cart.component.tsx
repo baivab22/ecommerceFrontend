@@ -572,9 +572,9 @@ useEffect(() => {
 
           clearCartItems()
           resetForm()
-          if (!(isCashOnDelivery && isInsideValley)) {
+          // if (!(isCashOnDelivery && isInsideValley)) {
       openWhatsApp(backendOrderId)
-          }
+          // }
         },
         onFailure: error => {
           console.error('Order failed:', error)
@@ -658,8 +658,12 @@ const openWhatsApp = useCallback((orderId: string) => {
   const isPhonePay = isPhonePaySelected; // Assuming isHomeDelivery true means phone pay
   
   let message = '';
+
+
+  console.log(isOutsideValley,isPhonePaySelected,"is sssssssss")
   
   if (isOutsideValley) {
+     console.log(isOutsideValley,isPhonePaySelected,"is sssssssss.  aaa")
 
     if(isPhonePaySelected){
           message = `नमस्ते! 🙏
@@ -688,7 +692,10 @@ Payment Screenshot यसै म्यासेजमा पठाउँदै �
 धन्यवाद! 🙏`;
     }
  
-  } else if (isInsideValley) {
+  } else{
+
+
+  
     // Inside valley + Phone Pay - Full payment
 if(isPhonePaySelected){
  message = `नमस्ते! 🙏
@@ -703,7 +710,7 @@ Payment Screenshot यसै म्यासेजमा पठाउँदै �
 }
 else{
   
-    
+     console.log(isOutsideValley,isPhonePaySelected,"is sssssssss.  bbb")
        // Inside valley + COD - No advance payment needed
     message = `नमस्ते! 🙏
 
