@@ -21,15 +21,15 @@ const HolidayModePage = () => {
 
   const [formData, setFormData] = useState({
     message: '',
-    startDate: '',
-    endDate: '',
+    startDateTime: '',
+    endDateTime: '',
     allowBrowsing: true,
     allowOrders: false
   });
 
-  const [dateErrors, setDateErrors] = useState({
-    startDate: '',
-    endDate: ''
+  const [validationErrors, setValidationErrors] = useState({
+    startDateTime: '',
+    endDateTime: ''
   });
 
   // Fetch initial settings
@@ -46,8 +46,8 @@ const HolidayModePage = () => {
     if (settings) {
       setFormData({
         message: settings.message || '',
-        startDate: settings.startDate ? formatDateForInput(settings.startDate) : '',
-        endDate: settings.endDate ? formatDateForInput(settings.endDate) : '',
+        startDateTime: settings.startDate ? formatDateTimeForInput(settings.startDate) : '',
+        endDateTime: settings.endDate ? formatDateTimeForInput(settings.endDate) : '',
         allowBrowsing: settings.allowBrowsing ?? true,
         allowOrders: settings.allowOrders ?? false
       });
@@ -64,31 +64,60 @@ const HolidayModePage = () => {
     }
   }, [error, success, dispatch]);
 
-  // Format date from ISO string to YYYY-MM-DD
-  const formatDateForInput = (dateString) => {
-    const date = new Date(dateString);
+  // Format ISO datetime to readable format: YYYY-MM-DD HH:MM
+  const formatDateTimeForInput = (isoString) => {
+    const date = new Date(isoString);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  // Validate date format (YYYY-MM-DD)
-  const validateDate = (dateString) => {
-    if (!dateString) return true; // Empty is valid
+  // Validate datetime format: YYYY-MM-DD HH:MM
+  const validateDateTime = (dateTimeString) => {
+    if (!dateTimeString.trim()) return { valid: true, message: '' };
     
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(dateString)) {
-      return false;
+    // Regex for YYYY-MM-DD HH:MM format
+    const dateTimeRegex = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/;
+    
+    if (!dateTimeRegex.test(dateTimeString)) {
+      return { 
+        valid: false, 
+        message: 'Invalid format. Use YYYY-MM-DD HH:MM (e.g., 2025-12-25 09:30)' 
+      };
     }
     
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [datePart, timePart] = dateTimeString.split(' ');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hours, minutes] = timePart.split(':').map(Number);
     
-    // Check if date is valid
+    // Validate date
     const date = new Date(year, month - 1, day);
-    return date.getFullYear() === year && 
-           date.getMonth() === month - 1 && 
-           date.getDate() === day;
+    if (date.getFullYear() !== year || 
+        date.getMonth() !== month - 1 || 
+        date.getDate() !== day) {
+      return { valid: false, message: 'Invalid date' };
+    }
+    
+    // Validate time
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      return { valid: false, message: 'Invalid time (hours: 00-23, minutes: 00-59)' };
+    }
+    
+    return { valid: true, message: '' };
+  };
+
+  // Convert datetime string to ISO format
+  const convertToISO = (dateTimeString) => {
+    if (!dateTimeString.trim()) return null;
+    
+    const [datePart, timePart] = dateTimeString.split(' ');
+    const [year, month, day] = datePart.split('-');
+    const [hours, minutes] = timePart.split(':');
+    
+    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`).toISOString();
   };
 
   const handleToggle = () => {
@@ -113,19 +142,13 @@ const HolidayModePage = () => {
         [name]: value
       }));
 
-      // Validate date fields in real-time
-      if (name === 'startDate' || name === 'endDate') {
-        if (value && !validateDate(value)) {
-          setDateErrors(prev => ({
-            ...prev,
-            [name]: 'Invalid date format. Use YYYY-MM-DD'
-          }));
-        } else {
-          setDateErrors(prev => ({
-            ...prev,
-            [name]: ''
-          }));
-        }
+      // Validate datetime fields in real-time
+      if (name === 'startDateTime' || name === 'endDateTime') {
+        const validation = validateDateTime(value);
+        setValidationErrors(prev => ({
+          ...prev,
+          [name]: validation.message
+        }));
       }
     }
   };
@@ -133,31 +156,42 @@ const HolidayModePage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate date formats
-    if (formData.startDate && !validateDate(formData.startDate)) {
-      alert('Invalid start date format. Please use YYYY-MM-DD format.');
+    // Validate start datetime
+    const startValidation = validateDateTime(formData.startDateTime);
+    if (!startValidation.valid) {
+      alert(`Start date/time error: ${startValidation.message}`);
       return;
     }
     
-    if (formData.endDate && !validateDate(formData.endDate)) {
-      alert('Invalid end date format. Please use YYYY-MM-DD format.');
+    // Validate end datetime
+    const endValidation = validateDateTime(formData.endDateTime);
+    if (!endValidation.valid) {
+      alert(`End date/time error: ${endValidation.message}`);
       return;
     }
+    
+    // Convert to ISO format
+    const startISO = convertToISO(formData.startDateTime);
+    const endISO = convertToISO(formData.endDateTime);
     
     // Validate date range
-    if (formData.startDate && formData.endDate) {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
+    if (startISO && endISO) {
+      const start = new Date(startISO);
+      const end = new Date(endISO);
       
-      if (end < start) {
-        alert('End date must be after start date');
+      if (end <= start) {
+        alert('End date/time must be after start date/time');
         return;
       }
     }
 
     dispatch(updateHolidayModeAction({
       settings: {
-        ...formData,
+        message: formData.message,
+        startDate: startISO,
+        endDate: endISO,
+        allowBrowsing: formData.allowBrowsing,
+        allowOrders: formData.allowOrders,
         isActive: settings.isActive
       },
       onSuccess: (data) => {
@@ -170,13 +204,13 @@ const HolidayModePage = () => {
     if (settings) {
       setFormData({
         message: settings.message || '',
-        startDate: settings.startDate ? formatDateForInput(settings.startDate) : '',
-        endDate: settings.endDate ? formatDateForInput(settings.endDate) : '',
+        startDateTime: settings.startDate ? formatDateTimeForInput(settings.startDate) : '',
+        endDateTime: settings.endDate ? formatDateTimeForInput(settings.endDate) : '',
         allowBrowsing: settings.allowBrowsing ?? true,
         allowOrders: settings.allowOrders ?? false
       });
     }
-    setDateErrors({ startDate: '', endDate: '' });
+    setValidationErrors({ startDateTime: '', endDateTime: '' });
   };
 
   return (
@@ -406,186 +440,105 @@ const HolidayModePage = () => {
               />
             </div>
 
-            {/* Date Range */}
+            {/* DateTime Range */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '24px',
               marginBottom: '24px'
             }}>
+              {/* Start DateTime */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{
                   fontSize: '14px',
                   fontWeight: '600',
                   color: '#495057',
                   marginBottom: '4px'
-                }} htmlFor="startDate">
-                  Start Date
+                }} htmlFor="startDateTime">
+                  Start Date & Time
                 </label>
                 <input
                   type="text"
-                  id="startDate"
-                  name="startDate"
-                  value={formData.startDate}
+                  id="startDateTime"
+                  name="startDateTime"
+                  value={formData.startDateTime}
                   onChange={handleInputChange}
-                  placeholder="YYYY-MM-DD"
+                  placeholder="YYYY-MM-DD HH:MM"
                   style={{
                     padding: '12px 16px',
                     fontSize: '15px',
-                    border: `1px solid ${dateErrors.startDate ? '#dc3545' : '#ced4da'}`,
+                    border: `1px solid ${validationErrors.startDateTime ? '#dc3545' : '#ced4da'}`,
                     borderRadius: '6px',
                     outline: 'none',
                     fontFamily: 'inherit',
                     transition: 'border-color 0.2s ease'
                   }}
-                  onFocus={(e) => !dateErrors.startDate && (e.target.style.borderColor = '#007bff')}
-                  onBlur={(e) => !dateErrors.startDate && (e.target.style.borderColor = '#ced4da')}
+                  onFocus={(e) => !validationErrors.startDateTime && (e.target.style.borderColor = '#007bff')}
+                  onBlur={(e) => !validationErrors.startDateTime && (e.target.style.borderColor = '#ced4da')}
                 />
-                {dateErrors.startDate && (
+                {validationErrors.startDateTime && (
                   <span style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                    {dateErrors.startDate}
+                    {validationErrors.startDateTime}
                   </span>
                 )}
                 <span style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
-                  Format: YYYY-MM-DD (e.g., 2025-12-25)
+                  Format: YYYY-MM-DD HH:MM (e.g., 2025-12-25 09:30)
                 </span>
               </div>
 
+              {/* End DateTime */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{
                   fontSize: '14px',
                   fontWeight: '600',
                   color: '#495057',
                   marginBottom: '4px'
-                }} htmlFor="endDate">
-                  End Date
+                }} htmlFor="endDateTime">
+                  End Date & Time
                 </label>
                 <input
                   type="text"
-                  id="endDate"
-                  name="endDate"
-                  value={formData.endDate}
+                  id="endDateTime"
+                  name="endDateTime"
+                  value={formData.endDateTime}
                   onChange={handleInputChange}
-                  placeholder="YYYY-MM-DD"
+                  placeholder="YYYY-MM-DD HH:MM"
                   style={{
                     padding: '12px 16px',
                     fontSize: '15px',
-                    border: `1px solid ${dateErrors.endDate ? '#dc3545' : '#ced4da'}`,
+                    border: `1px solid ${validationErrors.endDateTime ? '#dc3545' : '#ced4da'}`,
                     borderRadius: '6px',
                     outline: 'none',
                     fontFamily: 'inherit',
                     transition: 'border-color 0.2s ease'
                   }}
-                  onFocus={(e) => !dateErrors.endDate && (e.target.style.borderColor = '#007bff')}
-                  onBlur={(e) => !dateErrors.endDate && (e.target.style.borderColor = '#ced4da')}
+                  onFocus={(e) => !validationErrors.endDateTime && (e.target.style.borderColor = '#007bff')}
+                  onBlur={(e) => !validationErrors.endDateTime && (e.target.style.borderColor = '#ced4da')}
                 />
-                {dateErrors.endDate && (
+                {validationErrors.endDateTime && (
                   <span style={{ fontSize: '12px', color: '#dc3545', marginTop: '4px' }}>
-                    {dateErrors.endDate}
+                    {validationErrors.endDateTime}
                   </span>
                 )}
                 <span style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
-                  Format: YYYY-MM-DD (e.g., 2025-12-31)
+                  Format: YYYY-MM-DD HH:MM (e.g., 2025-12-31 23:59)
                 </span>
               </div>
             </div>
 
-            {/* Permissions */}
-            {/* <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px',
-              marginBottom: '24px'
-            }}>
-              <div style={{
-                padding: '16px',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e9ecef'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <input
-                    type="checkbox"
-                    id="allowBrowsing"
-                    name="allowBrowsing"
-                    checked={formData.allowBrowsing}
-                    onChange={handleInputChange}
-                    style={{ 
-                      width: '18px', 
-                      height: '18px', 
-                      cursor: 'pointer' 
-                    }}
-                  />
-                  <label style={{
-                    fontSize: '15px',
-                    color: '#495057',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    margin: '0',
-                    fontWeight: '500'
-                  }} htmlFor="allowBrowsing">
-                    Allow customers to browse products
-                  </label>
-                </div>
-              </div>
-
-              <div style={{
-                padding: '16px',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e9ecef'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <input
-                    type="checkbox"
-                    id="allowOrders"
-                    name="allowOrders"
-                    checked={formData.allowOrders}
-                    onChange={handleInputChange}
-                    style={{ 
-                      width: '18px', 
-                      height: '18px', 
-                      cursor: 'pointer' 
-                    }}
-                  />
-                  <label style={{
-                    fontSize: '15px',
-                    color: '#495057',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    margin: '0',
-                    fontWeight: '500'
-                  }} htmlFor="allowOrders">
-                    Allow customers to place orders
-                  </label>
-                </div>
-              </div>
-            </div> */}
-
             {/* Info Note */}
-            {/* <div style={{
+            <div style={{
               backgroundColor: '#e7f3ff',
               border: '1px solid #b3d9ff',
               borderRadius: '8px',
               padding: '16px',
-              marginTop: '24px',
+              marginBottom: '24px',
               fontSize: '14px',
               color: '#004085',
               lineHeight: '1.6'
             }}>
-              <strong>Note:</strong> When holiday mode is active, the configured
-              message will be displayed to customers. Use the checkboxes above to
-              control whether customers can browse products or place orders during
-              this period.
-            </div> */}
+              <strong>⏰ Automatic Scheduling:</strong> Holiday mode will automatically activate at the start date/time and deactivate at the end date/time. The system checks every hour for scheduled changes.
+            </div>
 
             {/* Action Buttons */}
             <div style={{
