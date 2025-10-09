@@ -9,7 +9,8 @@
     color: map-get($text, 'secondary');
     user-select: none;
     cursor: pointer;
-    background: map-get($base, 'surface');
+    // background: map-get($base, 'surface');
+
   }
 
   & .search-icon {
@@ -37,7 +38,7 @@
   border: 1px solid map-get($base, 'surface');
   outline: none;
   padding: 8px 12px;
-  background-color: map-get($base, 'surface');
+  // background-color: map-get($base, 'surface');
   color: map-get($text, 'primary');
   transition: border 0.1s, background 0.1s;
   resize: none;

@@ -37,6 +37,10 @@ const updateTestimonialAction = createAsyncThunk(
     thunkAPI
   ) => {
     try {
+
+
+ 
+      console.log(testimonialBody,testimonialId,"kaliyug")
       const response = await testimonialService.updateTestimonial(
         testimonialBody,
         testimonialId

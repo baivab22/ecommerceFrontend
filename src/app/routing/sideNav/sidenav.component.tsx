@@ -4,13 +4,19 @@ import {useSpring, animated} from '@react-spring/web'
 import {NavLink} from 'react-router-dom'
 import {useCanAccessRoute} from '../routes/ProtectedRoutes.app'
 import {
-  MdBusiness,
-  IoGrid,
-  MdWork,
-  MdReport,
-  RiFolderTransferFill,
-  FaUsers
-} from 'react-icons/all'
+  MdInventory,
+  MdCategory,
+  MdAccountTree,
+  MdLayers,
+  MdNewReleases,
+  MdTrendingUp,
+  MdViewCarousel,
+  MdRateReview,
+  MdAttachMoney,
+  MdShoppingCart,
+  MdEventBusy,
+  MdShare
+} from 'react-icons/md'
 import SystemTitle from '../../../assets/images/logoss.png'
 
 import {Box, ToolTip} from 'src/app/common'
@@ -94,50 +100,50 @@ const SideNavComponent = React.memo(() => {
             <ImSearch />
           ))} */}
           {getNav('Products', '/dash-product', () => (
-            <MdBusiness size={18} />
+            <MdInventory size={20} />
           ))}
 
           {getNav('Category', '/dash-category', () => (
-            <MdWork size={18} />
+            <MdCategory size={20} />
           ))}
 
           {getNav('SubCategory', '/dash-subCategory', () => (
-            <MdWork size={18} />
+            <MdAccountTree size={20} />
           ))}
 
           {getNav('Nested SubCategory', '/dash-subCategorynested', () => (
-            <MdWork size={18} />
+            <MdLayers size={20} />
           ))}
 
           {getNav('New Arrivals', '/dash-new-arrivals', () => (
-            <MdReport size={18} />
+            <MdNewReleases size={20} />
           ))}
           {getNav('Best Sellings', '/dash-best-selling', () => (
-            <RiFolderTransferFill size={18} />
+            <MdTrendingUp size={20} />
           ))}
 
           {getNav('Banners', '/dash-banners', () => (
-            <MdReport size={18} />
+            <MdViewCarousel size={20} />
           ))}
 
           {getNav('Testimonial', '/dash-testimonial', () => (
-            <MdReport size={18} />
+            <MdRateReview size={20} />
           ))}
 
           {getNav('Shop By Budget', '/dash-shopByBudget', () => (
-            <MdReport size={18} />
+            <MdAttachMoney size={20} />
           ))}
 
           {getNav('Order List', '/dash-orders', () => (
-            <MdReport size={18} />
+            <MdShoppingCart size={20} />
           ))}
 
-
-   {getNav('Holiday Mode', '/dash-holiday-mode', () => (
-            <MdReport size={18} />
+          {getNav('Holiday Mode', '/dash-holiday-mode', () => (
+            <MdEventBusy size={20} />
           ))}
+          
           {getNav('Social Links', '/dash-social-links', () => (
-            <MdReport size={18} />
+            <MdShare size={20} />
           ))}
         </Box>
       </animated.div>

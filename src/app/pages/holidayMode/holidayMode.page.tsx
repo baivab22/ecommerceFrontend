@@ -571,7 +571,7 @@ const HolidayModePage = () => {
             </div> */}
 
             {/* Info Note */}
-            <div style={{
+            {/* <div style={{
               backgroundColor: '#e7f3ff',
               border: '1px solid #b3d9ff',
               borderRadius: '8px',
@@ -585,7 +585,7 @@ const HolidayModePage = () => {
               message will be displayed to customers. Use the checkboxes above to
               control whether customers can browse products or place orders during
               this period.
-            </div>
+            </div> */}
 
             {/* Action Buttons */}
             <div style={{

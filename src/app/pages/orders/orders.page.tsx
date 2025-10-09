@@ -1034,13 +1034,13 @@ const OrderPDF = ({data}) => {
                   <View style={styles.brandSection}>
                     <Image style={styles.logo} src="/assets/images/logosss.png" />
                     <View>
-                      <Text style={styles.brandName}>AABHUSHAN GALLERY</Text>
-                      <Text style={styles.tagline}>Kathmandu, Nepal</Text>
+                      {/* <Text style={styles.brandName}>AABHUSHAN GALLERY</Text> */}
+                      <Text style={styles.tagline}>AABHUSHAN GALLERY</Text>
                     </View>
                   </View>
                   <View style={styles.orderSection}>
                     <Text style={styles.orderLabel}>ORDER</Text>
-                    <Text style={styles.orderNumber}>#{item.productOrderId}</Text>
+                    <Text style={styles.orderNumber}>{item.productOrderId}</Text>
                   </View>
                 </View>
 
@@ -1052,13 +1052,14 @@ const OrderPDF = ({data}) => {
                     <Text style={styles.name}>Aabhushan Gallery</Text>
                     <Text style={styles.address}>Kalimati, Kathmandu</Text>
                     <Text style={styles.address}>Nepal 44600</Text>
-                    <Text style={styles.contact}>T: 9861394245</Text>
+                    <Text style={styles.contact}>T: 9861698400</Text>
                   </View>
 
                   <View style={[styles.addressCard, styles.destinationCard]}>
                     <View style={styles.destinationHeader}>
-                      <Text style={styles.addressTitle}>DESTINATION</Text>
+                      {/* <Text style={styles.addressTitle}>DESTINATION</Text> */}
                       <Text style={styles.deliveryType}>{item?.isHomeDelivery ? 'HOME DELIVERY' : 'OFFICE DELIVERY'}</Text>
+                       <Text style={styles.deliveryType}>{item?.paymentMethod==='phonePay' ? 'Phone Pay' : 'Cash on Delivery'}</Text>
                     </View>
                     <View style={styles.divider} />
                     <Text style={styles.name}>{item.customerName || 'Customer'}</Text>
@@ -1195,7 +1196,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 35,
-    height: 45
+    height: 50
   },
   brandName: {
     fontSize: 13,
@@ -1268,7 +1269,7 @@ const styles = StyleSheet.create({
     marginVertical: 6
   },
   name: {
-    fontSize: 9,
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#000000',
     marginBottom: 3

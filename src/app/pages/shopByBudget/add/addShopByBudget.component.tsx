@@ -43,7 +43,7 @@ export const AddShopByBudget = () => {
         shopByBudgetData: {name: shopByBudget},
         onSuccess: () => {
           toast.success('ShopBy Budget added Successfully')
-          navigate('/shopByBudget')
+          navigate('/dash-shopByBudget')
         }
       })
     )

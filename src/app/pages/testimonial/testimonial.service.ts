@@ -16,11 +16,15 @@ const getTestimonialDetailById = async (testimonialId: string) => {
 }
 
 const updateTestimonial = async (body: any, testimonialId: string) => {
+
+  console.log(body,"body update")
   const response = await api<Api.Base<{}>>('patch')(
     `/testimonial/${testimonialId}`,
     undefined,
     body
   )
+
+  
   return response.data
 }
 

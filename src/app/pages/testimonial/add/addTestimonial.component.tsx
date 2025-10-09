@@ -52,24 +52,30 @@ export const AddTestimonialPage = () => {
     })
 
     formData.append('testimonialDescription', data.description)
+for (const pair of formData.entries()) {
+  console.log(`${pair[0]}:`, pair[1],"idea","testimonial id datasssssss");
+}
+    // console.log(testimonialId,  !testimonialId,data,formData,"testimonial id datasssssss")
+
+
 
     !testimonialId
       ? dispatch(
           createTestimonialAction({
             testimonialBody: formData,
             onSuccess: (data: any) => {
-              navigate('/testimonial')
+              navigate('/dash-testimonial')
               toast.success('Testimonial Created')
             }
           })
         )
       : dispatch(
           updateTestimonialAction({
-            testimonialBody: {name: data.name},
+            testimonialBody: formData,
             testimonialId: testimonialId as string,
             onSuccess: (data: any) => {
               toast.success('testimonial Updated Successfully')
-              navigate('/testimonial')
+              navigate('/dash-testimonial')
             }
           })
         )
