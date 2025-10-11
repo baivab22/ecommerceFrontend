@@ -34,20 +34,54 @@ const CategorryContainers = ({
 
 // Skeleton Component for Category Item
 const CategorySkeleton = () => {
+  const skeletonStyle: React.CSSProperties = {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+  }
+
+  const imageContainerStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '50%',
+    ...skeletonStyle
+  }
+
+  const titleSkeletonStyle: React.CSSProperties = {
+    height: '16px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    width: '80px',
+    margin: '0 auto',
+    ...skeletonStyle
+  }
+
   return (
     <div className="CategoryContainer">
-      <div className="categoryCont animate-pulse">
+      <div className="categoryCont">
         <div className="categoryImageContainer">
           <div className="categoryImage">
             <div className="categoryImage-image">
-              <div className="w-full h-full bg-gray-200 rounded-full"></div>
+              <div style={imageContainerStyle}></div>
             </div>
           </div>
         </div>
         <div className="categoryImage-title">
-          <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
+          <div style={titleSkeletonStyle}></div>
         </div>
       </div>
+      
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.5;
+            }
+          }
+        `}
+      </style>
     </div>
   )
 }
@@ -74,7 +108,6 @@ export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean
   const isCarouselOcrActive = query.isOcr === 'true'
   const isFolderSearchActive = query.isFolderSearch === 'true'
   const isQuickSummaryActive = query.isQuickSummary === 'true'
-  // loading=true
 
   const isDataExtractionActive = query.isAidataExtraction === 'true'
 
@@ -93,21 +126,38 @@ export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean
     setActiveItem(item)
   }
 
-  // Show skeleton while loading or data is empty
-  if (loading || !data || data.length === 0) {
+  // Show skeleton while loading or data is empty/null
+  // But check if data exists and has items before showing actual content
+  const shouldShowSkeleton = loading || !data || data.length === 0
+
+  if (shouldShowSkeleton) {
+    const arrowDisabledStyle: React.CSSProperties = {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+      pointerEvents: 'none'
+    }
+
+    const skeletonContainerStyle: React.CSSProperties = {
+      display: 'flex',
+      gap: '30px',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '0 10px'
+    }
+
     return (
       <div className="productCarouselContainer">
         <div className="productCarousel">
           <div className="productCarousel-slider">
-            <div className="swiper-button-prev-custom opacity-50 cursor-not-allowed">
+            <div className="swiper-button-prev-custom" style={arrowDisabledStyle}>
               <IoIosArrowBack size={18} />
             </div>
-            <div style={{display:'flex',justifyContent: 'center'}}>
+            <div style={skeletonContainerStyle}>
               {Array.from({length: slidesToShow}).map((_, index) => (
                 <CategorySkeleton key={index} />
               ))}
             </div>
-            <div className="swiper-button-next-custom opacity-50 cursor-not-allowed">
+            <div className="swiper-button-next-custom" style={arrowDisabledStyle}>
               <IoIosArrowForward size={18} />
             </div>
           </div>
@@ -119,11 +169,7 @@ export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean
   return (
     <div className="productCarouselContainer">
       <div className="productCarousel">
-        <div className="productCarousel-slider"
-        
-        // style={{border:'2px solid blue'}}
-        
-        >
+        <div className="productCarousel-slider">
           <div
             className="swiper-button-prev-custom"
             onClick={() =>

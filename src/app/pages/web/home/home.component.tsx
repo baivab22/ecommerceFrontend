@@ -16,6 +16,7 @@ import {getShopByBudgetListAction} from '../../shopByBudget/shopByBudget.slice'
 import {getProductListAction} from '../../products/product.slice'
 import ProductDisplay from 'src/app/components/productDisplay/productDisplay.component'
 import { useAuth } from 'src/app/routing'
+import { getCategoryListAction } from '../../category/category.slice'
 
 export const HomePage = () => {
   const dispatch = useDispatch()
@@ -92,6 +93,15 @@ export const HomePage = () => {
     dispatch(getProductListAction({}))
   }, [])
 
+
+
+    useEffect(() => {
+    dispatch(
+      getCategoryListAction({
+        onSuccess: () => console.log('categoryList fetch Successfully')
+      })
+    )
+  }, [])
   const {categoryData} = useSelector((state: any) => state.category)
 
   console.log(data,"data value last")
