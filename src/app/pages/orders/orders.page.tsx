@@ -78,94 +78,100 @@ export const OrderListPage = () => {
   }
 
   // Helper function to parse date from OrderedAt string
-  const parseOrderDate = (dateString: string) => {
-    if (!dateString) return null
-    try {
-      const cleanDate = dateString.replace(/,/g, '')
-      return new Date(cleanDate)
-    } catch {
-      return null
-    }
+const parseOrderDate = (dateString: string) => {
+  if (!dateString) return null
+  try {
+    const cleanDate = dateString.replace(/,/g, '')
+    const date = new Date(cleanDate)
+    // Ensure valid date
+    if (isNaN(date.getTime())) return null
+    return date
+  } catch {
+    return null
   }
+}
 
   // Helper function to get date range based on filter type
-  const getDateRange = (filterType: string) => {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    
-    switch (filterType) {
-      case 'today':
-        return {
-          start: today,
-          end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-        }
-      case 'week':
-        const weekStart = new Date(today)
-        weekStart.setDate(today.getDate() - today.getDay())
-        return {
-          start: weekStart,
-          end: new Date(now.getTime() + 24 * 60 * 60 * 1000 - 1)
-        }
-      case 'month':
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-        return {
-          start: monthStart,
-          end: new Date(now.getTime() + 24 * 60 * 60 * 1000 - 1)
-        }
-      case 'custom':
-        return {
-          start: startDate ? new Date(startDate) : null,
-          end: endDate ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000 - 1) : null
-        }
-      default:
-        return { start: null, end: null }
+const getDateRange = (filterType: string) => {
+  const now = new Date()
+  // Create a date at midnight in the user's timezone
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  
+  switch (filterType) {
+    case 'today':
+      // Start: today at 00:00:00
+      // End: tomorrow at 00:00:00 (exclusive upper bound)
+      return {
+        start: today,
+        end: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    case 'week':
+      const weekStart = new Date(today)
+      weekStart.setDate(today.getDate() - today.getDay()) // Sunday of this week
+      return {
+        start: weekStart,
+        end: new Date(now.getTime() + 24 * 60 * 60 * 1000) // Tomorrow at this time
+      }
+    case 'month':
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      return {
+        start: monthStart,
+        end: new Date(now.getTime() + 24 * 60 * 60 * 1000) // Tomorrow at this time
+      }
+    case 'custom':
+      return {
+        start: startDate ? new Date(startDate) : null,
+        end: endDate ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000) : null
+      }
+    default:
+      return { start: null, end: null }
+  }
+}
+
+const filteredOrders = useMemo(() => {
+  if (!orderData?.orderData) return []
+  
+  let filtered = orderData.orderData
+
+  // Apply date filter
+  if (dateFilterType !== 'all') {
+    const { start, end } = getDateRange(dateFilterType)
+
+    if (start !== null || end !== null) {
+      filtered = filtered.filter((order: any) => {
+        const orderDate = parseOrderDate(order.OrderedAt)
+        if (!orderDate) return false
+
+        // Use >= for start and < for end (exclusive upper bound)
+        if (start !== null && orderDate < start) return false
+        if (end !== null && orderDate >= end) return false
+        
+        return true
+      })
     }
   }
 
-  // Filter orders by date and search query
-  const filteredOrders = useMemo(() => {
-    if (!orderData?.orderData) return []
-    
-    let filtered = orderData.orderData
-
-    // Apply date filter
-    if (dateFilterType !== 'all') {
-      const { start, end } = getDateRange(dateFilterType)
+  // Apply search filter
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase().trim()
+    filtered = filtered.filter((order: any) => {
+      if (order.productOrderId?.toLowerCase().includes(query)) return true
+      if (order.userId?.email?.toLowerCase().includes(query)) return true
+      if (order.userId?.name?.toLowerCase().includes(query)) return true
+      if (order.userId?.phone?.toLowerCase().includes(query)) return true
+      if (order.shippingLocation?.toLowerCase().includes(query)) return true
+      if (order.locationAddress?.toLowerCase().includes(query)) return true
+      if (order.products?.some((product: any) => 
+        product.productId?.name?.toLowerCase().includes(query)
+      )) return true
+      if (order.paymentMethod?.toLowerCase().includes(query)) return true
       
-      if (start || end) {
-        filtered = filtered.filter((order: any) => {
-          const orderDate = parseOrderDate(order.OrderedAt)
-          if (!orderDate) return false
+      return false
+    })
+  }
 
-          if (start && orderDate < start) return false
-          if (end && orderDate > end) return false
-          
-          return true
-        })
-      }
-    }
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
-      filtered = filtered.filter((order: any) => {
-        if (order.productOrderId?.toLowerCase().includes(query)) return true
-        if (order.userId?.email?.toLowerCase().includes(query)) return true
-        if (order.userId?.name?.toLowerCase().includes(query)) return true
-        if (order.userId?.phone?.toLowerCase().includes(query)) return true
-        if (order.shippingLocation?.toLowerCase().includes(query)) return true
-        if (order.locationAddress?.toLowerCase().includes(query)) return true
-        if (order.products?.some((product: any) => 
-          product.productId?.name?.toLowerCase().includes(query)
-        )) return true
-        if (order.paymentMethod?.toLowerCase().includes(query)) return true
-        
-        return false
-      })
-    }
-
-    return filtered
-  }, [orderData, dateFilterType, startDate, endDate, searchQuery])
+  return filtered
+}, [orderData, dateFilterType, startDate, endDate, searchQuery])
 
   // Helper function to get total quantity for an order
   const getTotalQuantity = (products: any[]) => {

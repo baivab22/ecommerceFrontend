@@ -16,11 +16,12 @@ export const LoginAction = createAsyncThunk(
     thunkAPI
   ) => {
     try {
+
       const response = await CreateLogin(loginBody)
       // console.log(response, 'response from login')
 
+  console.log( 'response from loginnnnnn',response)
 
-      console.log(response, 'response from login')
       onSuccess && onSuccess(response)
       return response
     } catch (error) {

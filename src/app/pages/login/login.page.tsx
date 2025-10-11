@@ -18,6 +18,9 @@ export const LoginPage = () => {
   const { handleLogin } = useAuth()
 
   const handleLogins = () => {
+                console.log( 'response from loginnnnnn',loginData,            loginData?.email === 'adminemail12@gmail.com' &&
+            loginData?.password === '123456783',      loginData?.email === 'meromail123@gmail.com' &&
+            loginData?.password === '12345673','conditions')
     if (loginData.email.length === 0 || loginData.password.length === 0) {
       toast.error('Please fill in both email and password')
       return
@@ -77,6 +80,10 @@ export const LoginPage = () => {
     "expiresIn": "24h"
 })
           }else{
+
+
+
+
    dispatch(
       LoginAction({
         loginBody: {

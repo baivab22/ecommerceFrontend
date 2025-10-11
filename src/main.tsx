@@ -12,7 +12,7 @@ import {
   useLocation,
   useRoutes
 } from 'react-router-dom'
-import {AuthProvider, USER_ROLES} from './app/routing'
+import {AuthProvider, useAuth, USER_ROLES} from './app/routing'
 import {Router, router} from './app/routing/routes'
 import {SideNav} from './app/routing/sideNav/sidenav.component'
 import {Toaster} from 'react-hot-toast'
@@ -32,6 +32,7 @@ import {useMedia} from './hooks'
 // ScrollToTop Component
 const ScrollToTop = () => {
   const { pathname } = useLocation()
+  
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -63,6 +64,8 @@ const App = () => {
     checkForDash()
   }, [location])
 
+   const {auth} = useAuth()
+
   const sideNavData = useMemo(() => {
     return window.location.href.includes('dash-') &&
       getCookie('userRoles') === 'ADMIN' ? (
@@ -71,6 +74,8 @@ const App = () => {
       <></>
     )
   }, [getCookie('userRoles'), window.location.href])
+
+  console.log(auth.isLoggedin,"auth logged in hai")
 
   return (
     <AuthProvider>
@@ -95,7 +100,7 @@ const App = () => {
           {!containsDash && (
             <>
              <TopHeader></TopHeader>
-              <Header></Header> 
+             { <Header></Header>  }
               {/* <MultiLevelMenu/> */}
             </>
           )}
