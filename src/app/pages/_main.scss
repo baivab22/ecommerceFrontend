@@ -16,7 +16,9 @@
 @import './stylingGuide/stylingGuide';
 
 
-
+*{
+  // border: 2px solid red;
+}
 /* ========== GENERAL PAGE STYLES ========== */
 .page-container {
   max-width: 1200px;

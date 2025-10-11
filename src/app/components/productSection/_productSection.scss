@@ -86,12 +86,14 @@
 
     @include responsive-for(md) {
       grid-template-columns: repeat(2, 1fr);
+          column-gap:0;
     }
 
     @include responsive-for(sm) {
       align-self: center;
       justify-content: center;
       grid-template-columns: repeat(1, 1fr);
+         column-gap:0;
     }
   }
 }
