@@ -29,20 +29,8 @@ export const HomePage = () => {
 
   const [testimonialList, setTestimonialList] = useState([])
 
-  const getTestimonialData = () =>
-    useCallback(() => {
-      // const remappedTestimonialData = testimonialData?.map(
-      //   (item: any, index: number) => {
-      //     return {
-      //       image: item.testimonialImage,
-      //       description: item.testimonialDescription
-      //     }
-      //   }
-      // )
-      // console.log('callback')
-      // console.log('***')
-      // setTestimonialList(remappedTestimonialData)
-    }, [testimonialData])
+
+
 
   useEffect(() => {
     const remappedTestimonialData = testimonialData?.map(

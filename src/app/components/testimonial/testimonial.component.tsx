@@ -1,52 +1,128 @@
-const reviews = [
-  {
-    id: 1,
-    name: 'susan smith',
-    job: 'web developer',
-    image:
-      'https://res.cloudinary.com/diqqf3eq2/image/upload/v1586883334/person-1_rfzshl.jpg',
-    text: "I'm baby meggings twee health goth +1. Bicycle rights tumeric chartreuse before they sold out chambray pop-up. Shaman humblebrag pickled coloring book salvia hoodie, cold-pressed four dollar toast everyday carry"
-  },
-  {
-    id: 2,
-    name: 'anna johnson',
-    job: 'web designer',
-    image:
-      'https://res.cloudinary.com/diqqf3eq2/image/upload/v1586883409/person-2_np9x5l.jpg',
-    text: 'Helvetica artisan kinfolk thundercats lumbersexual blue bottle. Disrupt glossier gastropub deep v vice franzen hell of brooklyn twee enamel pin fashion axe.photo booth jean shorts artisan narwhal.'
-  },
-  {
-    id: 3,
-    name: 'peter jones',
-    job: 'intern',
-    image:
-      'https://res.cloudinary.com/diqqf3eq2/image/upload/v1586883417/person-3_ipa0mj.jpg',
-    text: 'Sriracha literally flexitarian irony, vape marfa unicorn. Glossier tattooed 8-bit, fixie waistcoat offal activated charcoal slow-carb marfa hell of pabst raclette post-ironic jianbing swag.'
-  },
-  {
-    id: 4,
-    name: 'bill anderson',
-    job: 'the boss',
-    image:
-      'https://res.cloudinary.com/diqqf3eq2/image/upload/v1586883423/person-4_t9nxjt.jpg',
-    text: 'Edison bulb put a bird on it humblebrag, marfa pok pok heirloom fashion axe cray stumptown venmo actually seitan. VHS farm-to-table schlitz, edison bulb pop-up 3 wolf moon tote bag street art shabby chic. '
-  }
-]
-
 import React, {useState} from 'react'
-
 import {FaChevronLeft, FaChevronRight, FaQuoteRight} from 'react-icons/fa'
 import {Text, Title} from 'src/app/common'
 import {FILE_URL} from 'src/config'
 
-export const TestimonailSection = ({reviews}) => {
-  const [index, setIndex] = useState(0)
-  const {description, image} = reviews[index]
-  console.log(reviews[index], 'index')
+// Testimonial Skeleton Component
+const TestimonialSkeleton = () => {
+  const skeletonStyle: React.CSSProperties = {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+  }
 
-  console.log(reviews, 'reviews')
-  // console.log(re, 'image')
-  // console.log(image, 'image')
+  const headerSkeletonStyle: React.CSSProperties = {
+    height: '32px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    width: '280px',
+    margin: '0 auto 40px',
+    ...skeletonStyle
+  }
+
+  const reviewContainerStyle: React.CSSProperties = {
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '32px',
+    textAlign: 'center'
+  }
+
+  const imgContainerStyle: React.CSSProperties = {
+    position: 'relative',
+    width: '150px',
+    height: '150px',
+    margin: '0 auto 24px'
+  }
+
+  const imgSkeletonStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '50%',
+    ...skeletonStyle
+  }
+
+  const quoteIconStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '0',
+    right: '-8px',
+    width: '40px',
+    height: '40px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '50%',
+    ...skeletonStyle
+  }
+
+  const textLineStyle: React.CSSProperties = {
+    height: '16px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    marginBottom: '12px',
+    ...skeletonStyle
+  }
+
+  const buttonContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '16px',
+    marginTop: '32px'
+  }
+
+  const buttonSkeletonStyle: React.CSSProperties = {
+    width: '40px',
+    height: '40px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    ...skeletonStyle
+  }
+
+  return (
+    <>
+      <div style={headerSkeletonStyle}></div>
+      <article style={reviewContainerStyle}>
+        <div style={imgContainerStyle}>
+          <div style={imgSkeletonStyle}></div>
+          <span style={quoteIconStyle}></span>
+        </div>
+
+        {/* Text lines skeleton */}
+        <div style={{maxWidth: '500px', margin: '0 auto'}}>
+          <div style={{...textLineStyle, width: '100%'}}></div>
+          <div style={{...textLineStyle, width: '95%', margin: '0 auto 12px'}}></div>
+          <div style={{...textLineStyle, width: '85%', margin: '0 auto 12px'}}></div>
+          <div style={{...textLineStyle, width: '75%', margin: '0 auto 12px'}}></div>
+        </div>
+
+        {/* Button container skeleton */}
+        <div style={buttonContainerStyle}>
+          <div style={buttonSkeletonStyle}></div>
+          <div style={buttonSkeletonStyle}></div>
+        </div>
+      </article>
+
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.5;
+            }
+          }
+        `}
+      </style>
+    </>
+  )
+}
+
+export const TestimonailSection = ({reviews, loading}: {reviews: any[]; loading?: boolean}) => {
+  const [index, setIndex] = useState(0)
+
+  // Show skeleton while loading or no reviews
+  if (loading || !reviews || reviews.length === 0) {
+    return <TestimonialSkeleton />
+  }
+
+  const {description, image} = reviews[index]
 
   const checkNumber = (number) => {
     if (number > reviews.length - 1) {
@@ -87,13 +163,12 @@ export const TestimonailSection = ({reviews}) => {
           <img
             src={`${FILE_URL}/testimonial/${image?.[0]}`}
             className="person-img"
+            alt="Customer testimonial"
           />
           <span className="quote-icon">
             <FaQuoteRight />
           </span>
         </div>
-        {/* <h4 className="author">{name}</h4> */}
-        {/* <p className="jon">{job}</p> */}
         <p className="info">{reviews[index].description}</p>
         <div className="button-container">
           <button className="prev-btn" onClick={prevPerson}>
@@ -103,9 +178,6 @@ export const TestimonailSection = ({reviews}) => {
             <FaChevronRight />
           </button>
         </div>
-        {/* <button className="random-btn" onClick={randomPerson}>
-        Suprise Me!
-      </button> */}
       </article>
     </>
   )

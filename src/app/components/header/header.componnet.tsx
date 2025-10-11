@@ -20,8 +20,127 @@ import { getSocialLinksAction } from 'src/app/pages/socialLinks/socialLinks.slic
 import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react'
 import './_header.scss'
 
+// Desktop Navigation Skeleton
+const DesktopNavigationSkeleton = () => {
+  const skeletonStyle: React.CSSProperties = {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px'
+  }
+
+  const menuItemStyle: React.CSSProperties = {
+    height: '20px',
+    width: '80px',
+    ...skeletonStyle
+  }
+
+  return (
+    <div className="navmenuList">
+      <div className="navmenuContainer">
+        <nav className="desktop-nav">
+          <ul className="desktop-menu" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <li key={index} className="desktop-menu-item">
+                <div style={{...menuItemStyle, width: `${70 + Math.random() * 40}px`}}></div>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
+    </div>
+  )
+}
+
+// Mobile Navigation Skeleton
+const MobileNavigationSkeleton = () => {
+  const skeletonStyle: React.CSSProperties = {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px'
+  }
+
+  const menuItemStyle: React.CSSProperties = {
+    height: '48px',
+    marginBottom: '8px',
+    ...skeletonStyle
+  }
+
+  return (
+    <div className="mobile-menu-list">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={index} style={menuItemStyle}></div>
+      ))}
+    </div>
+  )
+}
+
+// Top Header Skeleton
+const TopHeaderSkeleton = () => {
+  const skeletonStyle: React.CSSProperties = {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px'
+  }
+
+  return (
+    <>
+      <div className="header-top">
+        <div className="container" style={{ paddingBottom: '0px' }}>
+          <ul className="header-social-container" style={{ display: 'flex', gap: '8px' }}>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <li key={index}>
+                <div style={{ width: '24px', height: '24px', ...skeletonStyle, borderRadius: '50%' }}></div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="header-alert-news">
+            <div style={{ width: '200px', height: '16px', ...skeletonStyle }}></div>
+          </div>
+
+          <div className="header-top-actions">
+            <div style={{ width: '120px', height: '16px', ...skeletonStyle }}></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="topHeader-container">
+        <div className="topHeader">
+          <div className="topHeader-logo">
+            <div style={{ width: '120px', height: '60px', ...skeletonStyle }}></div>
+          </div>
+
+          <div></div>
+
+          <div className="topHeader-search">
+            <div style={{ width: '100%', height: '40px', ...skeletonStyle }}></div>
+          </div>
+
+          <div className="topHeader-cartProfile">
+            <div className="topHeader-cartProfile-cart">
+              <div style={{ width: '24px', height: '24px', ...skeletonStyle }}></div>
+            </div>
+
+            <div className="topHeader-cartProfile-profile" style={{ padding: '10px' }}>
+              <div style={{ width: '24px', height: '24px', ...skeletonStyle }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
 export const DesktopHeader = () => {
-  const { categoryData }: any = useSelector((state: any) => state.category)
+  const { categoryData, loading }: any = useSelector((state: any) => state.category)
   const [openDesktopMenus, setOpenDesktopMenus] = useState<Record<string, boolean>>({})
   const closeTimeoutRef = useRef<Record<string, any>>({})
   const dispatch = useDispatch()
@@ -35,7 +154,6 @@ export const DesktopHeader = () => {
     )
   }, [dispatch])
 
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       Object.values(closeTimeoutRef.current).forEach(timeout => clearTimeout(timeout))
@@ -43,7 +161,6 @@ export const DesktopHeader = () => {
   }, [])
 
   const handleDesktopMouseEnter = (id: string) => {
-    // Clear any pending close timeout for this menu
     if (closeTimeoutRef.current[id]) {
       clearTimeout(closeTimeoutRef.current[id])
       delete closeTimeoutRef.current[id]
@@ -56,14 +173,13 @@ export const DesktopHeader = () => {
   }
 
   const handleDesktopMouseLeave = (id: string) => {
-    // Add a small delay before closing to allow moving to submenu
     closeTimeoutRef.current[id] = setTimeout(() => {
       setOpenDesktopMenus(prev => ({
         ...prev,
         [id]: false
       }))
       delete closeTimeoutRef.current[id]
-    }, 150) // 150ms delay
+    }, 150)
   }
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
@@ -124,6 +240,10 @@ export const DesktopHeader = () => {
     )
   }
 
+  if (loading || !categoryData) {
+    return <DesktopNavigationSkeleton />
+  }
+
   return (
     <div className="navmenuList">
       <div className="navmenuContainer">
@@ -168,7 +288,7 @@ export const DesktopHeader = () => {
 }
 
 export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
-  const { categoryData }: any = useSelector((state: any) => state.category)
+  const { categoryData, loading }: any = useSelector((state: any) => state.category)
   const [openMobileMenus, setOpenMobileMenus] = useState<Record<string, boolean>>({})
   const navigate = useNavigate()
 
@@ -233,6 +353,10 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
     )
   }
 
+  if (loading || !categoryData) {
+    return <MobileNavigationSkeleton />
+  }
+
   return (
     <div className="mobile-menu-list">
       {categoryData?.map((category: any) => (
@@ -272,7 +396,7 @@ export const TopHeader = () => {
   const { setAuth, auth } = useAuth()
   
   const datas: any = useSelector((state: any) => state.cart)
-  const { socialLinks }: any = useSelector((state: any) => state.socialLinks)
+  const { socialLinks, loading: socialLinksLoading }: any = useSelector((state: any) => state.socialLinks)
   
   const [sortVisible, setSortVisible] = useState(false)
   const sortRefs = useRef<HTMLDivElement | null>(null)
@@ -331,6 +455,10 @@ export const TopHeader = () => {
     })
     
     navigate('/login', { replace: true })
+  }
+
+  if (socialLinksLoading) {
+    return <TopHeaderSkeleton />
   }
 
   return (
