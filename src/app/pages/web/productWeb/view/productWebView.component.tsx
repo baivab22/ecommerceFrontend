@@ -5,6 +5,7 @@ import {useDispatch, useSelector} from 'src/store'
 import {getProductDetailByIdAction} from 'src/app/pages/products/product.slice'
 import {useParams} from 'react-router-dom'
 import ReactStarsRating from 'react-awesome-stars-rating'
+import {Skeleton} from '@mui/material'
 
 import {
   Button,
@@ -60,11 +61,6 @@ export const ProductWebDetail = () => {
     })
   }
 
-
-
-
-   
-  
   const handleMouseUp = () => {
     setIsDragging(false)
   }
@@ -239,181 +235,337 @@ export const ProductWebDetail = () => {
 
   console.log('auth.isLoggedin', auth.isLoggedin)
 
-  return (
-    <ActivityIndicator animating={productDetailLoading}>
-      <div className="productDetail-container">
-        <VStack className="productDetail">
-          <div
-            style={{width: '100%', display: 'flex'}}
-            className="productsWrapper"
+  // Skeleton Component for Product Detail
+  const ProductDetailSkeleton = () => (
+    <div className="productDetail-container">
+      <VStack className="productDetail">
+        <div
+          style={{width: '100%', display: 'flex'}}
+          className="productsWrapper"
+        >
+          <div style={{width: '60%'}} className="productDetail-left">
+            {/* Image Slider Skeleton */}
+            <div style={{display: 'flex', gap: '20px'}}>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                {[1, 2, 3, 4].map((item) => (
+                  <Skeleton 
+                    key={item}
+                    variant="rectangular" 
+                    width={80} 
+                    height={80} 
+                    animation="wave"
+                    sx={{borderRadius: '8px'}}
+                  />
+                ))}
+              </div>
+              <Skeleton 
+                variant="rectangular" 
+                width={513} 
+                height={400} 
+                animation="wave"
+                sx={{borderRadius: '8px'}}
+              />
+            </div>
+          </div>
+
+          <VStack
+            className="productDetail-detailTop"
+            gap="$4"
           >
-            <div style={{width: '60%'}} className="productDetail-left">
-              {productImageList && (
-                <ZoomSlider data={productImageList}></ZoomSlider>
-              )}
+            {/* Title Skeleton */}
+            <Skeleton 
+              variant="text" 
+              width="80%" 
+              height={40} 
+              animation="wave"
+            />
+
+            {/* Description Skeleton */}
+            <Skeleton 
+              variant="text" 
+              width="100%" 
+              height={20} 
+              animation="wave"
+            />
+            <Skeleton 
+              variant="text" 
+              width="90%" 
+              height={20} 
+              animation="wave"
+            />
+            <Skeleton 
+              variant="text" 
+              width="70%" 
+              height={20} 
+              animation="wave"
+            />
+
+            {/* Price Skeleton */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                gap: '20px'
+              }}
+            >
+              <Skeleton 
+                variant="text" 
+                width={120} 
+                height={30} 
+                animation="wave"
+              />
+              <Skeleton 
+                variant="text" 
+                width={120} 
+                height={30} 
+                animation="wave"
+              />
             </div>
 
-            <VStack
-              className="productDetail-detailTop"
-              gap="$4"
-              id="productContainer"
-            >
-              <Title heading className="productDetail-detailTop-name">
-                {productDetailData?.name}
-              </Title>
-
-              <div
-                className="productDetail-detailTop-description"
-                dangerouslySetInnerHTML={{
-                  __html: productDetailData?.description
-                }}
-              ></div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                  gap: '20px'
-                }}
-                className="priceContainer"
-              >
-                <p
-                  style={{color: '#FB2E86'}}
-                  className="originalPrice"
-                >
-                  NPR.{productDetailData?.discountedPrice}
-                </p>
-                <p className="discountedPrice">
-                  NPR.{productDetailData?.originalPrice}
-                </p>
-              </div>
-
-              <VStack className="productDetail-detailTop-color">
-                <p>Color</p>
-                <HStack gap="$3">
-                  {productDetailData?.images?.map(
-                    (item: any, index: number) => {
-
-                      console.log(item,"item data value")
-                      return (
-                        <div
-                          key={index}
-                          style={{
-                            border:
-                              activeColorIndex === index
-                                ? '2px solid hsl(353, 100%, 78%)'
-                                : 'none',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: '50%',
-                            boxSizing: 'border-box',
-                            padding: '3px'
-                          }}
-                        >
-                          <div
-                            style={{
-                              background: item.colorName
-                            }}
-                            className="productDetail-detailTop-color-item"
-                            onClick={() => handleColorClicked(item._id, index)}
-                          ></div>
-                        </div>
-                      )
-                    }
-                  )}
-                </HStack>
-              </VStack>
-
-              <div
-                className="productDetail-detailTop-addToCart"
-                onClick={() => {
-                  if (productDetailData?.stockQuantity === 0) {
-                    toast.error('Product is out of stock')
-                    return
-                  }
-                  !!auth.isLoggedin
-                    ? handleAddToCart(productDetailData,activeColorIndex)
-                    : toast.error('Please login first to add products')
-                }}
-              >
-                <p>{productDetailData?.stockQuantity === 0 ? "OUT OF STOCK":"ADD TO CART"}</p>
-              </div>
-
-              <HStack
-                className="productDetail-inStock"
-                justify="flex-start"
-                align="center"
-                gap="$4"
-              >
-                <Title subheading> In Stock:</Title>
-                <Chip
-                  title={`${productDetailData?.stockQuantity ?? 0} pics`}
-                  color="rgb(219 247 241)"
-                ></Chip>
+            {/* Color Section Skeleton */}
+            <VStack className="productDetail-detailTop-color">
+              <Skeleton 
+                variant="text" 
+                width={60} 
+                height={25} 
+                animation="wave"
+              />
+              <HStack gap="$3">
+                {[1, 2, 3, 4].map((item) => (
+                  <Skeleton 
+                    key={item}
+                    variant="circular" 
+                    width={40} 
+                    height={40} 
+                    animation="wave"
+                  />
+                ))}
               </HStack>
-              
-              <VStack className="productDetail-detailBottom" gap="$8">
-                <VStack
-                  className="productDetail-detailBottom-description"
-                  gap="$4"
+            </VStack>
+
+            {/* Add to Cart Button Skeleton */}
+            <Skeleton 
+              variant="rectangular" 
+              width="100%" 
+              height={50} 
+              animation="wave"
+              sx={{borderRadius: '8px'}}
+            />
+
+            {/* Stock Info Skeleton */}
+            <HStack
+              justify="flex-start"
+              align="center"
+              gap="$4"
+            >
+              <Skeleton 
+                variant="text" 
+                width={80} 
+                height={25} 
+                animation="wave"
+              />
+              <Skeleton 
+                variant="rectangular" 
+                width={80} 
+                height={30} 
+                animation="wave"
+                sx={{borderRadius: '16px'}}
+              />
+            </HStack>
+
+            {/* Category Chip Skeleton */}
+            <Skeleton 
+              variant="rectangular" 
+              width={150} 
+              height={30} 
+              animation="wave"
+              sx={{borderRadius: '16px'}}
+            />
+          </VStack>
+        </div>
+      </VStack>
+    </div>
+  )
+
+  return (
+    <>
+      {productDetailLoading ? (
+        <ProductDetailSkeleton />
+      ) : (
+        <div className="productDetail-container">
+          <VStack className="productDetail">
+            <div
+              style={{width: '100%', display: 'flex'}}
+              className="productsWrapper"
+            >
+              <div style={{width: '60%'}} className="productDetail-left">
+                {productImageList && (
+                  <ZoomSlider data={productImageList}></ZoomSlider>
+                )}
+              </div>
+
+              <VStack
+                className="productDetail-detailTop"
+                gap="$4"
+                id="productContainer"
+              >
+                <Title heading className="productDetail-detailTop-name">
+                  {productDetailData?.name}
+                </Title>
+
+                <div
+                  className="productDetail-detailTop-description"
+                  dangerouslySetInnerHTML={{
+                    __html: productDetailData?.description
+                  }}
+                ></div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    gap: '20px'
+                  }}
+                  className="priceContainer"
                 >
-                  <Chip
-                    title={productDetailData?.subCategory?.name}
-                    color="rgb(219 247 241)"
-                  ></Chip>
-
-                  <HStack
-                    style={{
-                      width: '70%'
-                    }}
+                  <p
+                    style={{color: '#FB2E86'}}
+                    className="originalPrice"
                   >
-                    {/* <ProductSlider backgroundImage={products} /> */}
-                  </HStack>
+                    NPR.{productDetailData?.discountedPrice}
+                  </p>
+                  <p className="discountedPrice">
+                    NPR.{productDetailData?.originalPrice}
+                  </p>
+                </div>
 
-                  <HStack
-                    style={{
-                      width: '40%'
-                    }}
-                  >
-                    {productDetailData?.video && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: position.x,
-                          top: position.y,
-                          cursor: isDragging ? 'grabbing' : 'grab',
-                          touchAction: 'none',
-                          userSelect: 'none',
-                          WebkitUserSelect: 'none',
-                          MozUserSelect: 'none',
-                          msUserSelect: 'none',
-                          zIndex: 1000
-                        }}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleTouchStart}
-                      >
-                        <CustomVideoPlayer
-                          videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
+                <VStack className="productDetail-detailTop-color">
+                  <p>Color</p>
+                  <HStack gap="$3">
+                    {productDetailData?.images?.map(
+                      (item: any, index: number) => {
 
-                          productDetails={{
-
-                          name:productDetailData.name,
-                          description:productDetailData?.description,
-                        price:productDetailData?.originalPrice}}
-                          
-
-                          thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
-                        ></CustomVideoPlayer>
-                      </div>
+                        console.log(item,"item data value")
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              border:
+                                activeColorIndex === index
+                                  ? '2px solid hsl(353, 100%, 78%)'
+                                  : 'none',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              borderRadius: '50%',
+                              boxSizing: 'border-box',
+                              padding: '3px'
+                            }}
+                          >
+                            <div
+                              style={{
+                                background: item.colorName
+                              }}
+                              className="productDetail-detailTop-color-item"
+                              onClick={() => handleColorClicked(item._id, index)}
+                            ></div>
+                          </div>
+                        )
+                      }
                     )}
                   </HStack>
                 </VStack>
+
+                <div
+                  className="productDetail-detailTop-addToCart"
+                  onClick={() => {
+                    if (productDetailData?.stockQuantity === 0) {
+                      toast.error('Product is out of stock')
+                      return
+                    }
+                    !!auth.isLoggedin
+                      ? handleAddToCart(productDetailData,activeColorIndex)
+                      : toast.error('Please login first to add products')
+                  }}
+                >
+                  <p>{productDetailData?.stockQuantity === 0 ? "OUT OF STOCK":"ADD TO CART"}</p>
+                </div>
+
+                <HStack
+                  className="productDetail-inStock"
+                  justify="flex-start"
+                  align="center"
+                  gap="$4"
+                >
+                  <Title subheading> In Stock:</Title>
+                  <Chip
+                    title={`${productDetailData?.stockQuantity ?? 0} pics`}
+                    color="rgb(219 247 241)"
+                  ></Chip>
+                </HStack>
+                
+                <VStack className="productDetail-detailBottom" gap="$8">
+                  <VStack
+                    className="productDetail-detailBottom-description"
+                    gap="$4"
+                  >
+                    <Chip
+                      title={productDetailData?.subCategory?.name}
+                      color="rgb(219 247 241)"
+                    ></Chip>
+
+                    <HStack
+                      style={{
+                        width: '70%'
+                      }}
+                    >
+                      {/* <ProductSlider backgroundImage={products} /> */}
+                    </HStack>
+
+                    <HStack
+                      style={{
+                        width: '40%'
+                      }}
+                    >
+                      {productDetailData?.video && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: position.x,
+                            top: position.y,
+                            cursor: isDragging ? 'grabbing' : 'grab',
+                            touchAction: 'none',
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            zIndex: 1000
+                          }}
+                          onMouseDown={handleMouseDown}
+                          onTouchStart={handleTouchStart}
+                        >
+                          <CustomVideoPlayer
+                            videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
+
+                            productDetails={{
+
+                            name:productDetailData.name,
+                            description:productDetailData?.description,
+                          price:productDetailData?.originalPrice}}
+                            
+
+                            thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
+                          ></CustomVideoPlayer>
+                        </div>
+                      )}
+                    </HStack>
+                  </VStack>
+                </VStack>
               </VStack>
-            </VStack>
-          </div>
-        </VStack>
-      </div>
+            </div>
+          </VStack>
+        </div>
+      )}
       
       <div style={{marginBottom: '20px', padding: '2vw'}}>
         <ProductSection
@@ -421,6 +573,6 @@ export const ProductWebDetail = () => {
           isProfilePage={true}
         ></ProductSection>
       </div>
-    </ActivityIndicator>
+    </>
   )
 }
