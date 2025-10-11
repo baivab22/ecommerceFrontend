@@ -23,7 +23,7 @@ import './_header.scss'
 export const DesktopHeader = () => {
   const { categoryData }: any = useSelector((state: any) => state.category)
   const [openDesktopMenus, setOpenDesktopMenus] = useState<Record<string, boolean>>({})
-  const closeTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({})
+  const closeTimeoutRef = useRef<Record<string, any>>({})
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
