@@ -1,9 +1,54 @@
+// Global Reset
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
+
+// Variables (adjust these to match your design system)
+$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$white: #ffffff;
+$text-dark: #333333;
+$text-gray: #555555;
+$hover-bg: #f5f5ff;
+$hover-color: #667eea;
+$border-color: #f0f0f0;
+$grey200: #e5e7eb;
+$shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+$shadow-lg: 4px 0 20px rgba(0, 0, 0, 0.1);
+
+// Space map (adjust to your design system)
+$space: (
+  1: 0.25rem,
+  2: 0.5rem,
+  3: 0.75rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+);
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+@mixin responsive-for($breakpoint) {
+  @if $breakpoint == md {
+    @media (max-width: 768px) {
+      @content;
+    }
+  }
+}
+
+// Original TopHeader Styles
+.sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
   min-width: unset !important;
 }
 
@@ -34,17 +79,18 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
   gap: map-get($space, 3);
 }
 
+// Navigation Menu Container
 .navmenuList {
   width: 100%;
   border-bottom: 1px solid $grey200;
 
   .navmenuContainer {
-    width: 95%;
+    width: 100%;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     margin: auto;
-    padding: map-get($space, 2) map-get($space, 4);
+    padding: 0 map-get($space, 4);
 
     .menuText {
       font-size: 14px;
@@ -53,13 +99,13 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
   }
 }
 
+// TopHeader Container (Original Styles)
 .topHeader-container {
   margin: auto;
   width: 100%;
   padding: 0 map-get($space, 4);
-  // border: 2px solid red;
-  // background-color: #e2e8f0;
   border-bottom: 1px solid $grey200;
+
   .topHeader {
     padding: map-get($space, 3);
 
@@ -70,25 +116,19 @@ sortModalContainer ._dropdown_15ws1_1 ._menu_15ws1_133 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     &-logo {
       height: 40px;
       cursor: pointer;
-      // width: 200px;
-      // border: 2px solid red;
+      position: absolute;
+      height: 100px;
+      top: unset;
 
-
-              position:absolute;
-              height:100px;
-              top:unset;
-
-    @include responsive-for(md) {
-top:-13px;
-left:0px;
-height: 90px;
-// border: 2px solid red;
-    }
-
-            
+      @include responsive-for(md) {
+        top: -13px;
+        left: 0px;
+        height: 90px;
+      }
 
       &-image {
         height: 100%;
@@ -100,7 +140,8 @@ height: 90px;
 
     &-search {
       width: 50%;
-      @include responsive-for(md){
+      
+      @include responsive-for(md) {
         width: 100%;
       }
     }
@@ -111,12 +152,10 @@ height: 90px;
       align-items: center;
       gap: map-get($space, 4);
 
-
-      @include responsive-for(md){
-        // border: 2px solid blue;
-            position: absolute;
-    right: 0;
-    top: 34px;
+      @include responsive-for(md) {
+        position: absolute;
+        right: 0;
+        top: 34px;
       }
 
       &-cart {
@@ -127,5 +166,344 @@ height: 90px;
         align-items: center;
       }
     }
+  }
+}
+
+// Desktop Navigation Styles
+.desktop-nav {
+  display: none;
+  // background: $primary-gradient;
+  padding: 0;
+  box-shadow: $shadow-sm;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.desktop-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  // max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.desktop-menu-item {
+  position: relative;
+  
+  // Add safe hover area below menu item
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 2;
+    right: 0;
+    height: 10px;
+    background: transparent;
+  }
+}
+
+.desktop-menu-link {
+  @include flex-center;
+  gap: 6px;
+  padding: 18px 24px;
+  // color: $white;
+  font-size: 15px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  @include transition;
+  white-space: nowrap; 
+  font-weight: 600;
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .chevron {
+    @include transition(transform);
+  }
+}
+
+.desktop-menu-item:hover .desktop-menu-link .chevron {
+  transform: rotate(180deg);
+}
+
+// Desktop Submenu
+.desktop-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: $white;
+  min-width: 220px;
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  box-shadow: $shadow-md;
+  // border-radius: 8px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+
+  &.level-0 {
+    min-width: 240px;
+    margin-top: 0; // Remove any gap
+  }
+
+  &.level-1 {
+    min-width: 220px;
+  }
+
+  // Add padding area to prevent dropdown from closing
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 1;
+    right: 0;
+    height: 10px;
+    background: transparent;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.desktop-submenu-item {
+  position: relative;
+  
+  // Add safe hover area to the right of submenu items
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 100%;
+    bottom: 0;
+    width: 8px;
+    background: transparent;
+  }
+}
+
+.desktop-submenu-link {
+  @include flex-center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 20px;
+  color: $text-dark;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  @include transition(all, 0.2s);
+  text-align: left;
+
+  &:hover {
+    background: $hover-bg;
+    color: $hover-color;
+
+    .submenu-arrow {
+      opacity: 1;
+    }
+  }
+}
+
+.submenu-arrow {
+  opacity: 0.5;
+  @include transition(opacity, 0.2s);
+}
+
+.nested-submenu-wrapper {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 0; // Remove gap
+  
+  // Add safe hover area to prevent closing
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    bottom: 0;
+    width: 8px;
+    background: transparent;
+  }
+}
+
+// Mobile Navigation Styles
+.mobile-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-menu-item {
+  border-bottom: 1px solid $border-color;
+}
+
+.mobile-menu-toggle {
+  @include flex-center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 20px;
+  color: $text-dark;
+  font-size: 15px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(all, 0.2s);
+  font-weight: 600;
+
+  &:active {
+    background: #f5f5f5;
+  }
+
+  .chevron {
+    @include transition(transform);
+    color: $hover-color;
+
+    &.rotated {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+// Mobile Submenu
+.mobile-submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  animation: expandMenu 0.3s ease;
+  overflow: hidden;
+
+  &.level-0 {
+    background: #f9f9f9;
+  }
+
+  &.level-1 {
+    background: #f0f0f0;
+  }
+
+  &.level-2 {
+    background: #e8e8e8;
+  }
+}
+
+@keyframes expandMenu {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+.mobile-submenu-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.mobile-submenu-toggle,
+.mobile-submenu-link {
+  @include flex-center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 20px;
+  color: $text-gray;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(all, 0.2s);
+  font-weight: 600;
+
+  &:active {
+    background: rgba(102, 126, 234, 0.1);
+  }
+}
+
+.mobile-submenu.level-0 {
+  .mobile-submenu-toggle,
+  .mobile-submenu-link {
+    padding-left: 32px;
+  }
+}
+
+.mobile-submenu.level-1 {
+  .mobile-submenu-toggle,
+  .mobile-submenu-link {
+    padding-left: 44px;
+  }
+}
+
+.mobile-submenu.level-2 {
+  .mobile-submenu-toggle,
+  .mobile-submenu-link {
+    padding-left: 56px;
+  }
+}
+
+.mobile-submenu-link {
+  color: $text-dark;
+
+  &:hover {
+    color: $hover-color;
+  }
+}
+
+// Tablet adjustments
+@media (max-width: 1024px) and (min-width: 768px) {
+  .desktop-menu-link {
+    padding: 16px 18px;
+    font-size: 14px;
+  }
+
+  .desktop-submenu {
+    min-width: 200px;
+  }
+}
+
+// Small desktop adjustments
+@media (max-width: 1200px) and (min-width: 768px) {
+  .desktop-menu-link {
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+}
+
+// Accessibility improvements
+.desktop-menu-link:focus,
+.desktop-submenu-link:focus,
+.mobile-menu-toggle:focus,
+.mobile-submenu-toggle:focus,
+.mobile-submenu-link:focus {
+  outline: 2px solid $hover-color;
+  outline-offset: 2px;
+}
+
+// Print styles
+@media print {
+  .desktop-nav,
+  .mobile-menu-list {
+    display: none;
   }
 }

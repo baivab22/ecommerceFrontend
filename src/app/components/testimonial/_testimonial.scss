@@ -221,6 +221,11 @@ p {
 
   @include responsive-for(md) {
     width: 100%;
+      display: unset;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: unset;
+  text-overflow: unset;
   }
 }
 .prev-btn,

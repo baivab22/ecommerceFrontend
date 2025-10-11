@@ -1,206 +1,102 @@
-import React, {useEffect, useState} from 'react'
-import styled from 'styled-components'
-import {Link} from 'react-router-dom'
-import * as FaIcons from 'react-icons/fa'
-import * as AiIcons from 'react-icons/ai'
-import {SidebarData} from '../drawerMenu/sidebarData'
-import SubMenu from '../drawerMenu/drawerMenu.component'
-import {IconContext} from 'react-icons/lib'
-import {getCategoryListAction} from 'src/app/pages/category/category.slice'
-import {useDispatch, useSelector} from 'src/store'
+import React, { useState, useEffect } from 'react'
+import { Menu, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+// import './headerDrawer.scss'
+import './_headerDrawer.scss'
 
-const Nav = styled.div`
-  background: #d8848c;
+interface SidebarProps {
+  handleClose: () => void
+  children?: React.ReactNode
+}
 
-  height: 80px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-`
+export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
-const NavIcon = styled(Link)`
-  margin-left: 2rem;
-  font-size: 2rem;
-  height: 80px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-`
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
-const SidebarNav = styled.nav<{sidebar: boolean}>`
-  background: rgb(112 46 111);
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
 
-  width: 250px;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  position: fixed;
-  top: 0;
-  left: ${({sidebar}) => (sidebar ? '0' : '-100%')};
-  transition: 350ms;
-  z-index: 10;
-`
-
-const SidebarWrap = styled.div`
-  width: 100%;
-`
-
-export const Sidebar = ({handleClose}: {handleClose: () => void}) => {
-  const [sidebar, setSidebar] = useState(false)
-
-  const showSidebar = () => setSidebar(!sidebar)
-  const [category, setCategory] = useState<any>()
-
-  const {categoryData}: any = useSelector((state: any) => state.category)
-  const [menyList, setMenuList] = useState<any>()
-  const dispatch = useDispatch()
+  // Prevent body scroll when menu is open
   useEffect(() => {
-    dispatch(
-      getCategoryListAction({
-        onSuccess: () => {}
-      })
-    )
-  }, [])
-
-  useEffect(() => {
-    const mappedCategoryWeb = categoryData?.map((item: any, index: number) => {
-      if (item?.subCategories?.length > 0) {
-        return {
-          key: index,
-          title: item.name,
-          path: item.name,
-          type: 'page',
-          hasChildren: true,
-          id: item.id,
-          subNav: item.subCategories?.map((itemSub, indexSub) => {
-            return {
-              key: indexSub + index,
-              title: itemSub.name,
-              id: itemSub.id,
-              link: item.name / itemSub.name,
-              type: 'page'
-            }
-          })
-        }
-      } else {
-        return {
-          title: item.name,
-          path: item.name,
-          type: 'page'
-        }
-      }
-    })
-
-    setCategory(mappedCategoryWeb)
-  }, [categoryData])
-
-  const SidebarData = [
-    {
-      title: 'Overview',
-      path: '/overview',
-      // icon: <AiIcons.AiFillHome />,
-      // iconClosed: <RiIcons.RiArrowDownSFill />,
-      // iconOpened: <RiIcons.RiArrowUpSFill />,
-
-      subNav: [
-        {
-          title: 'Users',
-          path: '/overview/users'
-          // icon: <IoIcons.IoIosPaper />
-        },
-        {
-          title: 'Revenue',
-          path: '/overview/revenue'
-          // icon: <IoIcons.IoIosPaper />
-        }
-      ]
-    },
-    {
-      title: 'Reports',
-      path: '/reports',
-      // icon: <IoIcons.IoIosPaper />,
-      // iconClosed: <RiIcons.RiArrowDownSFill />,
-      // iconOpened: <RiIcons.RiArrowUpSFill />,
-
-      subNav: [
-        {
-          title: 'Reports',
-          path: '/reports/reports1',
-          // icon: <IoIcons.IoIosPaper />,
-          cName: 'sub-nav'
-        },
-        {
-          title: 'Reports 2',
-          path: '/reports/reports2',
-          // icon: <IoIcons.IoIosPaper />,
-          cName: 'sub-nav'
-        },
-        {
-          title: 'Reports 3',
-          path: '/reports/reports3'
-          // icon: <IoIcons.IoIosPaper />
-        }
-      ]
-    },
-    {
-      title: 'Products',
-      path: '/products'
-      // icon: <FaIcons.FaCartPlus />
-    },
-    {
-      title: 'Team',
-      path: '/team'
-      // icon: <IoIcons.IoMdPeople />
-    },
-    {
-      title: 'Messages',
-      path: '/messages',
-      // icon: <FaIcons.FaEnvelopeOpenText />,
-
-      // iconClosed: <RiIcons.RiArrowDownSFill />,
-      // iconOpened: <RiIcons.RiArrowUpSFill />,
-
-      subNav: [
-        {
-          title: 'Message 1',
-          path: '/messages/message1'
-          // icon: <IoIcons.IoIosPaper />
-        },
-        {
-          title: 'Message 2',
-          path: '/messages/message2'
-          // icon: <IoIcons.IoIosPaper />
-        }
-      ]
-    },
-    {
-      title: 'Support',
-      path: '/support'
-      // icon: <IoIcons.IoMdHelpCircle />
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
     }
-  ]
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMobileMenuOpen])
 
   return (
     <>
-      <IconContext.Provider value={{color: '#fff'}}>
-        <Nav>
-          <NavIcon to="#">
-            <FaIcons.FaBars onClick={showSidebar} />
-          </NavIcon>
-        </Nav>
-        <SidebarNav sidebar={sidebar}>
-          <SidebarWrap>
-            <NavIcon to="#">
-              <AiIcons.AiOutlineClose onClick={showSidebar} />
-            </NavIcon>
-            {category?.map((item, index) => {
-              return (
-                <SubMenu handleClose={showSidebar} item={item} key={index} />
-              )
-            })}
-          </SidebarWrap>
-        </SidebarNav>
-      </IconContext.Provider>
+      {/* Mobile Navigation Header */}
+      <nav className="mobile-nav">
+        <div className="mobile-header">
+          <div 
+            className="mobile-logo"
+            onClick={() => {
+              navigate('/home')
+              closeMobileMenu()
+            }}
+          >
+           Aabhushan Gallery
+          </div>
+          <button
+            className="hamburger-btn"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <Menu size={24} color='black'/>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay - Fades in/out */}
+      <div
+        className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+        onClick={closeMobileMenu}
+        aria-hidden={!isMobileMenuOpen}
+      />
+
+      {/* Mobile Menu Panel - Slides from left */}
+      <div 
+        className={`mobile-menu-panel ${isMobileMenuOpen ? 'open' : ''}`}
+        aria-hidden={!isMobileMenuOpen}
+      >
+        <div className="mobile-menu-header">
+          <h3 className="mobile-menu-title">Categories</h3>
+          <button
+            className="close-btn"
+            onClick={closeMobileMenu}
+            aria-label="Close menu"
+          >
+            <X size={20} color='black'/>
+          </button>
+        </div>
+        
+        {/* Render children - this will be the MobileNavigation component */}
+        <div className="mobile-menu-content">
+          {React.Children.map(children, child => {
+            if (React.isValidElement(child)) {
+              // Pass closeMobileMenu to children if they accept onClose prop
+              return React.cloneElement(child as React.ReactElement<any>, {
+                onClose: closeMobileMenu
+              })
+            }
+            return child
+          })}
+        </div>
+      </div>
     </>
   )
 }
+
+export default Sidebar

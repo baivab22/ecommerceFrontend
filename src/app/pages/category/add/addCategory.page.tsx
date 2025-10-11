@@ -251,7 +251,7 @@ if(categoryId ){
               ? 'Category Updated Successfully'
               : 'Category Created Successfully'
           )
-          navigate('/category')
+          navigate('/dash-category')
         },
         onError: (error) => {
           toast.error(error?.message || 'Something went wrong')
@@ -268,7 +268,7 @@ if(categoryId ){
               ? 'Category Updated Successfully'
               : 'Category Created Successfully'
           )
-          navigate('/category')
+          navigate('/dash-category')
         },
         onError: (error) => {
           toast.error(error?.message || 'Something went wrong')

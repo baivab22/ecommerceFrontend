@@ -1,0 +1,280 @@
+// Variables
+$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$white: #ffffff;
+$overlay-bg: rgba(0, 0, 0, 0.5);
+$shadow-lg: 4px 0 20px rgba(0, 0, 0, 0.1);
+
+// Animation durations
+$slide-duration: 0.4s;
+$fade-duration: 0.3s;
+
+
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+// Mobile Navigation
+.mobile-nav {
+
+  display: block;
+  background: #f3d2d7;
+  padding: 16px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  color: black;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-logo {
+  // color: $white;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  @include transition;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.hamburger-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  @include flex-center;
+  @include transition;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    color: $white;
+  }
+}
+
+// Mobile Menu Overlay - Fade animation
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $overlay-bg;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity $fade-duration ease, visibility $fade-duration ease;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Mobile Menu Panel - Slide from left animation
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 320px;
+  background: $white;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform $slide-duration cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  box-shadow: $shadow-lg;
+  will-change: transform;
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+.mobile-menu-header {
+  background: #f3d2d7;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu-title {
+  // color: $white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.close-btn {
+  // background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  @include flex-center;
+  @include transition;
+
+  &:hover {
+    // background: rgba(255, 255, 255, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    color: $white;
+  }
+}
+
+.mobile-menu-content {
+  padding: 0;
+}
+
+// Accessibility
+.hamburger-btn:focus,
+.close-btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+// Additional smooth animations for opening
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Prevent body scroll when menu is open
+body.mobile-menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+// Tablet and larger screens
+@media (min-width: 768px) {
+  .mobile-menu-overlay,
+  .mobile-menu-panel {
+    display: none;
+  }
+}
+
+// Small mobile devices
+@media (max-width: 375px) {
+  .mobile-menu-panel {
+    width: 90%;
+    max-width: 280px;
+  }
+
+  .mobile-logo {
+    font-size: 18px;
+  }
+
+  .mobile-menu-title {
+    font-size: 16px;
+  }
+}
+
+// Very smooth performance optimizations
+.mobile-menu-panel,
+.mobile-menu-overlay {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+// Reduce motion for users who prefer it
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-panel,
+  .mobile-menu-overlay {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
