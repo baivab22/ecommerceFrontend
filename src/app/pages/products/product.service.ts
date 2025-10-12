@@ -11,6 +11,7 @@ const getProductList = async (query?: {
   minPrice?: number
   maxPrice?: number
   subCategoryId?: string
+  nestedSubCategoryId:string
 }) => {
   // &isNewArrivals=${query.isNewArrivals ?? ''}
 
@@ -22,10 +23,11 @@ const getProductList = async (query?: {
     sort: query.sort ?? '',
     order: query.order ?? '',
     minPrice: query.minPrice ?? 0,
-    maxPrice: query.maxPrice ?? 20000,
+    maxPrice: query.maxPrice ?? 9999999999999999999,
     subCategoryId: query.subCategoryId ?? '',
     isBestSelling: query.isBestSelling ?? '',
-    isNewArrivals: query.isNewArrivals ?? ''
+    isNewArrivals: query.isNewArrivals ?? '',
+    nestedSubCategoryId:query?.nestedSubCategoryId ?? ''
   })
 
   console.log(response, 'response from slice')

@@ -2,6 +2,18 @@
   width: 100%;
   cursor: pointer;
   transition: transform 0.3s ease;
+
+
+
+    @include responsive-for(md) {
+    // align-self: center;
+    // justify-content: center;
+    // grid-template-columns: repeat(1, 1fr);
+  width: 100%;
+    // border: 2px solid pink;
+    
+    
+  }
   
   &:hover {
     transform: translateY(-8px);

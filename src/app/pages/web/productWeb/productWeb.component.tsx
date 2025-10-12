@@ -2,19 +2,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { AiOutlineSortAscending } from 'react-icons/ai'
 import {
   CheckBox,
-  CustomModal,
   HStack,
   InputField,
-  Modal,
   Title,
   VStack
 } from 'src/app/common'
-import { getNprPrice } from 'src/helpers/nprPrice.helper'
 import { useDispatch, useSelector } from 'src/store'
 import { getCategoryListAction } from '../../category/category.slice'
 import { getProductListAction } from '../../products/product.slice'
-import { Loader, ProductCard } from 'src/app/components'
-import toast from 'react-hot-toast'
+import { ProductCard } from 'src/app/components'
 import { useMedia, useQuery } from 'src/hooks'
 import { useUpdateQuery } from 'src/hooks/useUpdateQuery.hook'
 import { FaSortAmountUp } from 'react-icons/fa'
@@ -48,6 +44,10 @@ interface Product {
     name: string
     subCategories: any[]
   }
+  nestedSubCategory?: {
+    id: string
+    name: string
+  }
 }
 
 interface Category {
@@ -63,7 +63,7 @@ interface QueryParams {
   categoryId?: string
   subCategoryId?: string
   nestedSubCategoryId?: string
-  categoryName?: string
+  categoryname?: string
   subCategoryName?: string
   nestedSubCategoryName?: string
   minPrice?: string
@@ -94,7 +94,6 @@ const ProductCardSkeleton: React.FC = () => {
         animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       }}
     >
-      {/* Image Skeleton */}
       <div
         style={{
           width: '100%',
@@ -104,8 +103,6 @@ const ProductCardSkeleton: React.FC = () => {
           marginBottom: '12px'
         }}
       />
-      
-      {/* Title Skeleton */}
       <div
         style={{
           height: '16px',
@@ -115,8 +112,6 @@ const ProductCardSkeleton: React.FC = () => {
           width: '80%'
         }}
       />
-      
-      {/* Subtitle Skeleton */}
       <div
         style={{
           height: '14px',
@@ -126,8 +121,6 @@ const ProductCardSkeleton: React.FC = () => {
           width: '60%'
         }}
       />
-      
-      {/* Price Skeleton */}
       <div
         style={{
           display: 'flex',
@@ -152,8 +145,6 @@ const ProductCardSkeleton: React.FC = () => {
           }}
         />
       </div>
-      
-      {/* Button Skeleton */}
       <div
         style={{
           height: '36px',
@@ -162,7 +153,6 @@ const ProductCardSkeleton: React.FC = () => {
           width: '100%'
         }}
       />
-      
       <style>{`
         @keyframes pulse {
           0%, 100% {
@@ -202,6 +192,8 @@ const CategoryItem: React.FC<{
   const handleCategoryClick = () => {
     const filterType = level === 0 ? 'categoryId' : level === 1 ? 'subCategoryId' : 'nestedSubCategoryId'
     const nameType = level === 0 ? 'categoryName' : level === 1 ? 'subCategoryName' : 'nestedSubCategoryName'
+    
+    console.log('Category clicked:', { level, categoryId: category.id, categoryName: category.name, filterType, nameType })
     
     onFilterChange({
       [filterType]: category.id,
@@ -259,7 +251,6 @@ const CategoryItem: React.FC<{
         )}
       </HStack>
       
-      {/* Render subcategories */}
       {hasSubCategories && isExpanded && (
         <div style={{ marginTop: '8px' }}>
           {category.subCategories.map((subCategory) => (
@@ -278,22 +269,24 @@ const CategoryItem: React.FC<{
 }
 
 export const ProductListSideComp: React.FC = () => {
-  console.log('product list side comp called')
   const query = useQuery() as QueryParams
   const { categoryData }: { categoryData: Category[] } = useSelector((state: any) => state.category)
   const dispatch = useDispatch()
   const updateQuery = useUpdateQuery()
   const media = useMedia()
 
-  // Track all selected filters
+  // FIXED: Read all query parameters including nestedSubCategoryId and nestedSubCategoryName
   const selectedFilters: SelectedFilters = {
     categoryId: query.categoryId || '',
-    categoryName: query.categoryName || '',
+    categoryName: query.categoryname || '', // Note: backend sends 'categoryname' lowercase
     subCategoryId: query.subCategoryId || '',
     subCategoryName: query.subCategoryName || '',
     nestedSubCategoryId: query.nestedSubCategoryId || '',
     nestedSubCategoryName: query.nestedSubCategoryName || ''
   }
+
+  console.log('ProductListSideComp - Query params:', query)
+  console.log('ProductListSideComp - Selected filters:', selectedFilters)
 
   useEffect(() => {
     dispatch(
@@ -304,6 +297,7 @@ export const ProductListSideComp: React.FC = () => {
   }, [dispatch])
 
   const handleFilterChange = (newFilters: Partial<SelectedFilters>) => {
+    console.log('Filter change requested:', newFilters)
     updateQuery({
       ...query,
       ...newFilters
@@ -311,20 +305,24 @@ export const ProductListSideComp: React.FC = () => {
   }
 
   const clearAllFilters = () => {
+    console.log('Clearing all filters')
     updateQuery({
       ...query,
       categoryId: '',
-      categoryName: '',
+      categoryname: '',
       subCategoryId: '',
       subCategoryName: '',
       nestedSubCategoryId: '',
-      nestedSubCategoryName: ''
+      nestedSubCategoryName: '',
+      minPrice: '',
+      maxPrice: '',
+      isBestSelling: '',
+      isNewArrivals: ''
     })
   }
+
   const isMobile = !media.md
   const [showFilters, setShowFilters] = React.useState(!isMobile)
-
-
 
   return (
     <VStack
@@ -376,138 +374,134 @@ export const ProductListSideComp: React.FC = () => {
             )}
           </HStack>
 
-      {/* Display current selection path */}
-      {(selectedFilters.categoryName || selectedFilters.subCategoryName || selectedFilters.nestedSubCategoryName) && (
-        <div style={{
-          background: '#f5f5f5',
-          padding: '8px',
-          borderRadius: '4px',
-          fontSize: '11px',
-          width: '100%'
-        }}>
-          <strong>Selected:</strong>
-          <div style={{ marginTop: '4px' }}>
-            {selectedFilters.categoryName && (
-              <span>{selectedFilters.categoryName}</span>
-            )}
-            {selectedFilters.subCategoryName && (
-              <span> → {selectedFilters.subCategoryName}</span>
-            )}
-            {selectedFilters.nestedSubCategoryName && (
-              <span> → {selectedFilters.nestedSubCategoryName}</span>
-            )}
+          {/* FIXED: Display selected category path including nested subcategory */}
+          {(selectedFilters.categoryName || selectedFilters.subCategoryName || selectedFilters.nestedSubCategoryName) && (
+            <div style={{
+              background: '#f5f5f5',
+              padding: '8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              width: '100%'
+            }}>
+              <strong>Selected:</strong>
+              <div style={{ marginTop: '4px' }}>
+                {selectedFilters.categoryName && (
+                  <span>{selectedFilters.categoryName}</span>
+                )}
+                {selectedFilters.subCategoryName && (
+                  <span> → {selectedFilters.subCategoryName}</span>
+                )}
+                {selectedFilters.nestedSubCategoryName && (
+                  <span> → {selectedFilters.nestedSubCategoryName}</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div
+            style={{
+              width: '100%',
+              maxHeight: isMobile ? '150px' : '300px',
+              overflowY: 'auto',
+              border: '1px solid #eee',
+              borderRadius: '4px',
+              padding: '8px'
+            }}
+          >
+            <div
+              onClick={clearAllFilters}
+              style={{
+                padding: '8px',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                background: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? '#e3f2fd' : 'transparent',
+                fontWeight: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? 'bold' : 'normal',
+                marginBottom: '4px'
+              }}
+            >
+              All Categories
+            </div>
+            
+            {categoryData?.map((category) => (
+              <CategoryItem
+                key={category.id}
+                category={category}
+                level={0}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+              />
+            ))}
           </div>
-        </div>
-      )}
 
-      {/* Categories with hierarchy */}
-      <div
-        style={{
-          width: '100%',
-          maxHeight: isMobile ? '150px' : '300px',
-          overflowY: 'auto',
-          border: '1px solid #eee',
-          borderRadius: '4px',
-          padding: '8px'
-        }}
-      >
-        {/* All option */}
-        <div
-          onClick={clearAllFilters}
-          style={{
-            padding: '8px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            background: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? '#e3f2fd' : 'transparent',
-            fontWeight: (!selectedFilters.categoryId && !selectedFilters.subCategoryId && !selectedFilters.nestedSubCategoryId) ? 'bold' : 'normal',
-            marginBottom: '4px'
-          }}
-        >
-          All Categories
-        </div>
-        
-        {categoryData?.map((category) => (
-          <CategoryItem
-            key={category.id}
-            category={category}
-            level={0}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChange}
-          />
-        ))}
-      </div>
-
-      {/* Price Range Filter */}
-      <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
-        <Title primaryHeading>Price Range</Title>
-        <HStack
-          style={{ width: '100%' }}
-          gap="$2"
-          align="center"
-          justify="center"
-        >
-          <VStack gap="$1" style={{ flex: 1 }}>
-            <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>FROM</Title>
-            <InputField
-              type="number"
-              value={query.minPrice || ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                updateQuery({
-                  minPrice: e.target.value
-                })
-              }}
-              placeholder="Min"
-              style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
-            />
+          <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
+            <Title primaryHeading>Price Range</Title>
+            <HStack
+              style={{ width: '100%' }}
+              gap="$2"
+              align="center"
+              justify="center"
+            >
+              <VStack gap="$1" style={{ flex: 1 }}>
+                <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>FROM</Title>
+                <InputField
+                  type="number"
+                  value={query.minPrice || ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateQuery({
+                      minPrice: e.target.value
+                    })
+                  }}
+                  placeholder="Min"
+                  style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
+                />
+              </VStack>
+              <HStack justify="center" align="center" style={{ padding: isMobile ? '0 4px' : '0 8px', marginTop: '20px' }}>
+                -
+              </HStack>
+              <VStack gap="$1" style={{ flex: 1 }}>
+                <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>TO</Title>
+                <InputField
+                  type="number"
+                  value={query.maxPrice || ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateQuery({
+                      maxPrice: e.target.value
+                    })
+                  }}
+                  placeholder="Max"
+                  style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
+                />
+              </VStack>
+            </HStack>
           </VStack>
-          <HStack justify="center" align="center" style={{ padding: isMobile ? '0 4px' : '0 8px', marginTop: '20px' }}>
-            -
-          </HStack>
-          <VStack gap="$1" style={{ flex: 1 }}>
-            <Title subheading style={{ fontSize: isMobile ? '10px' : '12px' }}>TO</Title>
-            <InputField
-              type="number"
-              value={query.maxPrice || ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                updateQuery({
-                  maxPrice: e.target.value
-                })
-              }}
-              placeholder="Max"
-              style={{ fontSize: isMobile ? '12px' : '14px', padding: isMobile ? '6px' : '8px' }}
-            />
-          </VStack>
-        </HStack>
-      </VStack>
 
-      {/* Best Selling and New Arrivals Filters */}
-      <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
-        <Title primaryHeading>Filters</Title>
-        
-        <HStack gap={isMobile ? '$3' : '$2'} style={{ width: '100%', flexWrap: 'wrap' }}>
-          <CheckBox
-            name="isBestSelling"
-            label="Best Selling"
-            handleCheckboxChange={(checked: boolean) => {
-              updateQuery({
-                isBestSelling: checked ? 'true' : ''
-              })
-            }}
-            check={query.isBestSelling === 'true'}
-          />
-          
-          <CheckBox
-            name="isNewArrivals"
-            label="New Arrivals"
-            handleCheckboxChange={(checked: boolean) => {
-              updateQuery({
-                isNewArrivals: checked ? 'true' : ''
-              })
-            }}
-            check={query.isNewArrivals === 'true'}
-          />
-        </HStack>
-      </VStack>
+          <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
+            <Title primaryHeading>Filters</Title>
+            
+            <HStack gap={isMobile ? '$3' : '$2'} style={{ width: '100%', flexWrap: 'wrap' }}>
+              <CheckBox
+                name="isBestSelling"
+                label="Best Selling"
+                handleCheckboxChange={(checked: boolean) => {
+                  updateQuery({
+                    isBestSelling: checked ? 'true' : ''
+                  })
+                }}
+                check={query.isBestSelling === 'true'}
+              />
+              
+              <CheckBox
+                name="isNewArrivals"
+                label="New Arrivals"
+                handleCheckboxChange={(checked: boolean) => {
+                  updateQuery({
+                    isNewArrivals: checked ? 'true' : ''
+                  })
+                }}
+                check={query.isNewArrivals === 'true'}
+              />
+            </HStack>
+          </VStack>
         </>
       )}
     </VStack>
@@ -522,34 +516,46 @@ export const ProductListForWeb: React.FC = () => {
   const query = useQuery() as QueryParams
   const media = useMedia()
 
-  console.log('parent called', query)
-
   const { data, loading }: { data: Product[], loading: boolean } = useSelector((state: any) => state.product)
   const updateQuery = useUpdateQuery()
 
   useEffect(() => {
+    // FIXED: Build the query object including nestedSubCategoryId
+    const productQuery: any = {}
+
+    if (query.sort) productQuery.sort = query.sort
+    if (query.order) productQuery.order = query.order
+    
+    // CRITICAL: Include all category levels in the query
+    if (query.categoryId) productQuery.categoryId = query.categoryId
+    if (query.subCategoryId) productQuery.subCategoryId = query.subCategoryId
+    if (query.nestedSubCategoryId) productQuery.nestedSubCategoryId = query.nestedSubCategoryId
+    
+    if (query.search) productQuery.search = query.search
+
+    // Convert price strings to numbers
+    if (query.minPrice) {
+      const minPrice = parseInt(query.minPrice)
+      if (!isNaN(minPrice)) productQuery.minPrice = minPrice
+    }
+    if (query.maxPrice) {
+      const maxPrice = parseInt(query.maxPrice)
+      if (!isNaN(maxPrice)) productQuery.maxPrice = maxPrice
+    }
+
+    // Convert boolean strings to actual booleans
+    if (query.isBestSelling === 'true') productQuery.isBestSelling = true
+    if (query.isNewArrivals === 'true') productQuery.isNewArrivals = true
+
+    console.log('ProductListForWeb - Fetching products with query:', productQuery)
+    console.log('ProductListForWeb - URL query params:', query)
+
     dispatch(
       getProductListAction({
-        onSuccess: () => {},
-        query: {
-          sort: query.sort,
-          order: query.order,
-          categoryId: query.categoryId,
-          //@ts-ignore 
-          minPrice: query.minPrice as number,
-          //@ts-ignore
-
-          maxPrice: query.maxPrice as number,
-          search: query.search,
-          subCategoryId: query.subCategoryId,
-          //@ts-ignore
-          
-          nestedSubCategoryId: query.nestedSubCategoryId,
-                   //@ts-ignore
-          isBestSelling: query.isBestSelling,
-                   //@ts-ignore
-          isNewArrivals: query.isNewArrivals 
-        }
+        onSuccess: () => {
+          console.log('Products fetched successfully')
+        },
+        query: productQuery
       })
     )
   }, [
@@ -558,7 +564,7 @@ export const ProductListForWeb: React.FC = () => {
     query.order,
     query.categoryId,
     query.subCategoryId,
-    query.nestedSubCategoryId,
+    query.nestedSubCategoryId, // ADDED: nestedSubCategoryId to dependencies
     query.minPrice,
     query.maxPrice,
     query.search,
@@ -601,7 +607,9 @@ export const ProductListForWeb: React.FC = () => {
       >
         <VStack gap="$3" style={{ width: '100%' }}>
           <HStack justify="space-between" align="center">
-            <Title subheading>Products</Title>
+            <Title subheading>
+              Products {data?.length > 0 && `(${data.length})`}
+            </Title>
 
             <VStack className="sortMainContainer" style={{ position: 'relative' }}>
               <HStack
@@ -713,22 +721,19 @@ export const ProductListForWeb: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div>No Product found</div>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px', 
+              color: '#666',
+              width: '100%' 
+            }}>
+              <p style={{ fontSize: '18px', marginBottom: '8px' }}>No products found</p>
+              <p style={{ fontSize: '14px' }}>Try adjusting your filters</p>
+            </div>
           )}
         </VStack>
       </VStack>
     </div>
-  )
-}
-
-export const ProductPriceSlider: React.FC = () => {
-  const [priceRange, setPriceRange] = useState({
-    minPrice: 50,
-    maxPrice: 1000
-  })
-
-  return (
-    <div style={{ position: 'relative' }} className="productWeb-container"></div>
   )
 }
 

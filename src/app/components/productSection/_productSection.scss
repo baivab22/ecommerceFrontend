@@ -74,6 +74,9 @@
   }
 
   &-items {
+
+
+    // border: 2px solid red;
     width: 100%;
        box-sizing: border-box;
     display: grid;
@@ -88,9 +91,16 @@
 }
 
 @include responsive-for(md) {
-  grid-template-columns: repeat(2, calc((100% - (1 * map-get($space, 4))) / 2));
-  column-gap: map-get($space, 4);
+  // grid-template-columns: repeat(2, calc((100% - (1 * map-get($space, 4))) / 2));
+  // column-gap: map-get($space, 4);
    padding: map-get($space,3);
+
+   display: flex;
+   flex-direction: column;
+
+  //  border: 3px solid brown;
+  // display: flex;
+
 }
 
 @include responsive-for(sm) {
@@ -99,6 +109,8 @@
   justify-content: center;
   grid-template-columns: 1fr;
   column-gap: map-get($space, 4);
+  // display: flex;
+
 }
   }
 }

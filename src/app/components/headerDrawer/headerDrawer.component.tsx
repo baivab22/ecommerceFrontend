@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'src/store'
+import { getCategoryListAction } from 'src/app/pages/category/category.slice'
 import './_headerDrawer.scss'
 
 interface SidebarProps {
@@ -32,11 +34,9 @@ const MobileMenuSkeleton = () => {
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Main menu items */}
       {Array.from({ length: 6 }).map((_, index) => (
         <div key={`main-${index}`}>
           <div style={menuItemStyle}></div>
-          {/* Randomly show some submenu items for variety */}
           {index % 2 === 0 && (
             <>
               <div style={subMenuItemStyle}></div>
@@ -95,6 +95,134 @@ const MobileHeaderSkeleton = () => {
   )
 }
 
+// Mobile Navigation Component
+const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
+  const { categoryData, loading }: any = useSelector((state: any) => state.category)
+  const [openMobileMenus, setOpenMobileMenus] = useState<Record<string, boolean>>({})
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (!categoryData) {
+      dispatch(
+        getCategoryListAction({
+          onSuccess: () => {}
+        })
+      )
+    }
+  }, [dispatch, categoryData])
+
+  const toggleMobileSubmenu = (id: string) => {
+    setOpenMobileMenus(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
+
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
+    onClose?.()
+  }
+
+  const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
+    navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
+    onClose?.()
+  }
+
+  const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
+    navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
+    onClose?.()
+  }
+
+  const renderMobileSubMenu = (subCategories: any[], level = 0) => {
+    return (
+      <ul className={`mobile-submenu level-${level}`}>
+        {subCategories.map((subCat) => (
+          <li key={subCat.id} className="mobile-submenu-item">
+            {subCat.subCategories && subCat.subCategories.length > 0 ? (
+              <>
+                <button
+                  className="mobile-submenu-link"
+                  onClick={() => {
+                    if (level === 0) {
+                      handleSubCategoryClick(subCat.id, subCat.name)
+                    } else {
+                      handleNestedSubCategoryClick(subCat.id, subCat.name)
+                    }
+                  }}
+                >
+                  <span>{subCat.name}</span>
+                  <ChevronRight
+                    className={`chevron ${openMobileMenus[subCat.id] ? 'rotated' : ''}`}
+                    size={18}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleMobileSubmenu(subCat.id)
+                    }}
+                  />
+                </button>
+                {openMobileMenus[subCat.id] && renderMobileSubMenu(subCat.subCategories, level + 1)}
+              </>
+            ) : (
+              <button
+                className="mobile-submenu-link"
+                onClick={() => {
+                  if (level === 0) {
+                    handleSubCategoryClick(subCat.id, subCat.name)
+                  } else {
+                    handleNestedSubCategoryClick(subCat.id, subCat.name)
+                  }
+                }}
+              >
+                <span>{subCat.name}</span>
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  if (loading || !categoryData) {
+    return <MobileMenuSkeleton />
+  }
+
+  return (
+    <div className="mobile-menu-list">
+      {categoryData?.map((category: any) => (
+        <div key={category.id} className="mobile-menu-item">
+          {category.subCategories && category.subCategories.length > 0 ? (
+            <>
+              <button
+                className="mobile-menu-toggle"
+                onClick={() => handleCategoryClick(category.id, category.name)}
+              >
+                <span>{category.name}</span>
+                <ChevronRight
+                  className={`chevron ${openMobileMenus[category.id] ? 'rotated' : ''}`}
+                  size={20}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleMobileSubmenu(category.id)
+                  }}
+                />
+              </button>
+              {openMobileMenus[category.id] && renderMobileSubMenu(category.subCategories)}
+            </>
+          ) : (
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => handleCategoryClick(category.id, category.name)}
+            >
+              <span>{category.name}</span>
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children, loading = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
@@ -141,7 +269,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children, loading
               closeMobileMenu()
             }}
           >
-           Aabhushan Gallery
+            Aabhushan Gallery
           </div>
           <button
             className="hamburger-btn"
@@ -177,21 +305,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children, loading
           </button>
         </div>
         
-        {/* Render children or skeleton */}
+        {/* Render Mobile Navigation */}
         <div className="mobile-menu-content">
-          {loading ? (
-            <MobileMenuSkeleton />
-          ) : (
-            React.Children.map(children, child => {
-              if (React.isValidElement(child)) {
-                // Pass closeMobileMenu to children if they accept onClose prop
-                return React.cloneElement(child as React.ReactElement<any>, {
-                  onClose: closeMobileMenu
-                })
-              }
-              return child
-            })
-          )}
+          <MobileNavigation onClose={closeMobileMenu} />
         </div>
       </div>
     </>

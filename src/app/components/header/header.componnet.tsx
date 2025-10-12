@@ -182,14 +182,17 @@ export const DesktopHeader = () => {
     }, 150)
   }
 
+  // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
   }
 
+  // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
     navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
   }
 
+  // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
     navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
   }
@@ -215,9 +218,12 @@ export const DesktopHeader = () => {
             <button
               className="desktop-submenu-link"
               onClick={() => {
+
+        
                 if (level === 0) {
                   handleSubCategoryClick(subCat.id, subCat.name)
                 } else {
+                          console.log(level,"levellll nested clicked")
                   handleNestedSubCategoryClick(subCat.id, subCat.name)
                 }
               }}
@@ -299,16 +305,19 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
     }))
   }
 
+  // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
     onClose?.()
   }
 
+  // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
     navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
     onClose?.()
   }
 
+  // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
     navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
     onClose?.()

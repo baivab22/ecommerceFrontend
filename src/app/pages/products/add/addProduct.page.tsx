@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState, useRef} from 'react'
 import {useDispatch, useSelector} from 'src/store'
-
 import {useParams} from 'src/hooks'
 import {
   Button,
@@ -25,17 +24,10 @@ import {
   getProductListAction,
   updateProductAction
 } from '../product.slice'
-import {useFormInput} from 'use-form-input'
 import {useNavigate} from 'react-router-dom'
 import {toast} from 'react-hot-toast'
 import ImageUploader from 'src/app/common/imageUploader/imageUploader.common'
 import VideoUploader from 'src/app/common/videoUploader/videoUploader.common'
-import {useStepContext} from '@mui/material'
-import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
-import ReactPlayer from 'react-player'
-import {AiFillPlayCircle, AiOutlineClose} from 'react-icons/ai'
-import {color} from 'html2canvas/dist/types/css/types/color'
-
 import {v4 as uuidv4} from 'uuid'
 import {FILE_URL} from 'src/config'
 
@@ -43,7 +35,6 @@ export const AddProductPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const productId = useParams('productId')
-  // console.log(productId, 'productId present')
 
   useEffect(() => {
     productId &&
@@ -54,14 +45,7 @@ export const AddProductPage = () => {
     (state: any) => state.product
   )
 
-  // console.log(productDetailData, 'productDetailData')
-
-  // console.log(!!productDetailData, 'product detail data boolean')
-
-  // console.log('product id is available', productId)
-
   const [image, setImage] = useState<any>([])
-
   const [colorCount, setColorCount] = useState(2)
   const [colorImage, setColorImage] = useState([
     {
@@ -81,6 +65,7 @@ export const AddProductPage = () => {
     console.log(colorCount, 'colorCount')
     console.log(colorImage, 'color image')
   }, [colorCount, colorImage])
+
   const [data, setData] = useState<any>({
     name: '',
     originalPrice: '',
@@ -88,6 +73,7 @@ export const AddProductPage = () => {
     discountPercentage: '',
     category: '',
     subCategory: '',
+    nestedSubCategory: '', // NEW FIELD
     images: [],
     video: null,
     description: '',
@@ -102,21 +88,67 @@ export const AddProductPage = () => {
 
   const [isHotSelling, setIsHotSelling] = useState(false)
 
+  // Category, SubCategory, and NestedSubCategory states
+  const [selectedCategory, setSelectedCategory] = useState<any>()
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>()
+  const [selectedNestedSubCategory, setSelectedNestedSubCategory] = useState<any>()
+  
+  const [category, setCategory] = useState<any>()
+  const [subCategory, setSubCategory] = useState<any>()
+  const [nestedSubCategory, setNestedSubCategory] = useState<any>()
+
+  const {
+    categoryData,
+    getCategoryLoading,
+    subCategoryData,
+    getSubCategoryLoading
+  }: any = useSelector((state: any) => state.category)
+
+  const {createProductLoading, updateProductLoading, productVariantList}: any =
+    useSelector((state: any) => state.product)
+  
+  const [productVariantIdList, setProductVariantIdList] = useState([''])
 
   useEffect(() => {
-    // console.log('product DetailData called')
+    console.log('product variant list')
+    setProductVariantIdList(
+      productVariantList?.map((item: any, index: number) => {
+        return item._id
+      })
+    )
+  }, [productVariantList])
 
-    if (productId) {
+  useEffect(() => {
+    dispatch(
+      getCategoryListAction({
+        onSuccess: () => console.log('categoryList fetch Successfully')
+      })
+    )
+  }, [])
+
+  // Load product detail data when editing
+  useEffect(() => {
+    if (productId && productDetailData) {
       setSelectedCategory({
         id: productDetailData?.category?.id,
-        label: productDetailData?.category.name,
+        label: productDetailData?.category?.name,
         value: productDetailData?.category?.value
       })
+      
       setSelectedSubCategory({
         id: productDetailData?.subCategory?.id,
-        label: productDetailData?.subCategory.neame,
+        label: productDetailData?.subCategory?.name,
         value: productDetailData?.subCategory?.value
       })
+
+      // NEW: Load nested subcategory if it exists
+      if (productDetailData?.nestedSubCategory) {
+        setSelectedNestedSubCategory({
+          id: productDetailData?.nestedSubCategory?.id,
+          label: productDetailData?.nestedSubCategory?.name,
+          value: productDetailData?.nestedSubCategory?.value
+        })
+      }
 
       setProductVariantIdList(
         productDetailData?.images?.map((item: any, index: number) => {
@@ -147,19 +179,7 @@ export const AddProductPage = () => {
         stockQuantity: !!productDetailData
           ? productDetailData.stockQuantity
           : 0,
-
         images: !!productDetailData ? productDetailData.images?.[0] : '',
-
-        // video: !!productDetailData ? productDetailData.video : null,
-
-        // video: !!productDetailData
-        //   ? productDetailData.video
-        //     ? `${import.meta.env.REACT_APP_DEV_ASSET_URL}/video/${
-        //         productDetailData?.video
-        //       }`
-        //     : null
-        //   : null,
-
         description: !!productDetailData ? productDetailData?.description : ''
       }))
 
@@ -188,62 +208,28 @@ export const AddProductPage = () => {
       setColorCount(productDetailData?.images?.length)
       setAllColorVariant(productDetailData?.images)
 
-      // productId && !!productDetailData
-      // ? productDetailData?.images[index]?.coloredImage
-      // : ''
-
-      // setIsNewArrivalOrBestSelling((prev:any)=>({...prev,isBestSelling:!!productDetailData?productDetailData?.isBestSelling))
       setIsNewArrivalOrBestSelling((prev: any) => ({
         ...prev,
-
         isBestSelling: !!productDetailData
           ? productDetailData?.isBestSelling
-          : '',
+          : false,
         isNewArrival: !!productDetailData
           ? productDetailData?.isNewArrivals
-          : ''
+          : false,
+        isWatchAndShop: !!productDetailData
+          ? productDetailData?.isWatchAndShop
+          : false
       }))
+
+      setIsHotSelling(!!productDetailData ? productDetailData?.isHotSelling : false)
     }
 
     console.log(productDetailData, 'product detail data')
   }, [productDetailData])
 
-  const [selectedCategory, setSelectedCategory] = useState<any>()
-  const [selectedSubCategory, setSelectedSubCategory] = useState<any>()
-  const [category, setCategory] = useState<any>()
-  const [subCategory, setSubCategory] = useState<any>()
-
-  const {
-    categoryData,
-    getCategoryLoading,
-    subCategoryData,
-    getSubCategoryLoading
-  }: any = useSelector((state: any) => state.category)
-
-  const {createProductLoading, updateProductLoading, productVariantList}: any =
-    useSelector((state: any) => state.product)
-  const [productVariantIdList, setProductVariantIdList] = useState([''])
-  useEffect(() => {
-    console.log('product variant list')
-    setProductVariantIdList(
-      productVariantList?.map((item: any, index: number) => {
-        return item._id
-      })
-    )
-    // console.log(productVariantList, 'productVariant list')
-  }, [productVariantList])
-
-  useEffect(() => {
-    dispatch(
-      getCategoryListAction({
-        onSuccess: () => console.log('categoryList fetch Successfully')
-      })
-    )
-  }, [])
-
+  // Map categories from API data
   useEffect(() => {
     const mappedCategory = categoryData?.map((item: any, index: number) => {
-      // console.log(item, 'caetgory item')
       return {
         id: item.id,
         label: item.name,
@@ -251,15 +237,31 @@ export const AddProductPage = () => {
         subCategory: item.subCategories
       }
     })
-    // console.log(mappedCategory, 'mapped category')
     setCategory(mappedCategory)
   }, [categoryData])
 
+  // Map subcategories when category changes
   useEffect(() => {
-    // console.log('selcted category changed')
-    // console.log('subcategory resetting')
-
     const mappedSubCategory = selectedCategory?.subCategory?.map(
+      (item: any, index: number) => {
+        return {
+          id: item.id,
+          label: item.name,
+          value: item.name,
+          nestedSubCategories: item.subCategories || [] // Assuming your API returns nested structure
+        }
+      }
+    )
+    setSubCategory(mappedSubCategory)
+    // Reset nested subcategory when category changes
+    if (!productId) {
+      setSelectedNestedSubCategory(null)
+    }
+  }, [selectedCategory])
+
+  // NEW: Map nested subcategories when subcategory changes
+  useEffect(() => {
+    const mappedNestedSubCategory = selectedSubCategory?.nestedSubCategories?.map(
       (item: any, index: number) => {
         return {
           id: item.id,
@@ -268,9 +270,8 @@ export const AddProductPage = () => {
         }
       }
     )
-
-    setSubCategory(mappedSubCategory)
-  }, [selectedCategory])
+    setNestedSubCategory(mappedNestedSubCategory)
+  }, [selectedSubCategory])
 
   const handleImage = (event: any) => {
     const selectedFiles = Array.from(event.target.files)
@@ -281,14 +282,6 @@ export const AddProductPage = () => {
     console.log([...image, ...selectedFiles], '++++++++++')
 
     setImage((prev: any) => [...prev, ...selectedFiles])
-    // myImages.push(event.target.files)
-    // console.log(myImages, 'myiamgesssssssssssss after')
-
-    // const filesArray = Array.from(myImages).map((fileList) =>
-    //   Array.from(fileList)
-    // )
-
-    // setImage(selectedFiles)
   }
 
   const playerRef = useRef(null)
@@ -298,16 +291,6 @@ export const AddProductPage = () => {
 
   const handlePlayClick = () => {
     setPlaying(true)
-
-    // playerRef.current.wrapper.requestFullscreen()
-    // console.log(videoPlayer, 'video player')
-
-    // if (videoPlayer) {
-    //   if (videoPlayer[0].requestFullscreen) {
-    //     console.log(videoPlayer, 'video player hitted')
-    //     videoPlayer[0].requestFullscreen()
-    //   }
-    // }
   }
 
   useEffect(() => {
@@ -360,12 +343,19 @@ export const AddProductPage = () => {
   const addProductHandler = (event: any) => {
     event.preventDefault()
     console.log('addProduct called to updated', data)
-    console.log(isHotSelling, 'is new arrival or best selling')
+    console.log(isHotSelling, 'is hot selling')
+    
     const formData = new FormData()
 
     formData.append('name', data.name)
     formData.append('category', selectedCategory?.id)
     formData.append('subCategory', selectedSubCategory?.id)
+    
+    // NEW: Append nested subcategory if selected
+    if (selectedNestedSubCategory?.id) {
+      formData.append('nestedSubCategory', selectedNestedSubCategory.id)
+    }
+    
     formData.append('originalPrice', data.originalPrice)
     formData.append('discountedPrice', data.discountedPrice)
     formData.append('discountPercentage', data.discountPercentage)
@@ -375,17 +365,9 @@ export const AddProductPage = () => {
     formData.append('stockQuantity', data.stockQuantity)
     formData.append('isHotSelling', JSON.stringify(isHotSelling))
 
-
-
-
-    // productVariantIdList.forEach((productId: any, index: string) => {
-    //   formData.append('productVariants', productId)
-    // })
-
     console.log(productVariantIdList, 'product variant list')
     console.log(productVariantIdList, 'product variant id list')
     const minusCount = -colorCount
-    // console.log(minusCount, 'minusCount')
     const productImageIds = productVariantIdList?.slice(minusCount)
     console.log(productImageIds, 'meroname')
     productImageIds?.forEach((value, index) => {
@@ -407,29 +389,7 @@ export const AddProductPage = () => {
       JSON.stringify(isNewArrivalOrBestSelling.isWatchAndShop)
     )
 
-
-    
-
-
-
-
-    console.log(isHotSelling,'ishotselling value before  append')
-
-    // formData.append(
-    //   'isHotSelling',
-    //   JSON.stringify(isHotSelling)
-    // )
-// formData.append(
-//       'isWatchAndShop',
-//       JSON.stringify(isNewArrivalOrBestSelling.isWatchAndShop)
-//     )
-
-    
-    // console.log(data?.images, 'data images')
-
-    // image.forEach((file: any, index: string) => {
-    //   formData.append('image', file)
-    // })
+    console.log(isHotSelling,'ishotselling value before append')
 
     console.log(isHotSelling, ' is hot selling video')
 
@@ -446,7 +406,7 @@ export const AddProductPage = () => {
                   })
                 )
                 navigate('/products')
-                toast.success('Product Updated SuccessFully')
+                toast.success('Product Updated Successfully')
                 setData({
                   name: '',
                   originalPrice: '',
@@ -454,10 +414,11 @@ export const AddProductPage = () => {
                   discountPercentage: '',
                   category: '',
                   subCategory: '',
+                  nestedSubCategory: '',
                   images: [],
                   video: null,
                   description: '',
-                  // isHotSelling:false
+                  stockQuantity: ''
                 })
               }
             })
@@ -473,7 +434,7 @@ export const AddProductPage = () => {
                 )
                 navigate('/products')
 
-                toast.success('Product Created SuccessFully')
+                toast.success('Product Created Successfully')
                 setData({
                   name: '',
                   originalPrice: '',
@@ -481,10 +442,11 @@ export const AddProductPage = () => {
                   discountPercentage: '',
                   category: '',
                   subCategory: '',
+                  nestedSubCategory: '',
                   images: [],
                   video: null,
                   description: '',
-                  // isHotSelling:false
+                  stockQuantity: ''
                 })
               }
             })
@@ -492,22 +454,8 @@ export const AddProductPage = () => {
     }
   }
 
-  // console.log(
-  //   selectedSubCategory,
-  //   selectedCategory,
-  //   'selected sub category value'
-  // )
-
   const handleColorVariant = () => {
-    // setAllColorVariant((prev) => [...prev, colorImage])
-    // console.log(colorImage, 'colorIMage')
     const formData = new FormData()
-    // console.clear()
-    // console.log(colorImage.image, 'image list')
-
-    // colorImage.image.forEach((item: any, index: number) => {
-    //   formData.append('coloredImage', item)
-    // })
 
     console.log(colorImage, 'colorImage hai')
 
@@ -516,7 +464,6 @@ export const AddProductPage = () => {
       formData.append(`coloredImage`, item.image[0])
       formData.append(`colorName`, item.color)
     })
-    // createProductImageAction
 
     dispatch(
       createProductImageAction({
@@ -531,16 +478,9 @@ export const AddProductPage = () => {
               }
             })
           )
-
-          // setColorImage((prev: any) => [])
         }
       })
     )
-
-    // setColorImage((prev: any) => ({
-    //   image: [],
-    //   color: ''
-    // }))
   }
 
   useEffect(() => {
@@ -561,8 +501,7 @@ export const AddProductPage = () => {
 
   console.log(productDetailData?.images, productDetailData, 'images data value')
 
-
-  console.log('isHot selling value',isHotSelling)
+  console.log('isHot selling value', isHotSelling)
 
   return (
     <div className="addProductContainer">
@@ -584,18 +523,12 @@ export const AddProductPage = () => {
             <Label required labelName="Category"></Label>
             <SelectField
               options={category}
-              // defaultValue={selectedCategory[0]}
-              // value={newUnitList?.find((item) => {
-              //   return item.label === data.unitName
-              // })}
-              // onChangeValue={(e) =>()
-              // !Array.isArray(e) && setValue('unitName', e.label)
-              // }
               width="320px"
               value={selectedCategory?.label !== undefined && selectedCategory}
               onChangeValue={(data) => {
                 setSelectedCategory(data)
                 setSelectedSubCategory(null)
+                setSelectedNestedSubCategory(null)
               }}
               placeholder={'Select Category'}
             />
@@ -605,11 +538,11 @@ export const AddProductPage = () => {
             <Label required labelName="SubCategory"></Label>
             <SelectField
               options={subCategory}
-              // onChangeValue={(e) =>
-              // !Array.isArray(e) && setValue('unitName', e.label)
-              // }
               width="320px"
-              onChangeValue={(data) => setSelectedSubCategory(data)}
+              onChangeValue={(data) => {
+                setSelectedSubCategory(data)
+                setSelectedNestedSubCategory(null)
+              }}
               placeholder={'Select SubCategory'}
               value={
                 selectedSubCategory?.label !== undefined && selectedSubCategory
@@ -617,6 +550,23 @@ export const AddProductPage = () => {
             />
           </div>
         </HStack>
+
+        {/* NEW: Nested SubCategory Dropdown - Only shows when nested options exist */}
+        {nestedSubCategory && nestedSubCategory.length > 0 && (
+          <div className="addProduct-input">
+            <Label labelName="Nested SubCategory (Optional)"></Label>
+            <SelectField
+              options={nestedSubCategory}
+              width="100%"
+              onChangeValue={(data) => setSelectedNestedSubCategory(data)}
+              placeholder={'Select Nested SubCategory'}
+              value={
+                selectedNestedSubCategory?.label !== undefined && 
+                selectedNestedSubCategory
+              }
+            />
+          </div>
+        )}
 
         <HStack justify="space-between" gap="$3">
           <div className="addProduct-input">
@@ -683,7 +633,7 @@ export const AddProductPage = () => {
           <Label required labelName="How many color variant"></Label>
           <InputField
             type="number"
-            placeholder="Enter Color variant bumber"
+            placeholder="Enter Color variant number"
             onChange={(e: any) => setColorCount(e.target.value)}
             value={colorCount}
           ></InputField>
@@ -724,33 +674,8 @@ export const AddProductPage = () => {
                             id: uuidv4()
                           }
 
-                          // existingList.splice(index, 0, {
-                          //   ...currentObject,
-                          //   color: e.target.value
-                          // })
-
                           return existingList
                         })
-
-                        // setColorImage((prev: any) => {
-                        //   const existingList = [...prev]
-
-                        //   console.log(existingList, 'existingList')
-                        //   const currentObject = existingList[index]
-                        //   console.log(currentObject, 'current object')
-
-                        //   existingList.splice(index, 0, {
-                        //     ...currentObject,
-                        //     image: [...selectedFiles]
-                        //   })
-
-                        //   return existingList
-                        // })
-
-                        // setColorImage((prev: any) => ({
-                        //   ...prev,
-                        //   image: [...selectedFiles]
-                        // }))
                       }}
                       value={colorImage[index]?.image ?? ''}
                       actionHandler={handleAction}
@@ -762,19 +687,6 @@ export const AddProductPage = () => {
                       type="color"
                       style={{width: '200px', height: '200px'}}
                       onChange={(e: any) => {
-                        // setColorImage((prev: any) => ({
-                        //   ...prev,
-                        //   color: e.target.value
-                        // }))
-
-                        // setAllColorVariant((prev) => {
-                        //   const findItem = allColorVariant.map(
-                        //     (items, index) => {
-                        //       return item.id === items?.id
-                        //     }
-                        //   )
-                        //   return [...prev]
-                        // })
                         setColorImage((prev) => {
                           setCurrentlySelectedColor(e.target.value)
 
@@ -790,20 +702,10 @@ export const AddProductPage = () => {
                             color: e.target.value
                           }
 
-                          // existingList.splice(index, 0, {
-                          //   ...currentObject,
-                          //   color: e.target.value
-                          // })
-
                           return existingList
                         })
                       }}
                       value={colorImage[index]?.color ?? ''}
-
-                      // value="#a72020"
-                      // value={productId && colorImage?.color}
-
-                      // value={productDetailData?.images?.[index]?.colorName}
                     ></input>
 
                     <Button
@@ -817,15 +719,6 @@ export const AddProductPage = () => {
 
         <div className="addProduct-input">
           <Label required labelName="Product Detail"></Label>
-          {/* <InputField
-            type="text"
-            placeholder="Enter Product Detail"
-            onChange={(e: any) =>
-              setData((prev: any) => ({...prev, details: e.target.value}))
-            }
-            value={data.details}
-          ></InputField> */}
-
           <TextEditor
             descriptionBody={data.description}
             onChange={(e: any) =>
@@ -835,36 +728,7 @@ export const AddProductPage = () => {
         </div>
 
         <div className="addProduct-input">
-          {/* <Label required labelName="Product Images"></Label> */}
-          {/* <InputField
-            type="file"
-            accept="image/*"
-            multiple
-            placeholder="Upload Your Product Images From Here"
-            onChange={handleImage}
-            // value={data.images}
-          ></InputField> */}
-
-          {/* <ImageUploader
-            defaultImage={
-              productId && !!productDetailData ? productDetailData.image : ''
-            }
-            onImageChange={handleImage}
-            value={data.images}
-            actionHandler={handleAction}
-          ></ImageUploader> */}
-        </div>
-
-        <div className="addProduct-input">
           <Label required labelName="Product Video"></Label>
-          {/* <InputField
-            type="file"
-            placeholder="Upload Your Product Video From Here"
-            accept="video/*"
-            onChange={handleVideo}
-            // value={data.video}
-          ></InputField> */}
-
           <VideoUploader
             defaultVideo={
               productId && !!productDetailData
@@ -877,50 +741,6 @@ export const AddProductPage = () => {
               setData((prev: any) => ({...prev, video: video}))
             }
           ></VideoUploader>
-
-          {/* <ReactPlayer
-            url={data.video}
-            controls={controls}
-            playIcon={
-              <h1 style={{border: '2px solid red'}}>
-                <AiFillPlayCircle
-                  size={40}
-                  color="red"
-                  onClick={handlePlayClick}
-                />
-              </h1>
-            }
-            ref={playerRef}
-            playing={playing}
-            light={
-              showThumbnail &&
-              'https://cdn.kimkim.com/files/a/content_articles/featured_photos/050a89ea730f913b48cf7dea23719688bc3652fe/big-891ee83ca306656a3c388f949db9e72d.jpg'
-            }
-          /> */}
-          {/* 
-          <div
-            className="playCloseButton"
-            style={{
-              position: 'fixed',
-              zIndex: '300000000000000',
-              border: '2px solid red',
-              top: '20px',
-              right: '20px'
-            }}
-            onClick={() => {
-              setPlaying(false)
-              setControls(false)
-              document.getElementsByTagName('video')[0].style.border =
-                '4px solid green'
-              document.getElementsByTagName('video')[0].style.position =
-                'relative'
-              document.getElementsByTagName('video')[0].style.height = '100px'
-              document.getElementsByTagName('video')[0].style.width = '100px'
-              // setShowThumbnail(true)
-            }}
-          >
-            <AiOutlineClose size={20} color="red"></AiOutlineClose>
-          </div> */}
 
           <div
             className="addProduct-input"
@@ -966,24 +786,21 @@ export const AddProductPage = () => {
                 handleCheckboxChange={handleWatchAndShopping}
               />
             </VStack>
-
-
-           
           </div>
 
-                  <VStack gap="$3">
-              <Label required labelName="Is Hot Selling?"></Label>
+          <VStack gap="$3">
+            <Label required labelName="Is Hot Selling?"></Label>
 
-              <CheckBox
-                value="Hot selling"
-                label="Hot Selling"
-                name="hotselling"
-                check={isHotSelling}
-                handleCheckboxChange={()=>{
-                  setIsHotSelling(!isHotSelling)
-                }}
-              />
-            </VStack>
+            <CheckBox
+              value="Hot selling"
+              label="Hot Selling"
+              name="hotselling"
+              check={isHotSelling}
+              handleCheckboxChange={()=>{
+                setIsHotSelling(!isHotSelling)
+              }}
+            />
+          </VStack>
         </div>
 
         <Button
