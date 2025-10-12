@@ -20,6 +20,8 @@ const getProductListAction = createAsyncThunk(
         order?: string
         minPrice?: number
         maxPrice?: number
+        nestedSubCategory?:string
+
       }
     },
     thunkAPI

@@ -11,7 +11,7 @@ const getProductList = async (query?: {
   minPrice?: number
   maxPrice?: number
   subCategoryId?: string
-  nestedSubCategoryId:string
+  nestedSubCategoryId?:string
 }) => {
   // &isNewArrivals=${query.isNewArrivals ?? ''}
 
