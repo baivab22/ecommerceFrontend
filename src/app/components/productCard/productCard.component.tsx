@@ -21,6 +21,9 @@ export const ProductCard = ({data}: {data: any}) => {
   const [productImages, setProductImages] = useState([])
 
 
+  console.log(data,"data aray")
+
+
 
 
   useEffect(() => {

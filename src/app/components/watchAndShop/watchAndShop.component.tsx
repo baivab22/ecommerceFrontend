@@ -1,142 +1,266 @@
-import React, {useState} from 'react'
-import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
+import { useState, useEffect, useRef } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import { useMedia } from 'src/hooks'
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
+import { Play, X } from 'lucide-react'
+import { FILE_URL } from 'src/config'
+import { HStack, VStack } from 'src/app/common'
+import { getNprPrice } from 'src/helpers/nprPrice.helper'
+import './_watchAndShop.scss'
 
-export const WatchAndShopSection = ({data}: any) => {
+export const WatchAndShopSection = ({ data }: { data: any }) => {
+  const media = useMedia()
+  const [isFullScreen, setIsFullScreen] = useState(false)
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0)
+  const swiperRef = useRef(null)
+
+  const getSlides = () => {
+    if (media?.xs) return 2
+    if (media?.sm) return 2
+    if (media?.md) return 3
+    if (media?.lg) return 5
+    if (media?.xl) return 6
+    return 6
+  }
+
   return (
-    <HStack
-      justify="flex-start"
-      gap="$3"
-      style={{width: '100%', cursor: 'pointer'}}
-    >
-      {/* {data?.map((item: any, index: number) => {
-        return <WatchAndShopCard data={data?.[index]} />
-      })} */}
+    <>
+      <div className="watchAndShopSectionContainer">
+        <div className="watchAndShopSection">
+          <Swiper
+            ref={swiperRef}
+            slidesPerView={getSlides()}
+            spaceBetween={24}
+            loop={data?.length > getSlides()}
+            navigation={{
+              prevEl: '.swiper-button-prev-watch',
+              nextEl: '.swiper-button-next-watch'
+            }}
+            modules={[Navigation]}
+            breakpoints={{
+              320: {
+                slidesPerView: 2,
+                spaceBetween: 12
+              },
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 12
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 16
+              },
+              1280: {
+                slidesPerView: 5,
+                spaceBetween: 20
+              },
+              1536: {
+                slidesPerView: 6,
+                spaceBetween: 24
+              }
+            }}
+            className="swiper-wrapper-watch"
+          >
+            {data?.map((item: any, index: number) => (
+              <SwiperSlide key={item.id} className="swiper-slide-watch">
+                <WatchAndShopCard
+                  data={item}
+                  index={index}
+                  setIsFullScreen={setIsFullScreen}
+                  setActiveIndex={setActiveVideoIndex}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-      <ProductCarousel data={data}></ProductCarousel>
-    </HStack>
+          {/* Navigation Buttons */}
+          <button className="swiper-button-prev-watch" aria-label="Previous slide">
+            <IoIosArrowBack size={18} />
+          </button>
+          <button className="swiper-button-next-watch" aria-label="Next slide">
+            <IoIosArrowForward size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Fullscreen Modal */}
+      {isFullScreen && data[activeVideoIndex] && (
+        <FullscreenVideoModal
+          data={data[activeVideoIndex]}
+          onClose={() => setIsFullScreen(false)}
+          videoUrl={`${FILE_URL}/video/${data[activeVideoIndex]?.video}`}
+          allData={data}
+          currentIndex={activeVideoIndex}
+          setActiveIndex={setActiveVideoIndex}
+          swiperRef={swiperRef}
+        />
+      )}
+    </>
   )
 }
 
 export const WatchAndShopCard = ({
   data,
-  isFullScreen,
+  index,
   setIsFullScreen,
-  activeVideoIndex,
-  setActiveIndex,
-  index
+  setActiveIndex
 }: any) => {
-  console.log(data, 'was')
   return (
     <div className="watchAndShopCardContainer">
-      <CustomVideoPlayerWatch
-        isFullScreen={isFullScreen}
-        setIsFullScreen={setIsFullScreen}
-        activeVideoIndex={activeVideoIndex}
-        setActiveVideoIndex={setActiveIndex}
-        data={data}
-        index={index}
-        videoUrl={`${FILE_URL}/video/${data?.video}`}
-        thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
-      ></CustomVideoPlayerWatch>
+      <div className="customVideoPlayerWatch">
+        <div
+          className="thumbnailWatch"
+          onClick={() => {
+            setIsFullScreen(true)
+            setActiveIndex(index)
+          }}
+        >
+          <div className="videosWatch">
+            <video src={`${FILE_URL}/video/${data?.video}`} muted autoPlay loop playsInline />
+          </div>
+
+          <button
+            className="playButtonWatch"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsFullScreen(true)
+              setActiveIndex(index)
+            }}
+            aria-label="Play video"
+            type="button"
+          >
+            <Play size={32} color="white" fill="white" />
+          </button>
+        </div>
+
+        {/* Product Details Card */}
+        <HStack className="productDetailCardWatch">
+          <div className="productImageWatch">
+            <img
+              src={`${FILE_URL}/products/${data?.images?.[0]?.coloredImage}`}
+              onError={(event) => {
+                event.currentTarget.src =
+                  'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg'
+              }}
+              alt={data?.name}
+            />
+          </div>
+
+          <VStack className="productDescriptionWatch">
+            <div className="productTitleWatch">{data?.name}</div>
+            <div className="productPriceWatch">
+              {getNprPrice(data?.originalPrice)}
+            </div>
+          </VStack>
+        </HStack>
+      </div>
     </div>
   )
 }
 
-// import React, {useState} from 'react'
-import {AiFillPlayCircle, AiOutlineClose} from 'react-icons/ai'
-import {FaPlay, FaWindowClose} from 'react-icons/fa'
-import {IoClose, IoCloseCircle} from 'react-icons/io5'
-import {HStack, VStack} from 'src/app/common'
-import {ProductCarousel} from '../productCarousel'
-import {getNprPrice} from 'src/helpers/nprPrice.helper'
-import {FILE_URL} from 'src/config'
-
-const CustomVideoPlayerWatch = ({
-  videoUrl,
+export const FullscreenVideoModal = ({
   data,
-  thumbnailUrl,
-  isFullScreen,
-  setIsFullScreen,
-  activeVideoIndex,
-  setActiveVideoIndex,
-  index
-}) => {
-  const [isClosed, setIsClosed] = useState(false)
+  onClose,
+  videoUrl,
+  allData,
+  currentIndex,
+  setActiveIndex,
+  swiperRef
+}: any) => {
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  const toggleFullScreen = (activeVideoIndex) => {
-    setIsFullScreen(!isFullScreen)
-    setActiveVideoIndex(activeVideoIndex)
-    console.log(index, 'index')
+  useEffect(() => {
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(err => console.log('Play error:', err))
+      }
+    }, 100)
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [onClose])
+
+  const handlePrevVideo = () => {
+    const newIndex = currentIndex === 0 ? allData.length - 1 : currentIndex - 1
+    setActiveIndex(newIndex)
   }
 
-  const closeFullScreen = (e: any) => {
-    e.preventDefault()
-    setIsFullScreen(false)
+  const handleNextVideo = () => {
+    const newIndex = currentIndex === allData.length - 1 ? 0 : currentIndex + 1
+    setActiveIndex(newIndex)
   }
-
-  console.log('data here', data)
 
   return (
-    <div
-      className="custom-video-players"
-      onClick={() => toggleFullScreen(index)}
-    >
-      {
-        !isFullScreen && (
-          <div className="thumbnail">
-            {/* <button className="close">
-            <IoCloseCircle
-              size={20}
-              color="red"
-              onClick={() => {
-                setIsClosed(true)
-              }}
-            ></IoCloseCircle>
-          </button> */}
-            {/* <img
-            src={thumbnailUrl}
-            alt="Video Thumbnail"
-            onClick={toggleFullScreen}
-          /> */}
+    <div className="fullscreenContainerWatch">
+      {/* Close Button */}
+      <button
+        className="closeButtonWatch"
+        onClick={onClose}
+        aria-label="Close video"
+        type="button"
+      >
+        <X size={28} />
+      </button>
 
-            <div className="videos">
-              <video src={videoUrl} muted autoPlay loop />
-            </div>
-            <HStack gap="$3" className="custom-video-players-productDetail">
-              <div className="productImage">
-                <img
-                  src={`${FILE_URL}/products/${data?.images[0]?.coloredImage}`}
-                  onError={(event) =>
-                    (event.currentTarget.src =
-                      'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg')
-                  }
-                />
-              </div>
-              <VStack className="productDescription">
-                <div className="productTitle">{data?.name}</div>
-                <div className="productPrice">
-                  {getNprPrice(data?.originalPrice)}
-                </div>
-              </VStack>
-            </HStack>
-            {/* <div className="play-button" > */}
-            {/* <FaPlay size={30} color="white" stroke="white" /> */}
-            {/* </div> */}
+      {/* Previous Button */}
+      <button
+        className="fullscreenNavButtonWatch fullscreenNavPrevWatch"
+        onClick={handlePrevVideo}
+        aria-label="Previous video"
+        type="button"
+      >
+        <IoIosArrowBack size={24} />
+      </button>
+
+      {/* Video Container */}
+      <div className="videoContainerWatch">
+        <video
+          key={currentIndex}
+          ref={videoRef}
+          src={videoUrl}
+          className="fullscreenVideoWatch"
+          controls
+          autoPlay
+          playsInline
+          controlsList="nodownload"
+        />
+      </div>
+
+      {/* Next Button */}
+      <button
+        className="fullscreenNavButtonWatch fullscreenNavNextWatch"
+        onClick={handleNextVideo}
+        aria-label="Next video"
+        type="button"
+      >
+        <IoIosArrowForward size={24} />
+      </button>
+
+      {/* Product Footer */}
+      <div className="productFooterWatch">
+        <div className="productFooterContentWatch">
+          <div className="productInfoSectionWatch">
+            <h2 className="productNameWatch">{data?.name}</h2>
+            <p className="productPriceDetailWatch">
+              {getNprPrice(data?.originalPrice)}
+            </p>
           </div>
-        )
-
-        // (
-        //   <div className="video-container-fullScreen">
-        //     <button
-        //       className="close-button"
-        //       onClick={(e: any) => closeFullScreen(e)}
-        //     >
-        //       <IoClose size={20} color="red" stroke="white"></IoClose>
-        //     </button>
-        //     <video src={videoUrl} controls autoPlay className="activeVideo" />
-        //   </div>
-        // )
-      }
+        </div>
+      </div>
     </div>
   )
 }

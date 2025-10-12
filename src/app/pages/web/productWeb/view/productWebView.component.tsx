@@ -112,6 +112,8 @@ export const ProductWebDetail = () => {
   let {productId} = useParams()
 
   useEffect(() => {
+    // Scroll to top when product changes
+    window.scrollTo({top: 0, behavior: 'smooth'})
     dispatch(getProductDetailByIdAction({productId: productId as string}))
   }, [productId, dispatch])
 
@@ -140,6 +142,11 @@ export const ProductWebDetail = () => {
   }
 
   const [activeColorIndex, setActiveColorIndex] = useState(0)
+
+  // Reset active color index when product changes
+  useEffect(() => {
+    setActiveColorIndex(0)
+  }, [productId])
 
   const handleColorClicked = (id: string, index: number) => {
     const requiredImageList = productDetailData?.images?.find(
@@ -567,10 +574,12 @@ export const ProductWebDetail = () => {
         </div>
       )}
       
+      {/* Similar Products Section - Always visible, independent of loading state */}
       <div style={{marginBottom: '20px', padding: '2vw'}}>
         <ProductSection
           header="Similar Products"
           isProfilePage={true}
+          isForSimilar={true}
         ></ProductSection>
       </div>
     </>

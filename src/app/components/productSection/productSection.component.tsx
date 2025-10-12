@@ -110,7 +110,8 @@ export const ProductSection = ({
   header,
   itemOnGrid,
   isHomePage,
-  homeCategory
+  homeCategory,
+  isForSimilar
 }: any) => {
   const media = useMedia()
   const dispatch = useDispatch()
@@ -123,10 +124,10 @@ export const ProductSection = ({
 
   const {data, loading}: any = useSelector((state: any) => state.product)
 
-  console.log(data, 'data from ps')
+  console.log(data, 'data from ps',loading,"loading value")
 
   // Show skeleton while loading
-  if (loading || !data) {
+  if (!isForSimilar && (loading || !data)) {
     return (
       <div className="jobsSectionContainer">
         <ProductSectionHeaderSkeleton />
