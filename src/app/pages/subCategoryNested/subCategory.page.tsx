@@ -113,9 +113,10 @@ export const SubCategoryListPageNested = () => {
             }
           }}
           pagination={{
-            totalCount: Number(subCategoryDataNested?.length ?? 1)
-            // perPage: Number(import.meta.REACT_APP_TABLE_LIMIT || 10)
+            totalCount: Number(subCategoryDataNested?.length ?? 1),
+            perPage: 10
           }}
+          pageFe={true}
         />
       </Box>
     </div>

@@ -139,6 +139,7 @@ export const Testimonial = () => {
             totalCount: Number(testimonialData?.length ?? 1)
             // perPage: Number(import.meta.REACT_APP_TABLE_LIMIT || 10)
           }}
+             pageFe={true}
         />
       </Box>
     </div>

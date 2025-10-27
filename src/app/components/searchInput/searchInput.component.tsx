@@ -48,6 +48,8 @@ export const SearchInput = ({
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           setSearchInput(e.target.value)
         }}
+
+    
       />
       {append}
     </div>

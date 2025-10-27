@@ -198,6 +198,8 @@ export const NewArrivalListPage = () => {
             totalCount: Number(data?.length ?? 1),
             perPage: Number(5)
           }}
+
+             pageFe={true}
         />
       </Box>
     </div>

@@ -83,9 +83,9 @@ export const CategoryListPage = () => {
           ]}
           data={categoryData}
           actions={{
-            onView: (item: any) => {
-              navigate(`view/${item.id}`)
-            },
+            // onView: (item: any) => {
+            //   navigate(`view/${item.id}`)
+            // },
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
@@ -114,6 +114,8 @@ export const CategoryListPage = () => {
             totalCount: Number(categoryData?.length ?? 1)
             // perPage: Number(import.meta.REACT_APP_TABLE_LIMIT || 10)
           }}
+
+             pageFe={true}
         />
       </Box>
     </div>

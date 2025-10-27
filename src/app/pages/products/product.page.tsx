@@ -17,17 +17,25 @@ import {useDebounceValue} from 'src/hooks'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import {FILE_URL} from 'src/config'
+import {useQuery} from 'src/hooks'
+
 export const ProductListPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const query = useQuery()
   const [searchTxt, setSearchTxt] = useState('')
+  const debouncedSearchTxt = useDebounceValue(searchTxt, 500)
 
-  const {data}: any = useSelector((state: any) => state.product)
+  const {data, loading, pagination}: any = useSelector((state: any) => state.product)
 
-  console.log(data, 'data')
+  console.log(data, 'data', pagination, 'totalCount')
+  
   const [category, setCategory] = useState<any>([])
   const [selectedCateory, setSelectedCategory] = useState<any>('')
   const {categoryData}: any = useSelector((state: any) => state.category)
+
+  const currentPage = query?.page ? Number(query.page) : 1
+  const perPage = 5
 
   useEffect(() => {
     dispatch(
@@ -35,7 +43,7 @@ export const ProductListPage = () => {
         onSuccess: () => console.log('categoryList fetch Successfully')
       })
     )
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     const mappedCategory = categoryData?.map((item: any, index: number) => {
@@ -47,12 +55,6 @@ export const ProductListPage = () => {
       }
     })
 
-    // const allCategory = [
-    //   {},
-    //   mappedCategory
-    // ]
-
-    // console.log(mappedCategory, 'mapped category from products')
     mappedCategory?.unshift({
       id: '',
       label: 'All',
@@ -63,38 +65,41 @@ export const ProductListPage = () => {
     setCategory(mappedCategory)
   }, [categoryData])
 
-  useEffect(() => {
-    dispatch(
-      getProductListAction({
-        onSuccess: () => {}
-      })
-    )
-  }, [])
-
   const handleSearch = (e: any) => {
-    // console.log(e.target.value, 'searchValue')
     setSearchTxt(e.target.value)
-
-    // const debounceValue = useDebounceValue(e.target.value)
   }
 
+  // Fetch products whenever page, search, or category changes
   useEffect(() => {
+    const queryParams: any = {
+      page: currentPage,
+      limit: perPage
+    }
+
+    if (debouncedSearchTxt) {
+      queryParams.search = debouncedSearchTxt
+    }
+
+    if (selectedCateory?.id) {
+      queryParams.categoryId = selectedCateory.id
+    }
+
     dispatch(
       getProductListAction({
-        onSuccess: () => {},
-        query: {search: searchTxt, categoryId: selectedCateory?.id}
+        onSuccess: () => {
+          console.log('Products fetched successfully')
+        },
+        query: queryParams
       })
     )
-  }, [searchTxt, selectedCateory])
+  }, [debouncedSearchTxt, selectedCateory, currentPage, dispatch])
 
   const proudctCardRef = useRef<HTMLDivElement | null>(null)
+  
   const handlePdfDownload = () => {
     if (proudctCardRef.current) {
       html2canvas(proudctCardRef.current, {scale: 2, useCORS: true}).then(
         (canvas) => {
-          // var drawingCanvas = document.getElementById(
-          //   'canvas'
-          // ) as HTMLCanvasElement
           console.log(canvas, 'canvas value')
           const aspectRatio = canvas.width / canvas.height
           var img = canvas.toDataURL('image/png')
@@ -119,12 +124,49 @@ export const ProductListPage = () => {
             doc.internal.pageSize.width / aspectRatio
           )
           doc.save('productList.pdf')
-
-          // Get the 2D rendering context of the canvas
         }
       )
     }
   }
+
+  const handlePageChange = useCallback((page: number) => {
+    // Page change is already handled by the Table component
+    // which updates the URL query params
+    console.log('Page changed to:', page)
+  }, [])
+
+  const handleDelete = useCallback((item: any, onCloseModalHandler: any) => {
+    dispatch(
+      delteProductAction({
+        productId: item.id,
+        onSuccess: (data: any) => {
+          onCloseModalHandler()
+          toast.success('Product deleted successfully')
+          
+          // Re-fetch current page data
+          const queryParams: any = {
+            page: currentPage,
+            limit: perPage
+          }
+
+          if (debouncedSearchTxt) {
+            queryParams.search = debouncedSearchTxt
+          }
+
+          if (selectedCateory?.id) {
+            queryParams.categoryId = selectedCateory.id
+          }
+
+          dispatch(
+            getProductListAction({
+              onSuccess: () => {},
+              query: queryParams
+            })
+          )
+        }
+      })
+    )
+  }, [dispatch, currentPage, debouncedSearchTxt, selectedCateory])
 
   return (
     <div>
@@ -134,10 +176,10 @@ export const ProductListPage = () => {
           <Button title="Download Pdf" onClick={handlePdfDownload}></Button>
           <SearchField
             placeholder="Search Your Product"
+            value={searchTxt}
             onChange={handleSearch}
           ></SearchField>
           <SelectField
-            // defaultValue={category?.[0]}
             options={category}
             value={selectedCateory}
             width="320px"
@@ -165,67 +207,33 @@ export const ProductListPage = () => {
                 name: 'Original Price',
                 render: (datas) => <div>{datas}</div>
               },
-              // {
-              //   field: 'discountPercentage',
-              //   name: 'Discounted Price',
-              //   render: (datas) => <div>{datas}</div>
-              // },
               {
                 field: 'images',
                 name: 'Images',
                 render: (datas) => (
                   <div>
                     <img
-                      //@ts-ignore
-                      // src={datas?[0]?.coloredImage[0]}
-
-                      // src=`http://localhost:8000/products${datas.}`
-
                       src={`${FILE_URL}/products/${datas?.[0]?.coloredImage}`}
-                      // src=`https://localhost:8000/products/${datas?[0].coloredImage[0]}`
                       style={{height: '70px', width: '100px'}}
+                      alt="product"
                     ></img>
                   </div>
                 )
               }
             ]}
-            data={data}
+            data={data || []}
+            loading={loading}
             actions={{
-              // onView: (item: any) => {
-              //   navigate(`view/${item.id}`)
-              // },
-
               onEdit: (item: any) => {
                 navigate(`update/${item.id}`)
               },
-              onDelete: (item: any, onCloseModalHandler) => {
-                dispatch(
-                  delteProductAction({
-                    productId: item.id,
-                    onSuccess: (data: any) => {
-                      onCloseModalHandler()
-
-                      console.log('onSUccess called')
-                      toast.success('Product deleted successfully')
-                      console.log('ad1')
-                      dispatch(
-                        getProductListAction({
-                          onSuccess: () => {},
-                          query: {
-                            search: searchTxt,
-                            categoryId: selectedCateory?.id
-                          }
-                        })
-                      )
-                    }
-                  })
-                )
-              }
+              onDelete: handleDelete
             }}
             pagination={{
-              totalCount: Number(data?.length ?? 1),
-              perPage: Number(5)
+              totalCount: Number(pagination.totalProducts ?? 0),
+              perPage: perPage
             }}
+            onPageChange={handlePageChange}
           />
         </div>
       </Box>

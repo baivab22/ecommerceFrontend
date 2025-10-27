@@ -38,6 +38,7 @@
   border: 1px solid map-get($base, 'surface');
   outline: none;
   padding: 8px 12px;
+  
   // background-color: map-get($base, 'surface');
   color: map-get($text, 'primary');
   transition: border 0.1s, background 0.1s;

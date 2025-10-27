@@ -262,7 +262,7 @@
   max-width: 600px;
 }
 
-.search-icon {
+.search-icons {
   position: absolute;
   left: 16px;
   top: 50%;
@@ -339,7 +339,7 @@
 }
 
 /* Buttons */
-.btn {
+.btns {
   width: 100%;
   padding: 12px 20px;
   border: none;
@@ -354,27 +354,27 @@
   gap: 8px;
 }
 
-.btn-add {
+.btns-add {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
-.btn-add:hover {
+.btns-add:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
 }
 
-.btn-remove {
+.btns-remove {
   background: linear-gradient(135deg, #ff4757, #ff6348);
   color: white;
 }
 
-.btn-remove:hover {
+.btns-remove:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(255, 71, 87, 0.3);
 }
 
-.btn:active {
+.btns:active {
   transform: scale(0.98);
 }
 
