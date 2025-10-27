@@ -39,7 +39,7 @@ const DesktopNavigationSkeleton = () => {
       <div className="navmenuContainer">
         <nav className="desktop-nav">
           <ul className="desktop-menu" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 7 }).map((_, index) => (
               <li key={index} className="desktop-menu-item">
                 <div style={{...menuItemStyle, width: `${70 + Math.random() * 40}px`}}></div>
               </li>
@@ -75,7 +75,7 @@ const MobileNavigationSkeleton = () => {
 
   return (
     <div className="mobile-menu-list">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {Array.from({ length: 9 }).map((_, index) => (
         <div key={index} style={menuItemStyle}></div>
       ))}
     </div>
@@ -182,6 +182,11 @@ export const DesktopHeader = () => {
     }, 150)
   }
 
+  // Navigate to all products page
+  const handleAllProductsClick = () => {
+    navigate('/products')
+  }
+
   // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
@@ -218,12 +223,10 @@ export const DesktopHeader = () => {
             <button
               className="desktop-submenu-link"
               onClick={() => {
-
-        
                 if (level === 0) {
                   handleSubCategoryClick(subCat.id, subCat.name)
                 } else {
-                          console.log(level,"levellll nested clicked")
+                  console.log(level,"levellll nested clicked")
                   handleNestedSubCategoryClick(subCat.id, subCat.name)
                 }
               }}
@@ -255,6 +258,17 @@ export const DesktopHeader = () => {
       <div className="navmenuContainer">
         <nav className="desktop-nav">
           <ul className="desktop-menu">
+            {/* All Products Menu Item */}
+            <li className="desktop-menu-item">
+              <button
+                className="desktop-menu-link"
+                onClick={handleAllProductsClick}
+              >
+                <span>All</span>
+              </button>
+            </li>
+
+            {/* Regular Category Menu Items */}
             {categoryData?.map((category: any) => (
               <li
                 key={category.id}
@@ -303,6 +317,12 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
       ...prev,
       [id]: !prev[id]
     }))
+  }
+
+  // Navigate to all products page
+  const handleAllProductsClick = () => {
+    navigate('/products')
+    onClose?.()
   }
 
   // Navigate to category - only pass categoryId
@@ -368,6 +388,17 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 
   return (
     <div className="mobile-menu-list">
+      {/* All Products Menu Item */}
+      <div className="mobile-menu-item">
+        <button
+          className="mobile-menu-toggle"
+          onClick={handleAllProductsClick}
+        >
+          <span>All</span>
+        </button>
+      </div>
+
+      {/* Regular Category Menu Items */}
       {categoryData?.map((category: any) => (
         <div key={category.id} className="mobile-menu-item">
           {category.subCategories && category.subCategories.length > 0 ? (
@@ -632,5 +663,4 @@ export const Header = () => {
         </Sidebar>
       )}
     </>
-  )
-}
+  )}

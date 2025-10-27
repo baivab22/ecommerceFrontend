@@ -13,25 +13,25 @@ import {TestimonailSection} from 'src/app/components/testimonial/testimonial.com
 import {useDispatch, useSelector} from 'src/store'
 import {getTestimonialListAction} from '../../testimonial/testimonial.slice'
 import {getShopByBudgetListAction} from '../../shopByBudget/shopByBudget.slice'
-import {getProductListAction} from '../../products/product.slice'
+import {getProductListAction, getHotSellingProductsAction} from '../../products/product.slice'
 import ProductDisplay from 'src/app/components/productDisplay/productDisplay.component'
 import { useAuth } from 'src/app/routing'
 import { getCategoryListAction } from '../../category/category.slice'
 
 export const HomePage = () => {
   const dispatch = useDispatch()
-  const {loginData}=useAuth()
+  const {loginData} = useAuth()
 
-  console.log(loginData,"login data value final")
+  console.log(loginData, "login data value final")
 
   const {testimonialData} = useSelector((state: any) => state.testimonial)
   const {shopByBudgetData} = useSelector((state: any) => state.shopByBudget)
-  const {data}: any = useSelector((state: any) => state.product)
+  const {data, hotSellingProducts, hotSellingProductsLoading}: any = useSelector(
+    (state: any) => state.product
+  )
+  const {categoryData} = useSelector((state: any) => state.category)
 
   const [testimonialList, setTestimonialList] = useState([])
-
-
-
 
   useEffect(() => {
     const remappedTestimonialData = testimonialData?.map(
@@ -44,8 +44,6 @@ export const HomePage = () => {
     )
 
     console.log('callback', remappedTestimonialData)
-    // console.log('***')
-
     setTestimonialList(remappedTestimonialData)
   }, [testimonialData])
 
@@ -56,12 +54,14 @@ export const HomePage = () => {
   console.log(watchandshopdata, 'watch and shop dataa')
 
   useEffect(() => {
+    // Fetch testimonials
     dispatch(
       getTestimonialListAction({
         onSuccess: () => {}
       })
     )
 
+    // Fetch shop by budget
     dispatch(
       getShopByBudgetListAction({
         onSuccess: () => {
@@ -70,6 +70,7 @@ export const HomePage = () => {
       })
     )
 
+    // Fetch all products
     dispatch(
       getProductListAction({
         onSuccess: () => {
@@ -80,7 +81,24 @@ export const HomePage = () => {
         }
       })
     )
-  }, [])
+
+    // Fetch hot selling product (latest one based on hotSellingSetAt timestamp)
+    dispatch(
+      getHotSellingProductsAction({
+        limit: 1,
+        onSuccess: (data) => {
+          console.log('Hot selling product fetched:', data)
+        }
+      })
+    )
+
+    // Fetch categories
+    dispatch(
+      getCategoryListAction({
+        onSuccess: () => console.log('categoryList fetch Successfully')
+      })
+    )
+  }, [dispatch])
 
   const watchAndShopFilterData = useMemo(() => {
     return watchandshopdata?.filter((item: any, index: number) => {
@@ -88,31 +106,11 @@ export const HomePage = () => {
     })
   }, [watchandshopdata])
 
-  useEffect(() => {
-    console.log('api hit')
-    dispatch(getProductListAction({}))
-  }, [])
-
-
-
-    useEffect(() => {
-    dispatch(
-      getCategoryListAction({
-        onSuccess: () => console.log('categoryList fetch Successfully')
-      })
-    )
-  }, [])
-  const {categoryData} = useSelector((state: any) => state.category)
-
-  console.log(data,"data value last")
-
-  const datas=    data?.filter(item => item?.isHotSelling)?.pop()
-
-    // const loginData = useSelector((state:any) => state.login);
-  // console.log(loginData,'loginData in profile from home')
+  console.log(data, "data value last")
+  console.log(hotSellingProducts, "hot selling product from API")
 
   return (
-    <div className="home" style={{background:'white'}}>
+    <div className="home" style={{background: 'white'}}>
       <MainCarousel></MainCarousel>
       <CompWrapper>
         <CategoryContainer data={categoryData}></CategoryContainer>
@@ -159,15 +157,18 @@ export const HomePage = () => {
                     flexWrap: 'wrap'
                   }}
                 >
-                  {shopByBudgetData?.map((item, index) => {
-                    return <ShopByBudgetWeb data={item}></ShopByBudgetWeb>
+                  {shopByBudgetData?.map((item: any, index: number) => {
+                    return <ShopByBudgetWeb key={index} data={item}></ShopByBudgetWeb>
                   })}
                 </div>
               </VStack>
             </VStack>
           )}
 
-          <ProductDisplay product={datas}></ProductDisplay>
+          {/* Display Hot Selling Product - Latest one based on hotSellingSetAt timestamp */}
+          {!hotSellingProductsLoading && hotSellingProducts && (
+            <ProductDisplay product={hotSellingProducts[0]}></ProductDisplay>
+          )}
         </VStack>
       </CompWrapper>
     </div>

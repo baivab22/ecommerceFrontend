@@ -51,7 +51,8 @@ export const AddProductPage = () => {
     {
       id: uuidv4(),
       color: '',
-      image: {}
+      image: {},
+      existingImagePath: '' // Store the existing image path
     }
   ])
 
@@ -73,7 +74,7 @@ export const AddProductPage = () => {
     discountPercentage: '',
     category: '',
     subCategory: '',
-    nestedSubCategory: '', // NEW FIELD
+    nestedSubCategory: '', 
     images: [],
     video: null,
     description: '',
@@ -161,7 +162,8 @@ export const AddProductPage = () => {
           return {
             id: item._id,
             color: item.colorName,
-            image: item.coloredImage
+            image: item.coloredImage,
+            existingImagePath: item.coloredImage // Store existing image filename
           }
         })
       })
@@ -272,6 +274,22 @@ export const AddProductPage = () => {
     )
     setNestedSubCategory(mappedNestedSubCategory)
   }, [selectedSubCategory])
+
+  // NEW: Load nested subcategories when editing and subcategory is set
+  useEffect(() => {
+    if (productId && selectedSubCategory && productDetailData?.nestedSubCategory) {
+      const mappedNestedSubCategory = selectedSubCategory?.nestedSubCategories?.map(
+        (item: any, index: number) => {
+          return {
+            id: item.id,
+            label: item.name,
+            value: item.name
+          }
+        }
+      )
+      setNestedSubCategory(mappedNestedSubCategory)
+    }
+  }, [selectedSubCategory, productId, productDetailData])
 
   const handleImage = (event: any) => {
     const selectedFiles = Array.from(event.target.files)
@@ -454,34 +472,69 @@ export const AddProductPage = () => {
     }
   }
 
-  const handleColorVariant = () => {
-    const formData = new FormData()
+const handleColorVariant = async () => {
+  try {
+    const formData = new FormData();
 
-    console.log(colorImage, 'colorImage hai')
+    console.log(colorImage, 'colorImage hai');
 
-    colorImage.forEach((item, index) => {
-      console.log(item.image[0], 'image list hai')
-      formData.append(`coloredImage`, item.image[0])
-      formData.append(`colorName`, item.color)
-    })
+    for (let index = 0; index < colorImage.length; index++) {
+      const item = colorImage[index];
 
+      // ✅ CASE 1: New image uploaded (File or FileList)
+      if (item.image instanceof FileList && item.image.length > 0) {
+        formData.append('coloredImage', item.image[0]);
+      } else if (item.image instanceof File) {
+        formData.append('coloredImage', item.image);
+      } 
+      // ✅ CASE 2: Existing image (string filename)
+      else if (typeof item.image === 'string' && item.existingImagePath) {
+        try {
+          const imageUrl = `${FILE_URL}/products/${item.existingImagePath}`;
+          const response = await fetch(imageUrl);
+          if (!response.ok) throw new Error(`Failed to fetch ${imageUrl}`);
+          const blob = await response.blob();
+          const file = new File([blob], item.existingImagePath, { type: blob.type });
+          formData.append('coloredImage', file);
+        } catch (error) {
+          console.error(`Error fetching existing image at index ${index}:`, error);
+          toast.error(`Failed to process existing image #${index + 1}`);
+          return;
+        }
+      } else {
+        console.warn(`No valid image found at index ${index}`, item);
+        continue; // skip this one
+      }
+
+      // ✅ Append corresponding color
+      formData.append('colorName', item.color);
+    }
+
+    // ✅ Debug FormData before sending
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    // ✅ Dispatch your Redux action
     dispatch(
       createProductImageAction({
         variantBody: formData,
         onSuccess: () => {
-          toast.success('Product color variant added Successfully')
-
-          dispatch(
-            getAllProductVariantImagesAction({
-              onSuccess: () => {
-                console.log(data, 'data')
-              }
-            })
-          )
-        }
+          toast.success('Product color variant added successfully!');
+          dispatch(getAllProductVariantImagesAction({
+            onSuccess: (data) => {
+             console.log(data, 'all variant images after adding new one');
+            }
+          }));
+        },
       })
-    )
+    );
+  } catch (error) {
+    console.error('Unexpected error in handleColorVariant:', error);
+    toast.error('Something went wrong while uploading color variants.');
   }
+};
+
 
   useEffect(() => {
     console.log(allColorVariant, 'allColorVariant')
@@ -552,7 +605,7 @@ export const AddProductPage = () => {
         </HStack>
 
         {/* NEW: Nested SubCategory Dropdown - Only shows when nested options exist */}
-        {nestedSubCategory && nestedSubCategory.length > 0 && (
+        {(nestedSubCategory && nestedSubCategory.length > 0) || selectedNestedSubCategory ? (
           <div className="addProduct-input">
             <Label labelName="Nested SubCategory (Optional)"></Label>
             <SelectField
@@ -566,7 +619,7 @@ export const AddProductPage = () => {
               }
             />
           </div>
-        )}
+        ) : null}
 
         <HStack justify="space-between" gap="$3">
           <div className="addProduct-input">
@@ -645,7 +698,7 @@ export const AddProductPage = () => {
             ?.map((item: any, index: number) => {
               return (
                 <HStack key={index + item.name}>
-                  <div>
+                  <div style={{minWidth:'300px'}}>
                     <ImageUploader
                       key={index}
                       uniqueKeys={index}
@@ -689,14 +742,8 @@ export const AddProductPage = () => {
                       onChange={(e: any) => {
                         setColorImage((prev) => {
                           setCurrentlySelectedColor(e.target.value)
-
                           const existingList = [...prev]
                           const currentObject = existingList[index]
-
-                          console.log(existingList, 'existingList 2')
-
-                          console.log(currentObject, 'current object 2')
-
                           existingList[index] = {
                             ...currentObject,
                             color: e.target.value

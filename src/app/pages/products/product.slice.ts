@@ -9,7 +9,7 @@ const getProductListAction = createAsyncThunk(
       onSuccess,
       query
     }: {
-      onSuccess?: (data: Api.BusinessList) => void
+      onSuccess?: (data: any) => void
       query?: {
         search?: string
         categoryId?: string
@@ -20,21 +20,47 @@ const getProductListAction = createAsyncThunk(
         order?: string
         minPrice?: number
         maxPrice?: number
-        nestedSubCategory?:string
-
+        nestedSubCategoryId?: string
+        page?: number
+        limit?: number
       }
     },
     thunkAPI
   ) => {
     try {
-      console.log('response service', query)
+      console.log('Slice action query:', query)
       const response = await productService.getProductList(query && query)
 
       onSuccess?.(response)
-      // console.log(response, 'from product servei')
+      console.log('Slice action response:', response)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get product!')
+    }
+  }
+)
+
+const getHotSellingProductsAction = createAsyncThunk(
+  'product/hot-selling',
+  async (
+    {
+      onSuccess,
+      limit
+    }: {
+      onSuccess?: (data: any) => void
+      limit?: number
+    },
+    thunkAPI
+  ) => {
+    try {
+      console.log('Fetching hot selling products with limit:', limit)
+      const response = await productService.getHotSellingProducts(limit)
+
+      onSuccess?.(response)
+      console.log('Hot selling products response:', response)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Cannot get hot selling products!')
     }
   }
 )
@@ -149,7 +175,6 @@ const createProductAction = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-
       console.log('productBody data', productBody)
       const response = await productService.createProduct(productBody)
       onSuccess && onSuccess(response)
@@ -269,94 +294,37 @@ const getProductListByCategoryIdAction = createAsyncThunk(
   }
 )
 
-// const updateBusinessStatusAction = createAsyncThunk(
-//   'business/updateStatus',
-//   async (
-//     {
-//       businessId,
-//       isBusinessApproved,
-//       callback
-//     }: {
-//       businessId: number
-//       isBusinessApproved: boolean
-//       callback?: () => void
-//     },
-//     thunkAPI
-//   ) => {
-//     try {
-//       const response = await businessService.updateBusinessStatus(
-//         businessId,
-//         isBusinessApproved
-//       )
-//       callback && callback()
-//       return response
-//     } catch (error) {
-//       const {message} = error.response.data.data
-//       toast.error(message)
-//       return thunkAPI.rejectWithValue('Error updating business status')
-//     }
-//   }
-// )
-
-// const updateBusinessTrustedAction = createAsyncThunk(
-//   'business/updateTrusted',
-//   async (
-//     {
-//       businessId,
-//       isBusinessTrusted,
-//       callback
-//     }: {
-//       businessId: number
-//       isBusinessTrusted: boolean
-//       callback?: () => void
-//     },
-//     thunkAPI
-//   ) => {
-//     try {
-//       const response = await businessService.updateBusinessTrusted(
-//         businessId,
-//         isBusinessTrusted
-//       )
-//       callback && callback()
-//       return response
-//     } catch (error) {
-//       const {message} = error.response.data.data
-//       toast.error(message)
-//       return thunkAPI.rejectWithValue('Error updating business status')
-//     }
-//   }
-// )
-
 const initialState: {
   loading: boolean
-  data?: Api.productList[]
+  data?: any[]
+  pagination?: {
+    currentPage: number
+    totalPages: number
+    totalProducts: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+    limit: number
+  }
   success: boolean
   deleteProductLoading: boolean
   productDetailData?: any
   productDetailLoading?: boolean
-
   orderDetailData?: any
   orderDetailLoading?: boolean
   createProductLoading?: boolean
   updateProductLoading?: boolean
   deleteProductImageLoading?: boolean
-
   deleteProductVariantLoading?: boolean
   getProductVariantListLoading?: boolean
   productVariantList: any
-
   createProductVariantLoading: boolean
   createproductVariantList: any
-  //   detailLoading: boolean
-  //   detail: any
-  //   detailSuccess: boolean
-
-  //   updateLoading: boolean
-
-  //   updateTrustLoading: boolean
+  hotSellingProducts?: any
+  hotSellingProductsLoading: boolean
 } = {
   loading: false,
   data: undefined,
+  pagination: undefined,
   success: false,
   deleteProductLoading: false,
   createProductLoading: false,
@@ -364,21 +332,13 @@ const initialState: {
   deleteProductImageLoading: false,
   orderDetailData: undefined,
   orderDetailLoading: false,
-
   deleteProductVariantLoading: false,
   getProductVariantListLoading: false,
   productVariantList: undefined,
-
   createProductVariantLoading: false,
-  createproductVariantList: undefined
-  //   detailLoading: boolean
-
-  //   detailLoading: false,
-  //   detail: undefined,
-  //   detailSuccess: false,
-
-  //   updateLoading: false,
-  //   updateTrustLoading: false
+  createproductVariantList: undefined,
+  hotSellingProducts: undefined,
+  hotSellingProductsLoading: false
 }
 
 const productSlice = createSlice({
@@ -392,11 +352,23 @@ const productSlice = createSlice({
     builder.addCase(getProductListAction.fulfilled, (state, action) => {
       state.loading = false
       state.data = action.payload.data
+      state.pagination = action.payload.pagination
       state.success = true
     })
     builder.addCase(getProductListAction.rejected, (state) => {
       state.loading = false
       state.success = false
+    })
+
+    builder.addCase(getHotSellingProductsAction.pending, (state) => {
+      state.hotSellingProductsLoading = true
+    })
+    builder.addCase(getHotSellingProductsAction.fulfilled, (state, action) => {
+      state.hotSellingProductsLoading = false
+      state.hotSellingProducts = action.payload.data
+    })
+    builder.addCase(getHotSellingProductsAction.rejected, (state) => {
+      state.hotSellingProductsLoading = false
     })
 
     builder.addCase(getAllProductVariantImagesAction.pending, (state) => {
@@ -412,8 +384,6 @@ const productSlice = createSlice({
     builder.addCase(getAllProductVariantImagesAction.rejected, (state) => {
       state.getProductVariantListLoading = false
     })
-
-    getAllProductVariantImagesAction
 
     builder.addCase(getProductDetailByIdAction.pending, (state) => {
       state.loading = true
@@ -490,16 +460,6 @@ const productSlice = createSlice({
       state.createProductLoading = false
     })
 
-    // builder.addCase(createProductAction.pending, (state) => {
-    //   state.createProductLoading = true
-    // })
-    // builder.addCase(createProductAction.fulfilled, (state, action) => {
-    //   state.createProductLoading = false
-    // })
-    // builder.addCase(createProductAction.rejected, (state) => {
-    //   state.createProductLoading = false
-    // })
-
     builder.addCase(createProductImageAction.pending, (state) => {
       state.createProductVariantLoading = true
     })
@@ -509,31 +469,12 @@ const productSlice = createSlice({
     builder.addCase(createProductImageAction.rejected, (state) => {
       state.createProductVariantLoading = false
     })
-
-    // builder.addCase(updateBusinessStatusAction.pending, (state) => {
-    //   state.updateLoading = true
-    // })
-    // builder.addCase(updateBusinessStatusAction.fulfilled, (state) => {
-    //   state.updateLoading = false
-    // })
-    // builder.addCase(updateBusinessStatusAction.rejected, (state) => {
-    //   state.updateLoading = false
-    // })
-
-    // builder.addCase(updateBusinessTrustedAction.pending, (state) => {
-    //   state.updateLoading = true
-    // })
-    // builder.addCase(updateBusinessTrustedAction.fulfilled, (state) => {
-    //   state.updateLoading = false
-    // })
-    // builder.addCase(updateBusinessTrustedAction.rejected, (state) => {
-    //   state.updateLoading = false
-    // })
   }
 })
 
 export {
   getProductListAction,
+  getHotSellingProductsAction,
   delteProductAction,
   getProductDetailByIdAction,
   createProductAction,
@@ -542,6 +483,7 @@ export {
   getProductListByCategoryIdAction,
   delteProductImageAction,
   getAllProductVariantImagesAction,
-  getOrderDetailByIdAction
+  getOrderDetailByIdAction,
+  deleteProductColorVariantImagesAction
 }
 export default productSlice.reducer

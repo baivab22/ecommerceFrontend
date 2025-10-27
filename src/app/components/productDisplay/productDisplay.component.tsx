@@ -157,7 +157,7 @@ const ProductDisplay = ({product}) => {
           onClick={() => {
             !!auth.isLoggedin
               ? handleAddToCart(product)
-              : toast.success('Product Updated SuccessFully')
+              : toast.success('Please login first to add product')
           }}
         >
           ADD TO CART

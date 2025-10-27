@@ -1,6 +1,5 @@
 import {api} from 'src/api'
 
-// MARK: - getProductlist
 const getProductList = async (query?: {
   search?: string
   categoryId?: string
@@ -11,41 +10,52 @@ const getProductList = async (query?: {
   minPrice?: number
   maxPrice?: number
   subCategoryId?: string
-  nestedSubCategoryId?:string
+  nestedSubCategoryId?: string
+  page?: number
+  limit?: number
 }) => {
-  // &isNewArrivals=${query.isNewArrivals ?? ''}
-
-  console.log('slicess', query)
+  console.log('Service query:', query)
 
   const response = await api<any>('get')(`/product`, {
-    search: query.search ?? '',
-    categoryId: query.categoryId ?? '',
-    sort: query.sort ?? '',
-    order: query.order ?? '',
-    minPrice: query.minPrice ?? 0,
-    maxPrice: query.maxPrice ?? 9999999999999999999,
-    subCategoryId: query.subCategoryId ?? '',
-    isBestSelling: query.isBestSelling ?? '',
-    isNewArrivals: query.isNewArrivals ?? '',
-    nestedSubCategoryId:query?.nestedSubCategoryId ?? ''
+    search: query?.search ?? '',
+    categoryId: query?.categoryId ?? '',
+    sort: query?.sort ?? '',
+    order: query?.order ?? '',
+    minPrice: query?.minPrice ?? 0,
+    maxPrice: query?.maxPrice ?? 9999999999999999999,
+    subCategoryId: query?.subCategoryId ?? '',
+    isBestSelling: query?.isBestSelling ?? '',
+    isNewArrivals: query?.isNewArrivals ?? '',
+    nestedSubCategoryId: query?.nestedSubCategoryId ?? '',
+    page: query?.page ?? 1,
+    limit: query?.limit ?? 12
   })
 
-  console.log(response, 'response from slice')
+  console.log('Service response:', response)
 
-  // const response = await api<any>('get')(`/product`)
+  return response.data
+}
+
+const getHotSellingProducts = async (limit?: number) => {
+  const response = await api<any>('get')(`/products/hot-selling`, {
+    limit: limit ?? 1
+  })
+
+  console.log('Hot Selling Service response:', response)
 
   return response.data
 }
 
 const deleteProduct = async (productId: string) => {
   const response = await api<any>('delete')(`/product/${productId}`)
+  return response
 }
 
 const deleteProductImages = async (productId: string, imageId: string) => {
   const response = await api<any>('delete')(`/product/${productId}/${imageId}`)
+  return response
 }
 
-// MARK: - getProductDetail
 const getProductDetailById = async (productId: string) => {
   const response = await api<Api.Base<any>>('get')(`/product/${productId}`)
   return response.data
@@ -65,9 +75,8 @@ const getProductListByCategoryId = async (categoryId: string) => {
   return response.data
 }
 
-// MARK: - createProduct
 const createProduct = async (body: any) => {
-  console.log(body, 'body product delete')
+  console.log(body, 'body product create')
   const response = await api<Api.Base<{}>>('post')(
     `/product/new`,
     undefined,
@@ -85,7 +94,6 @@ const updateProduct = async (body: any, productId: string) => {
   return response.data
 }
 
-// MARK: - updateBusinessTrusted
 const updateBusinessTrusted = async (
   businessId: number,
   isBusinessTrusted: boolean
@@ -102,10 +110,10 @@ const deleteProductColorVariantImages = async (
   variantId: string,
   imageId: string
 ) => {
-  // console.log(variantId, 'productId from service')
   const response = await api<any>('delete')(
     `/productColor/${variantId}/${imageId}`
   )
+  return response
 }
 
 const getAllProductVariantImages = async () => {
@@ -124,6 +132,7 @@ const CreateProductImage = async (body: any) => {
 
 export const productService = {
   getProductList,
+  getHotSellingProducts,
   deleteProduct,
   getProductDetailById,
   createProduct,

@@ -145,6 +145,10 @@ const SideNavComponent = React.memo(() => {
           {getNav('Social Links', '/dash-social-links', () => (
             <MdShare size={20} />
           ))}
+
+               {getNav('Hot Selling', '/dash-hot-selling', () => (
+            <MdShare size={20} />
+          ))}
         </Box>
       </animated.div>
     </div>

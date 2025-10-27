@@ -34,10 +34,10 @@ const MobileMenuSkeleton = () => {
 
   return (
     <div style={{ padding: '16px' }}>
-      {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <div key={`main-${index}`}>
           <div style={menuItemStyle}></div>
-          {index % 2 === 0 && (
+          {index % 2 === 0 && index !== 0 && (
             <>
               <div style={subMenuItemStyle}></div>
               <div style={subMenuItemStyle}></div>
@@ -119,6 +119,11 @@ const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
     }))
   }
 
+  const handleAllProductsClick = () => {
+    navigate('/products')
+    onClose?.()
+  }
+
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
     onClose?.()
@@ -189,6 +194,17 @@ const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 
   return (
     <div className="mobile-menu-list">
+      {/* All Products Menu Item */}
+      <div className="mobile-menu-item">
+        <button
+          className="mobile-menu-toggle"
+          onClick={handleAllProductsClick}
+        >
+          <span>All</span>
+        </button>
+      </div>
+
+      {/* Regular Category Menu Items */}
       {categoryData?.map((category: any) => (
         <div key={category.id} className="mobile-menu-item">
           {category.subCategories && category.subCategories.length > 0 ? (

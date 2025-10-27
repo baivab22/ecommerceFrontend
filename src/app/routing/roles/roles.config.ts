@@ -41,6 +41,7 @@ export const USER_ROLES: UserRoles = {
       '/privacy-policy',
       '/styling-guide',
       '/dash-banners',
+      '/dash-hot-selling/*',
  'dash-holiday-mode/*'
     ]
   },

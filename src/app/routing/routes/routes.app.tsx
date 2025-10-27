@@ -44,6 +44,7 @@ import TermsAndConditions from 'src/app/pages/termsAndCondition.tsx'
 import ReturnPolicy from 'src/app/pages/returnPolicy'
 import ShippingPolicy from 'src/app/pages/shippingPolicy'
 import HolidayModePage from 'src/app/pages/holidayMode/holidayMode.page'
+import HotSellingProducts from 'src/app/pages/hotSelling/hotSelling.page'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -188,6 +189,18 @@ export const Router: RouteObject[] = [
       {
         path: '',
         element: <HolidayModePage />
+      }
+    ]
+  },
+
+     {
+    path: '/dash-hot-selling',
+    // element: <Sample />
+    element: <ProtectedAuth />,
+    children: [
+      {
+        path: '',
+        element: <HotSellingProducts />
       }
     ]
   },

@@ -419,13 +419,15 @@ export const ProductWebDetail = () => {
                 <Title heading className="productDetail-detailTop-name">
                   {productDetailData?.name}
                 </Title>
-
-                <div
+{
+   productDetailData?.description &&     <div
                   className="productDetail-detailTop-description"
                   dangerouslySetInnerHTML={{
                     __html: productDetailData?.description
                   }}
                 ></div>
+}
+            
 
                 <div
                   style={{

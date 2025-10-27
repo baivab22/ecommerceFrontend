@@ -98,10 +98,10 @@ export const Footer = () => {
                 <Phone className="footer__contact-icon" />
                 <span>+977-9861698400</span>
               </div>
-              <div className="footer__contact-item">
-                <Clock className="footer__contact-icon" />
-                <span>Mon-Fri: 9AM-6PM EST</span>
-              </div>
+              {/* <div className="footer__contact-item">
+                <Clock className="footer__contact-icon" /> 
+            <span>Mon-Fri: 9AM-6PM EST</span>
+              </div> */}
             </div>
           </div>
 
