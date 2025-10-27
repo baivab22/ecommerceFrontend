@@ -224,7 +224,7 @@ export const ProductListPage = () => {
             }}
             pagination={{
               totalCount: Number(data?.length ?? 1),
-              perPage: Number(50)
+              perPage: Number(5)
             }}
           />
         </div>

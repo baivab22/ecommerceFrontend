@@ -835,7 +835,7 @@ const handleColorVariant = async () => {
             </VStack>
           </div>
 
-          <VStack gap="$3">
+          {/* <VStack gap="$3">
             <Label required labelName="Is Hot Selling?"></Label>
 
             <CheckBox
@@ -847,7 +847,7 @@ const handleColorVariant = async () => {
                 setIsHotSelling(!isHotSelling)
               }}
             />
-          </VStack>
+          </VStack> */}
         </div>
 
         <Button

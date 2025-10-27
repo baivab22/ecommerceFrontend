@@ -8,6 +8,7 @@ import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {useDispatch, useSelector} from 'src/store'
 import {useAuth} from 'src/app/routing'
+import { useNavigate } from 'react-router-dom'
 // import './ProductDisplay.scss'
 
 const ProductDisplay = ({product}) => {
@@ -58,13 +59,15 @@ const ProductDisplay = ({product}) => {
   }, [product])
 
    const datas = useSelector((state: any) => state.cart)
-
+const navigate=useNavigate();
 
 
   const handleAddToCart = (data: any) => {
     const userId = getCookie('userId')
 
     const roles = getCookie('userRoles')
+
+
 
     console.log(userId, roles, 'user id and roles')
 
@@ -103,8 +106,15 @@ const ProductDisplay = ({product}) => {
         })
       )
     } else {
+      navigate('/login')
       toast.error('Please login first to add product')
     }
+  }
+
+
+    const handleLoggedOutAddItemToCart=()=>{
+         toast.error('Please login first to add products')
+    navigate('/login')
   }
 
   const {auth} = useAuth()
@@ -157,7 +167,8 @@ const ProductDisplay = ({product}) => {
           onClick={() => {
             !!auth.isLoggedin
               ? handleAddToCart(product)
-              : toast.success('Please login first to add product')
+              :
+           handleLoggedOutAddItemToCart()
           }}
         >
           ADD TO CART

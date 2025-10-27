@@ -810,7 +810,7 @@ export const ProductListSideComp: React.FC = () => {
             </HStack>
           </VStack>
 
-          <VStack align="flex-start" style={{ width: '100%' }} gap="$2">
+          <VStack align="flex-start" style={{ width: '100%',marginTop:'20px' }} gap="$2">
             <Title primaryHeading>Filters</Title>
             
             <HStack gap={isMobile ? '$3' : '$2'} style={{ width: '100%', flexWrap: 'wrap' }}>

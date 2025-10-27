@@ -3,7 +3,7 @@ import {Chip, HStack, StatInfo, Title, VStack} from 'src/app/common'
 import React, {useEffect, useState} from 'react'
 import {useDispatch, useSelector} from 'src/store'
 import {getProductDetailByIdAction} from 'src/app/pages/products/product.slice'
-import {useParams} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import ReactStarsRating from 'react-awesome-stars-rating'
 import {Skeleton} from '@mui/material'
 
@@ -394,6 +394,14 @@ export const ProductWebDetail = () => {
     </div>
   )
 
+
+  const navigate=useNavigate();
+
+  const handleLoggedOutAddItemToCart=()=>{
+         toast.error('Please login first to add products')
+    navigate('/login')
+  }
+
   return (
     <>
       {productDetailLoading ? (
@@ -494,7 +502,12 @@ export const ProductWebDetail = () => {
                     }
                     !!auth.isLoggedin
                       ? handleAddToCart(productDetailData,activeColorIndex)
-                      : toast.error('Please login first to add products')
+                      : handleLoggedOutAddItemToCart()
+                      
+                      
+                      
+                      
+                 
                   }}
                 >
                   <p>{productDetailData?.stockQuantity === 0 ? "OUT OF STOCK":"ADD TO CART"}</p>

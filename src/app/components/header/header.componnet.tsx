@@ -601,6 +601,8 @@ export const TopHeader = () => {
                   ref={sortRefs}
                 >
                   <VStack>
+
+                    {auth.isLoggedin && (
                     <HStack 
                       align="center" 
                       gap="$3" 
@@ -611,7 +613,7 @@ export const TopHeader = () => {
                       }}
                     >
                       <p>My Profile</p>
-                    </HStack>
+                    </HStack>)}
 
                     {auth.isLoggedin ? (
                       <HStack
