@@ -199,11 +199,11 @@ const HotSellingProducts = () => {
                   
                   <div className="price-container">
                     <span className="current-price">
-                      Rs. {product.discountedPrice?.toLocaleString() || product.originalPrice?.toLocaleString()}
+                      Rs. {product.discountedPrice?.toLocaleString().toFixed(2) || product.originalPrice?.toLocaleString().toFixed(2)}
                     </span>
                     {product.originalPrice > product.discountedPrice && (
                       <span className="original-price">
-                        Rs. {product.originalPrice?.toLocaleString()}
+                        Rs. {product.originalPrice?.toLocaleString().toFixed(2)}
                       </span>
                     )}
                   </div>

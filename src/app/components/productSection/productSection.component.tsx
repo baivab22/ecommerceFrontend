@@ -118,13 +118,28 @@ export const ProductSection = ({
   const navigate = useNavigate()
 
   useEffect(() => {
-    console.log('api hit')
-    dispatch(getProductListAction({}))
-  }, [])
+    // Build query based on homeCategory prop
+    const query: any = {}
+    
+    if (homeCategory === 'isBestSelling') {
+      query.isBestSelling = true
+    } else if (homeCategory === 'isNewArrivals') {
+      query.isNewArrivals = true
+    }
+
+    console.log('api hit with query:', query)
+    
+    dispatch(getProductListAction({
+      onSuccess: () => console.log('Products fetched successfully'),
+      query
+    }))
+  }, [homeCategory, dispatch])
 
   const {data, loading}: any = useSelector((state: any) => state.product)
 
-  console.log(data, 'data from ps',loading,"loading value")
+
+
+  console.log(data, 'data from ps', loading, "loading value")
 
   // Show skeleton while loading
   if (!isForSimilar && (loading || !data)) {
@@ -141,7 +156,7 @@ export const ProductSection = ({
   }
 
   // Don't render if no data
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return null
   }
 
@@ -161,7 +176,9 @@ export const ProductSection = ({
       </div>
 
       <div className="jobsSectionContainer-items">
-        {data?.slice(0, 4).map((item: any, index: number) => {
+        {data?.filter((item: any, index: number) => {
+      return  homeCategory === 'isBestSelling'? item.isBestSelling === true: item?.isNewArrivals===true
+    })?.slice(0, 4).map((item: any, index: number) => {
           return <ProductCard data={item} key={item.id} />
         })}
       </div>
