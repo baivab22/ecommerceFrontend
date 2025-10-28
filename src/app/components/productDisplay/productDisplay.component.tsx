@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import {
   createCartByUserIdAction,
-  getCartlistAction
+  getCartlistAction,
+  updatedCartByProductIdAction
 } from 'src/app/pages/web/cart/cart.slice'
 import {FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
@@ -69,21 +70,43 @@ const navigate=useNavigate();
 
 
 
-    console.log(userId, roles, 'user id and roles')
+
 
     if (!!userId && !!roles) {
+    console.log(data,datas.cartData,!!userId && !!roles, 'user id and roles')
+    console.log(Array.isArray(data?.cartData?.[0]?.products), data?.cartData?.[0]?.products,"kharab");
 
-    const isAlreadyExistData = datas?.cartData?.[0]?.products?.find(
-          (item: any) => {
-            return item?.productId?.id === data?.id
+const isAlreadyExistData = datas?.cartData?.[0]?.products?.find(
+    item => {
+      console.log(item.productId?.id,data?.id,item,"comparing ids")
+      
+      return item.productId?.id === data?.id}
+);
+
+        console.log(isAlreadyExistData,!!isAlreadyExistData, 'isAlreadyExistData final hai')
+
+if(!!isAlreadyExistData){
+      dispatch(
+        updatedCartByProductIdAction({
+          data: {
+            userId,
+            productId:data.id,
+            quantity: isAlreadyExistData.quantity+quantity,
+            price:  Number(isAlreadyExistData.price * (isAlreadyExistData.quantity+quantity))
+          },
+          onSuccess: () => {
+            toast.success('Product updated successfully')
+            dispatch(getCartlistAction({ userId }))
+          },
+          onFailure: () => {
+            // setCartProducts(datas?.cartData?.[0]?.products ?? [])
+            toast.error('Failed to update product')
           }
-        )
+        })
+      )
 
-        console.log(isAlreadyExistData, 'isAlreadyExistData final hai')
-
-
-
-      const cartData = {
+}else{
+  const cartData = {
         userId,
         products: [
           {
@@ -105,6 +128,9 @@ const navigate=useNavigate();
           }
         })
       )
+}
+
+    
     } else {
       navigate('/login')
       toast.error('Please login first to add product')

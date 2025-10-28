@@ -360,6 +360,8 @@ useEffect(() => {
   }, [dispatch, userId])
 
   useEffect(() => {
+
+    console.log(datas?.cartData?.[0]?.products,"cart products data effect")
     setCartProducts(datas?.cartData?.[0]?.products ?? [])
   }, [datas?.cartData?.[0]?.products])
 
@@ -397,7 +399,7 @@ useEffect(() => {
       const unitPrice = product.productId?.discountedPrice || 0
       const updatedPrice = Number(unitPrice * newQuantity)
 
-      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`)
+      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`,product)
 
       setCartProducts(prev =>
         prev.map(item =>

@@ -35,9 +35,14 @@ export const CartCard = ({
   const userId = getCookie('userId')
 
 
+  console.log(data,"data value in cart card")
+
+
 
   const handleQuantityChange = useCallback(
     (newQuantity: number, product: CartProduct) => {
+
+      console.log(product,"product value final")
       if (!userId) return
       
       // Validate quantity
@@ -50,7 +55,7 @@ export const CartCard = ({
       const unitPrice = product.productId?.discountedPrice || 0
       const updatedPrice = Number(unitPrice * newQuantity)
 
-      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`)
+      console.log(`Updating product ${product._id}: Unit Price ${unitPrice} × New Quantity ${newQuantity} = ${updatedPrice}`,product)
 
       // Optimistic update
       // setCartProducts(prev =>
@@ -65,7 +70,7 @@ export const CartCard = ({
         updatedCartByProductIdAction({
           data: {
             userId,
-            productId: product.productId.id,
+            productId: data?.id,
             quantity: newQuantity,
             price: updatedPrice
           },
@@ -85,7 +90,7 @@ export const CartCard = ({
   )
 
   const deleteProductFromCart = () => {
-    console.log('delete product called')
+    console.log('delete product called',data?._id)
     dispatch(
       delteProductFromCartAction({
         userId: userId,
