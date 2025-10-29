@@ -47,3 +47,23 @@
     cursor: pointer;
   }
 }
+
+
+.cart-delivery{
+  // border: 2px solid red;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+
+
+      @media (max-width: 768px) {
+      flex-direction: column;
+        // border: 2px solid blue;
+gap:6px;
+          & > div {
+          width: 100% ;
+        }
+          }
+}

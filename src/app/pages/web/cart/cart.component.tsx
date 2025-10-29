@@ -1570,9 +1570,12 @@ const QRPaymentModal = () => {
               justifyContent: 'space-between', 
               alignItems: 'flex-start', 
               width: '100%', 
-              gap: '12px' 
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+              gap: '12px' ,
+              
+            }}
+                className='cart-delivery'
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, }}>
                 <Label>District *</Label>
                 <SelectField
                   options={districtOptions}
@@ -1606,7 +1609,10 @@ const QRPaymentModal = () => {
             alignItems: 'flex-start', 
             width: '100%', 
             gap: '12px' 
-          }}>
+          }}
+          className='cart-delivery'
+          
+          >
             {!isInsideValley && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                 <Label>Area *</Label>
