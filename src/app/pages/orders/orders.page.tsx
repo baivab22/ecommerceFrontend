@@ -311,19 +311,61 @@ Aabhushan Gallery Team`
   }
 
   // Format date helper
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '-'
-    try {
-      const date = new Date(dateString.replace(/,/g, ''))
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {
+  // const formatDate = (dateString: string) => {
+  //   if (!dateString) return '-'
+  //   try {
+  //     const date = new Date(dateString.replace(/,/g, ''))
+  //     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {
+  //       hour12: false,
+  //       hour: '2-digit',
+  //       minute: '2-digit'
+  //     })
+  //   } catch {
+  //     return dateString
+  //   }
+  // }
+// Format date helper
+const formatDate = (dateString: string) => {
+  if (!dateString) return '-';
+  
+  try {
+    let date: Date;
+
+    // Normalize commas and trim spaces
+    const cleanDate = dateString.replace(',', '').trim();
+
+    // Case 1: "10/29/2025, 10:58:40 AM" (MM/DD/YYYY)
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(cleanDate)) {
+      date = new Date(cleanDate);
+    } 
+    // Case 2: "29/10/2025 12:29:09" (DD/MM/YYYY)
+    else if (/^\d{2}\/\d{2}\/\d{4}/.test(cleanDate)) {
+      const [day, month, yearAndTime] = cleanDate.split('/');
+      const [year, time] = yearAndTime.split(' ');
+      const isoString = `${year}-${month}-${day}T${time || '00:00:00'}`;
+      date = new Date(isoString);
+    } 
+    else {
+      // fallback: try native parsing
+      date = new Date(cleanDate);
+    }
+
+    if (isNaN(date.getTime())) return dateString;
+
+    return (
+      date.toLocaleDateString('en-GB') +
+      ' ' +
+      date.toLocaleTimeString('en-US', {
         hour12: false,
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        second: '2-digit',
       })
-    } catch {
-      return dateString
-    }
+    );
+  } catch {
+    return dateString;
   }
+};
 
   // Truncate text helper
   const truncateText = (text: string, maxLength: number = 30) => {
@@ -371,6 +413,9 @@ Aabhushan Gallery Team`
     const newValue = e.target.value
     setEndDate(newValue)
   }, [])
+
+
+  console.log(filteredOrders,"filteredOrders hai")
 
   return (
     <div>
@@ -879,7 +924,11 @@ Aabhushan Gallery Team`
                         fontSize: '11px',
                         color: '#666'
                       }}>
-                        {formatDate(orderedAt)}
+                        {/* {formatDate(orderedAt)} */}
+
+                        {orderedAt}
+
+                        {/* dsfdsf */}
                       </div>
                     )
                   }
