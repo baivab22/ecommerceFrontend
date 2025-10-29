@@ -988,7 +988,7 @@ export const ProductListForWeb: React.FC = () => {
         justify="space-between"
         align="flex-start"
       >
-        <VStack gap="$3" style={{ width: '100%' }} ref={productListRef}>
+        <VStack gap="$3" style={{ width: '100%' }}>
           <HStack justify="space-between" align="center">
             <Title subheading>
               Products {pagination?.totalProducts ? `(${pagination.totalProducts})` : data?.length > 0 ? `(${data.length})` : ''}

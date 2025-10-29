@@ -177,7 +177,7 @@ const HotSellingProducts = () => {
                     src={getProductImage(product)} 
                     alt={product.name}
                     onError={(e) => {
-                      e.target.src = '/assets/images/defaultProduct.jpeg';
+                      (e.target as any).src = '/assets/images/defaultProduct.jpeg';
                     }}
                   />
                   {getDiscountPercentage(product) > 0 && (
@@ -289,7 +289,7 @@ const HotSellingProducts = () => {
                           src={getProductImage(product)} 
                           alt={product.name}
                           onError={(e) => {
-                            e.target.src = '/assets/images/defaultProduct.jpeg';
+                            (e.target as any).src = '/assets/images/defaultProduct.jpeg';
                           }}
                         />
                         
