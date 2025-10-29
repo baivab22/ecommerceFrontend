@@ -92,41 +92,72 @@ const parseOrderDate = (dateString: string) => {
 }
 
   // Helper function to get date range based on filter type
-const getDateRange = (filterType: string) => {
-  const now = new Date()
-  // Create a date at midnight in the user's timezone
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  
+const parseDate = (dateStr: string): Date | null => {
+  if (!dateStr) return null;
+
+  // Try native parser first (works for MM/DD/YYYY)
+  let date = new Date(dateStr);
+  if (!isNaN(date.getTime())) return date;
+
+  // Handle DD/MM/YYYY or DD/MM/YYYY, HH:mm:ss formats
+  const [datePart, timePart] = dateStr.split(',');
+  const [day, month, year] = datePart.trim().split(/[\/\-]/).map(Number);
+
+  if (!day || !month || !year) return null;
+
+  let [hours, minutes, seconds] = [0, 0, 0];
+  if (timePart) {
+    [hours, minutes, seconds] = timePart.trim().split(':').map(Number);
+    seconds = seconds || 0;
+  }
+
+  return new Date(year, month - 1, day, hours, minutes, seconds);
+};
+
+const getDateRange = (
+  filterType: string,
+  startDate?: string,
+  endDate?: string
+) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
   switch (filterType) {
     case 'today':
-      // Start: today at 00:00:00
-      // End: tomorrow at 00:00:00 (exclusive upper bound)
       return {
         start: today,
-        end: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      }
+        end: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+      };
+
     case 'week':
-      const weekStart = new Date(today)
-      weekStart.setDate(today.getDate() - today.getDay()) // Sunday of this week
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
       return {
         start: weekStart,
-        end: new Date(now.getTime() + 24 * 60 * 60 * 1000) // Tomorrow at this time
-      }
+        end: new Date(now.getTime() + 24 * 60 * 60 * 1000),
+      };
+
     case 'month':
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       return {
         start: monthStart,
-        end: new Date(now.getTime() + 24 * 60 * 60 * 1000) // Tomorrow at this time
-      }
+        end: new Date(now.getTime() + 24 * 60 * 60 * 1000),
+      };
+
     case 'custom':
+      const parsedStart = parseDate(startDate || '');
+      const parsedEnd = parseDate(endDate || '');
       return {
-        start: startDate ? new Date(startDate) : null,
-        end: endDate ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000) : null
-      }
+        start: parsedStart,
+        end: parsedEnd
+          ? new Date(parsedEnd.getTime() + 24 * 60 * 60 * 1000)
+          : null,
+      };
+
     default:
-      return { start: null, end: null }
+      return { start: null, end: null };
   }
-}
+};
 
 const filteredOrders = useMemo(() => {
   if (!orderData?.orderData) return []
@@ -519,7 +550,7 @@ const formatDate = (dateString: string) => {
                 >
                   All Orders
                 </button>
-                <button
+                {/* <button
                   onClick={() => {
                     setDateFilterType('today')
                     setShowCustomDateInputs(false)
@@ -583,7 +614,7 @@ const formatDate = (dateString: string) => {
                   }}
                 >
                   Custom Range {dateFilterType === 'custom' && (showCustomDateInputs ? '▼' : '▶')}
-                </button>
+                </button> */}
               </div>
 
               {/* Clear All Filters Button */}
