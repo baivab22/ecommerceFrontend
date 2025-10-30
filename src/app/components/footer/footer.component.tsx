@@ -49,7 +49,7 @@ export const Footer = () => {
                   className="footer__link"
                   onClick={() => navigate('/privacy-policy')}
                 >
-                  Privacy Policy
+                  yyyyyyyyyy
                 </button>
               </li>
             </ul>
