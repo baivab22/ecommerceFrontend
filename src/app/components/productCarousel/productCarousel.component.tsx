@@ -98,7 +98,7 @@ export const ProductCarousel = ({data}: {data: any}) => {
                   <IoClose size={20} color="red" stroke="white"></IoClose>
                 </button>
                 <video
-                  src={`${FILE_URL}/video/${data[activeVideoIndex]?.video}`}
+                  src={`https://abhushangallery.com/video/${data[activeVideoIndex]?.video}`}
                   controls
                   autoPlay
                   className="activeVideo"

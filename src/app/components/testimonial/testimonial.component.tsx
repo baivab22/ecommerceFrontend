@@ -161,7 +161,7 @@ export const TestimonailSection = ({reviews, loading}: {reviews: any[]; loading?
       <article className="review">
         <div className="img-container">
           <img
-            src={`${FILE_URL}/testimonial/${image?.[0]}`}
+            src={`https://abhushangallery.com/testimonial/${image?.[0]}`}
             className="person-img"
             alt="Customer testimonial"
           />

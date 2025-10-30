@@ -91,7 +91,7 @@ export const WatchAndShopSection = ({ data }: { data: any }) => {
         <FullscreenVideoModal
           data={data[activeVideoIndex]}
           onClose={() => setIsFullScreen(false)}
-          videoUrl={`${FILE_URL}/video/${data[activeVideoIndex]?.video}`}
+          videoUrl={`https://abhushangallery.com/video/${data[activeVideoIndex]?.video}`}
           allData={data}
           currentIndex={activeVideoIndex}
           setActiveIndex={setActiveVideoIndex}
@@ -119,7 +119,7 @@ export const WatchAndShopCard = ({
           }}
         >
           <div className="videosWatch">
-            <video src={`${FILE_URL}/video/${data?.video}`} muted autoPlay loop playsInline />
+            <video src={`https://abhushangallery.com/video/${data?.video}`} muted autoPlay loop playsInline />
           </div>
 
           <button
@@ -140,7 +140,7 @@ export const WatchAndShopCard = ({
         <HStack className="productDetailCardWatch">
           <div className="productImageWatch">
             <img
-              src={`${FILE_URL}/products/${data?.images?.[0]?.coloredImage}`}
+              src={`https://abhushangallery.com/products/${data?.images?.[0]?.coloredImage}`}
               onError={(event) => {
                 event.currentTarget.src =
                   'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg'

@@ -101,7 +101,7 @@ const ProductDetailsPage = () => {
                     s
                     <CustomVideoPlayer
                       // videoUrl={productDetailData?.video}
-                      videoUrl={`${FILE_URL}/products/${productDetailData?.video}`}
+                      videoUrl={`https://abhushangallery.com/products/${productDetailData?.video}`}
                       thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
                     ></CustomVideoPlayer>
                   </HStack>

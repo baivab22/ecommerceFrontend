@@ -81,7 +81,7 @@ export const MainCarousel = () => {
             return (
               // <div className="image-container" key={index}>
               <img
-                src={`${FILE_URL}/${item}`}
+                src={`https://abhushangallery.com/${item}`}
                 alt="image"
                 placeholder="blur"
                 // blurDataURL={item}

@@ -213,7 +213,7 @@ export const ProductListPage = () => {
                 render: (datas) => (
                   <div>
                     <img
-                      src={`${FILE_URL}/products/${datas?.[0]?.coloredImage}`}
+                      src={`https://abhushangallery.com/products/${datas?.[0]?.coloredImage}`}
                       style={{height: '70px', width: '100px'}}
                       alt="product"
                     ></img>

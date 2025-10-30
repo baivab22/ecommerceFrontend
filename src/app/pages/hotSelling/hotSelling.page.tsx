@@ -125,7 +125,7 @@ const HotSellingProducts = () => {
     if (product?.images && product.images.length > 0) {
       const firstImage = product.images[0];
       if (firstImage?.coloredImage) {
-        return `${FILE_URL}/products/${firstImage.coloredImage}`;
+        return `https://abhushangallery.com/products/${firstImage.coloredImage}`;
       }
     }
     return '/assets/images/defaultProduct.jpeg'; // Fallback image

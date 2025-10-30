@@ -201,7 +201,7 @@ export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean
               return (
                 <SwiperSlide key={item.id}>
                   <CategorryContainers
-                    imgSrc={`${FILE_URL}/${mainImage}`}
+                    imgSrc={`https://abhushangallery.com/${mainImage}`}
                     name={item.name}
                     linkValue={`/products?categoryId=${item.id}&categoryname=${item.name}`}
                   />

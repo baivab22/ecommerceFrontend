@@ -150,7 +150,7 @@ if(!!isAlreadyExistData){
       <div className="product-image">
         {product?.images?.length > 0 ? (
           <img
-            src={`${FILE_URL}/products/${productImages?.[0]}`}
+            src={`https://abhushangallery.com/products/${productImages?.[0]}`}
             alt={product.name}
           />
         ) : (

@@ -567,7 +567,7 @@ export const ProductWebDetail = () => {
                           onTouchStart={handleTouchStart}
                         >
                           <CustomVideoPlayer
-                            videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
+                            videoUrl={`https://abhushangallery.com/video/${productDetailData?.video}`}
 
                             productDetails={{
 

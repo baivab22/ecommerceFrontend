@@ -186,7 +186,7 @@ export const AddProductPage = () => {
       }))
 
       const videoUrl = productDetailData?.video
-        ? `${FILE_URL}/video/${productDetailData.video}`
+        ? `https://abhushangallery.com/video/${productDetailData.video}`
         : null
 
       if (videoUrl) {
@@ -490,7 +490,7 @@ const handleColorVariant = async () => {
       // ✅ CASE 2: Existing image (string filename)
       else if (typeof item.image === 'string' && item.existingImagePath) {
         try {
-          const imageUrl = `${FILE_URL}/products/${item.existingImagePath}`;
+          const imageUrl = `https://abhushangallery.com/products/${item.existingImagePath}`;
           const response = await fetch(imageUrl);
           if (!response.ok) throw new Error(`Failed to fetch ${imageUrl}`);
           const blob = await response.blob();
@@ -779,7 +779,7 @@ const handleColorVariant = async () => {
           <VideoUploader
             defaultVideo={
               productId && !!productDetailData
-                ? `${FILE_URL}/video/${productDetailData?.video}`
+                ? `https://abhushangallery.com/video/${productDetailData?.video}`
                 : ''
             }
             onVideoChange={handleVideo}

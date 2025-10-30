@@ -20,7 +20,7 @@ export const ZoomSlider = ({data}: {data: any}) => {
 
     setLoading(true)
     const images = data?.map((item: any, index: number) => {
-      return `${FILE_URL}/products/${item}`
+      return `https://abhushangallery.com/products/${item}`
     })
 
     console.log(images, 'images values')

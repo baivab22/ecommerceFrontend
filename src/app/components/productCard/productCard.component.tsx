@@ -52,7 +52,7 @@ export const ProductCard = ({data}: {data: any}) => {
             <img
               src={
                 productImages.length > 0
-                  ? `${FILE_URL}/products/${productImages?.[0]}`
+                  ? `https://abhushangallery.com/products/${productImages?.[0]}`
                   : '/assets/images/defaultProduct.jpeg'
               }
               alt={data?.name}
