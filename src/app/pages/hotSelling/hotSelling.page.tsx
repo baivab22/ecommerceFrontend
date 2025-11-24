@@ -13,7 +13,7 @@ const HotSellingProducts = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Update this with your actual API base URL and file URL
-  const API_BASE_URL = 'http://localhost:8000/api'; // Change to your backend URL
+  const API_BASE_URL = 'https://abhushangallery.com/api'; // Change to your backend URL
   const FILE_URL = 'http://localhost:8000'; // Change to match your FILE_URL from config
 
   // Fetch all products with pagination

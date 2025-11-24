@@ -4,6 +4,7 @@ import {Provider} from 'react-redux'
 import {store} from 'src/store'
 import './sass/main.scss'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import {
   BrowserRouter,
   HashRouter,
@@ -130,8 +131,11 @@ const App = () => {
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <HashRouter>
+
+    <GoogleOAuthProvider clientId="58815171868-hlpv60089h5p8286562i2bde9htijb74.apps.googleusercontent.com">
     <Provider store={store}>
       <App />
     </Provider>
+    </GoogleOAuthProvider>
   </HashRouter>
 )
