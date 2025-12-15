@@ -52,10 +52,13 @@ export const ProductCard = ({data}: {data: any}) => {
             <img
               src={
                 productImages.length > 0
-                  ? `https://abhushangallery.com/products/${productImages?.[0]}`
-                  : '/assets/images/defaultProduct.jpeg'
-              }
-              alt={data?.name}
+                  ?
+                  
+                  `http://localhost:8000/uploads/products/${productImages?.[0]}` : '/assets/images/defaultProduct.jpeg'  }
+
+                        alt={data?.name}
+            
+          
             />
             
             {/* Discount Badge */}

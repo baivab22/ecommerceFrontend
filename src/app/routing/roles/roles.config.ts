@@ -42,7 +42,12 @@ export const USER_ROLES: UserRoles = {
       '/styling-guide',
       '/dash-banners',
       '/dash-hot-selling/*',
- 'dash-holiday-mode/*'
+ 'dash-holiday-mode/*',
+ 'dash-selling-analysis/*',
+  'dash-mark-shipped/*',
+  '/dash-emailMarketing'
+  
+
     ]
   },
   USER: {
@@ -65,13 +70,13 @@ export const USER_ROLES: UserRoles = {
       '/shipping-policy',
       'orderDetails/*',
        '/product/*',
-      '/dash-subCategorynested/*',
+      // '/dash-subCategorynested/*',
           '/my-profile/*',
               '/contact-us',
       '/about-us',
       '/privacy-policy',
       '/styling-guide',
-       'dash-holiday-mode/*'
+      //  'dash-holiday-mode/*'
     ]
   }
 }

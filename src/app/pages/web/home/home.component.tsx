@@ -13,7 +13,7 @@ import {TestimonailSection} from 'src/app/components/testimonial/testimonial.com
 import {useDispatch, useSelector} from 'src/store'
 import {getTestimonialListAction} from '../../testimonial/testimonial.slice'
 import {getShopByBudgetListAction} from '../../shopByBudget/shopByBudget.slice'
-import {getProductListAction, getHotSellingProductsAction} from '../../products/product.slice'
+import {getProductListAction, getHotSellingProductsAction, getWatchAndShopProductsAction} from '../../products/product.slice'
 import ProductDisplay from 'src/app/components/productDisplay/productDisplay.component'
 import { useAuth } from 'src/app/routing'
 import { getCategoryListAction } from '../../category/category.slice'
@@ -47,11 +47,11 @@ export const HomePage = () => {
     setTestimonialList(remappedTestimonialData)
   }, [testimonialData])
 
-  const {data: watchandshopdata}: any = useSelector(
+  const { watchAndShopData}: any = useSelector(
     (state: any) => state.product
   )
 
-  console.log(watchandshopdata, 'watch and shop dataa')
+  console.log(watchAndShopData, 'watch and shop dataasssss')
 
   useEffect(() => {
     // Fetch testimonials
@@ -98,13 +98,16 @@ export const HomePage = () => {
         onSuccess: () => console.log('categoryList fetch Successfully')
       })
     )
+
+    // Fetch Watch and Shop products
+    dispatch(
+      getWatchAndShopProductsAction({
+        onSuccess: (data) => console.log('Watch and Shop fetched:', data)
+      })
+    )
   }, [dispatch])
 
-  const watchAndShopFilterData = useMemo(() => {
-    return watchandshopdata?.filter((item: any, index: number) => {
-      return item.isWatchAndShop === true
-    })
-  }, [watchandshopdata])
+
 
   console.log(data, "data value last")
   console.log(hotSellingProducts, "hot selling product from API")
@@ -134,11 +137,11 @@ export const HomePage = () => {
             <TestimonailSection reviews={testimonialList}></TestimonailSection>
           )}
 
-          {watchAndShopFilterData?.length > 0 && (
+          {watchAndShopData?.length > 0 && (
             <VStack gap="$8">
               <div className="jobsSectionContainer-header">WATCH AND SHOP</div>
               <WatchAndShopSection
-                data={watchAndShopFilterData}
+                data={watchAndShopData}
               ></WatchAndShopSection>
 
               <VStack gap="$3">

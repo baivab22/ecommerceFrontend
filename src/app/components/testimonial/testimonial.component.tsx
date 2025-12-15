@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {FaChevronLeft, FaChevronRight, FaQuoteRight} from 'react-icons/fa'
 import {Text, Title} from 'src/app/common'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 
 // Testimonial Skeleton Component
 const TestimonialSkeleton = () => {
@@ -161,7 +161,7 @@ export const TestimonailSection = ({reviews, loading}: {reviews: any[]; loading?
       <article className="review">
         <div className="img-container">
           <img
-            src={`https://abhushangallery.com/testimonial/${image?.[0]}`}
+            src={`${FILE_URL}/testimonial/${image?.[0]}`}
             className="person-img"
             alt="Customer testimonial"
           />

@@ -131,7 +131,8 @@ export const ProductSection = ({
     
     dispatch(getProductListAction({
       onSuccess: () => console.log('Products fetched successfully'),
-      query
+      // query
+    
     }))
   }, [homeCategory, dispatch])
 
@@ -175,13 +176,27 @@ export const ProductSection = ({
         </div>
       </div>
 
-      <div className="jobsSectionContainer-items">
+      {/* <div className="jobsSectionContainer-items">
         {data?.filter((item: any, index: number) => {
       return  homeCategory === 'isBestSelling'? item.isBestSelling === true: item?.isNewArrivals===true
     })?.slice(0, 4).map((item: any, index: number) => {
           return <ProductCard data={item} key={item.id} />
         })}
-      </div>
+      </div> */}
+
+      <div className="jobsSectionContainer-items">
+  {data
+    ?.filter((item: any) => {
+      if (homeCategory === 'isBestSelling') return item.isBestSelling === true;
+      if (homeCategory === 'isNewArrivals') return item.isNewArrivals === true;
+      return true; // show all if no category matches
+    })
+    ?.slice(0, 4)
+    .map((item: any) => (
+      <ProductCard data={item} key={item.id} />
+    ))}
+</div>
+
 
       {isHomePage && (
         <div

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {useAuth} from '../hooks'
 import {useSpring, animated} from '@react-spring/web'
 import {NavLink} from 'react-router-dom'
@@ -15,12 +15,14 @@ import {
   MdAttachMoney,
   MdShoppingCart,
   MdEventBusy,
-  MdShare
+  MdShare,
+  MdMenu,
+  MdClose
 } from 'react-icons/md'
 import SystemTitle from '../../../assets/images/logoss.png'
 
 import {Box, ToolTip} from 'src/app/common'
-// import {useMeasure} from 'src/hooks'
+import { useMedia } from 'src/hooks'
 
 export const SideNav = React.memo(() => {
   const {auth} = useAuth()
@@ -29,144 +31,175 @@ export const SideNav = React.memo(() => {
 
 const SideNavComponent = React.memo(() => {
   const {auth, sidenavExpand} = useAuth()
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // const [sideNavHeight, setSideNavHeight] = useState<number>(0)
-  // const [headerHeight, setHeaderHeight] = useState<number>(0)
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
-  const props = useSpring({width: sidenavExpand ? 280 : 90})
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isMobile && mobileMenuOpen && !e.target.closest('.sidenav-container') && !e.target.closest('.mobile-menu-toggles')) {
+        setMobileMenuOpen(false)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isMobile, mobileMenuOpen])
+
+  const props = useSpring({
+    width: isMobile ? (mobileMenuOpen ? 280 : 0) : (sidenavExpand ? 280 : 90),
+    opacity: isMobile ? (mobileMenuOpen ? 1 : 0) : 1
+  })
 
   const headerStyle = useSpring({width: sidenavExpand ? 60 : 80})
 
-  // const transitions = useTransition(sidenavExpand, {
-  //   from: {opacity: 0},
-  //   enter: {opacity: 1},
-  //   leave: {opacity: 0},
-  //   config: {
-  //     duration: 200
-  //   }
-  // })
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(prev => !prev)
+  }
 
-  // const onToggleSidenav = () => {
-  //   setSidenavExpand((prev) => !prev)
-  // }
-
-  // const sideNavBind = useMeasure(({height}: any) => {
-  //   setSideNavHeight(height)
-  // })
-
-  // const headerBind = useMeasure(({height}: any) => {
-  //   setHeaderHeight(height)
-  // })
+  const media = useMedia()
 
   return auth.isLoggedin ? (
-    <div
-      className="sidenav-container"
-      //  {...sideNavBind()}
-    >
-      <animated.div
-        style={{
-          height: '100%',
-          ...props
-        }}
-      >
-        <div
-          className="sidenav-header"
-          // {...headerBind()}
+    <>
+      {/* Mobile Menu Toggle Button */}
+      {isMobile && (
+        <button  
+          className="mobile-menu-toggles"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
         >
-          <animated.div
-            className="sidenav-header-logo1"
-            style={{
-              ...headerStyle
-            }}
-          >
-            <img src={SystemTitle} alt="TMO" />
-            {/* <img src={Logo1} alt="Logo1" /> */}
-          </animated.div>
-          {/* {transitions(
-            (animationStyle, item) =>
-              item && (
-                <animated.div
-                  className="sidenav-header-title"
-                  style={{
-                    ...animationStyle
-                  }}
-                >
-                </animated.div>
-              )
-          )} */}
-        </div>
-        <Box style={{height: 'auto'}} pt={20}>
-          {/* {getNav('Sample', '/sample', () => (
-            <ImSearch />
-          ))} */}
-          {getNav('Products', '/dash-product', () => (
-            <MdInventory size={20} />
-          ))}
+          {mobileMenuOpen ? <MdClose size={24} /> : <MdMenu size={24} />}
+        </button>
+      )}
 
-          {getNav('Category', '/dash-category', () => (
-            <MdCategory size={20} />
-          ))}
+      {/* Backdrop for mobile */}
+      {isMobile && mobileMenuOpen && (
+        <div 
+          className="sidenav-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
 
-          {getNav('SubCategory', '/dash-subCategory', () => (
-            <MdAccountTree size={20} />
-          ))}
+      <div
+        className={`sidenav-container ${isMobile ? 'mobile' : ''} ${mobileMenuOpen ? 'open' : ''}`}
+      >
+        <animated.div
+          style={{
+            height: '100%',
+            ...props,
+            background:'white',
+            paddingLeft:media.md?'20px':'0px',
+            overflow:'hidden'
+          }}
+        >
+          <div className="sidenav-header">
+            <animated.div
+              className="sidenav-header-logo1"
+              style={{
+                ...headerStyle
+              }}
+            >
+              <img src={SystemTitle} alt="TMO" />
+            </animated.div>
+          </div>
+          <Box style={{height: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 100px)'}} pt={20}>
+            {getNav('Products', '/dash-product', () => (
+              <MdInventory size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Nested SubCategory', '/dash-subCategorynested', () => (
-            <MdLayers size={20} />
-          ))}
+            {getNav('Category', '/dash-category', () => (
+              <MdCategory size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('New Arrivals', '/dash-new-arrivals', () => (
-            <MdNewReleases size={20} />
-          ))}
-          {getNav('Best Sellings', '/dash-best-selling', () => (
-            <MdTrendingUp size={20} />
-          ))}
+            {getNav('SubCategory', '/dash-subCategory', () => (
+              <MdAccountTree size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Banners', '/dash-banners', () => (
-            <MdViewCarousel size={20} />
-          ))}
+            {getNav('Nested SubCategory', '/dash-subCategorynested', () => (
+              <MdLayers size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Testimonial', '/dash-testimonial', () => (
-            <MdRateReview size={20} />
-          ))}
+            {getNav('New Arrivals', '/dash-new-arrivals', () => (
+              <MdNewReleases size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Shop By Budget', '/dash-shopByBudget', () => (
-            <MdAttachMoney size={20} />
-          ))}
+            {getNav('Best Sellings', '/dash-best-selling', () => (
+              <MdTrendingUp size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Order List', '/dash-orders', () => (
-            <MdShoppingCart size={20} />
-          ))}
+            {getNav('Banners', '/dash-banners', () => (
+              <MdViewCarousel size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-          {getNav('Holiday Mode', '/dash-holiday-mode', () => (
-            <MdEventBusy size={20} />
-          ))}
+            {getNav('Testimonial', '/dash-testimonial', () => (
+              <MdRateReview size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Shop By Budget', '/dash-shopByBudget', () => (
+              <MdAttachMoney size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Order List', '/dash-orders', () => (
+              <MdShoppingCart size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Holiday Mode', '/dash-holiday-mode', () => (
+              <MdEventBusy size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
           
-          {getNav('Social Links', '/dash-social-links', () => (
-            <MdShare size={20} />
-          ))}
+            {getNav('Social Links', '/dash-social-links', () => (
+              <MdShare size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
 
-               {getNav('Hot Selling', '/dash-hot-selling', () => (
-            <MdShare size={20} />
-          ))}
-        </Box>
-      </animated.div>
-    </div>
+            {getNav('Selling analysis', '/dash-selling-analysis', () => (
+              <MdShare size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Mark shipped', '/dash-mark-shipped', () => (
+              <MdShare size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Email Marketing', '/dash-emailMarketing', () => (
+              <MdShare size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+
+            {getNav('Hot Selling', '/dash-hot-selling', () => (
+              <MdShare size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))}
+          </Box>
+        </animated.div>
+      </div>
+    </>
   ) : null
 })
 
-const getNav = (route: string, url: string, icon: () => React.ReactNode) => {
+const getNav = (route: string, url: string, icon: () => React.ReactNode, isMobile: boolean, closeMenu: () => void) => {
   console.log(route, 'route value')
   if (!route) return null
   const canAccess = useCanAccessRoute(url)
   const {sidenavExpand} = useAuth()
-  const props = useSpring({opacity: sidenavExpand ? 1 : 0})
+  const props = useSpring({opacity: (sidenavExpand || isMobile) ? 1 : 0})
 
   return (
     canAccess.length > 0 && (
-      <div className={`sidenav${sidenavExpand ? '' : '-small'}`}>
+      <div className={`sidenav${(sidenavExpand || isMobile) ? '' : '-small'}`}>
         <NavLink
           to={url}
+          onClick={isMobile ? closeMenu : undefined}
           style={({isActive}) => ({
             textDecoration: 'none'
           })}
@@ -179,11 +212,10 @@ const getNav = (route: string, url: string, icon: () => React.ReactNode) => {
           <div className="sidenav-title">
             <ToolTip text={route}>
               <div className="sidenav-title-icon">
-                {/* <ImSearch /> */}
                 {icon()}
               </div>
             </ToolTip>
-            {sidenavExpand && (
+            {(sidenavExpand || isMobile) && (
               <animated.div
                 className="sidenav-title-text"
                 style={{

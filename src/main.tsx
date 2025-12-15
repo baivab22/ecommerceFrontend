@@ -28,6 +28,8 @@ import {Footer} from './app/components/footer/footer.component'
 import {getCookie} from './helpers'
 import {useEffect, useMemo, useState} from 'react'
 import {useMedia} from './hooks'
+import WhatsAppButton from './app/components/whatsappChatButton/whatsappChatButton.component'
+import SocialChatButtons from './app/components/whatsappChatButton/whatsappChatButton.component'
 // import MultiLevelMenu from './app/components/header/header.componnet'
 
 // ScrollToTop Component
@@ -76,7 +78,7 @@ const App = () => {
     )
   }, [getCookie('userRoles'), window.location.href])
 
-  console.log(auth.isLoggedin,"auth logged in hai")
+  console.log(auth.isLoggedin,"auth logged in hai",    containsDash ,media.md, getCookie('userRoles') === 'ADMIN')
 
   return (
     <AuthProvider>
@@ -88,14 +90,13 @@ const App = () => {
             position: 'absolute',
             // right: '10px',
             width:
-              containsDash && getCookie('userRoles') === 'ADMIN'
-                ? '75vw'
+              containsDash && getCookie('userRoles') === 'ADMIN'?media.md
+                ? '75vw':'100vw'
                 : '100vw',
-            marginTop: media.md ? '0px' : '20px',
+   
+            marginTop: containsDash && getCookie('userRoles') === 'ADMIN'?media.md ? '20px':'60px':!media?.md?'20px':'0px',
             left:
-              containsDash && getCookie('userRoles') === 'ADMIN'
-                ? '20vw'
-                : '0vw'
+              containsDash && getCookie('userRoles') === 'ADMIN'?media.md?'20vw':'0vw':'0vw'
           }}
         >
           {!containsDash && (
@@ -107,24 +108,18 @@ const App = () => {
           )}
 
           {useRoutes(Router)}
-
-          {/* <MainCarousel></MainCarousel> */}
-          {/* <CompWrapper>
-        <CategorryContainer></CategorryContainer>
-      </CompWrapper> */}
-
-          {/* <CompWrapper>
-        <ProductSection
-          header="Best Selling"
-          isProfilePage={true}
-        ></ProductSection>
-      </CompWrapper> */}
-
           {!containsDash && <Footer></Footer>}
 
           <Toaster position="bottom-right" reverseOrder={false} />
         </div>
       </HStack>
+      {!containsDash && (
+  <SocialChatButtons 
+    whatsappNumber="977-9861698400"  // Your WhatsApp number with country code
+    whatsappMessage="Hi! I'm interested in your products."
+    facebookPageId="Abhushan Gallery"  // Your Facebook Page username or ID
+  />
+)}
     </AuthProvider>
   )
 }

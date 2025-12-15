@@ -129,3 +129,147 @@
     }
   }
 }
+
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggles {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggles:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.mobile-menu-toggles:active {
+  transform: scale(0.95);
+}
+
+
+.sidenav-title{
+  display: flex;
+  gap: 20px;
+}
+
+/* Backdrop for mobile menu */
+.sidenav-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  // border: 4px solid red;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 767px) {
+  .mobile-menu-toggles {
+    display: block;
+  }
+
+  .sidenav-backdrop {
+    display: block;
+  }
+
+  .sidenav-container.mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .sidenav-container.mobile.open {
+    transform: translateX(0);
+  }
+
+  /* Always show expanded view on mobile */
+  .sidenav-container.mobile .sidenav-title-text {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Adjust header for mobile */
+  .sidenav-container.mobile .sidenav-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  /* Make scrollable menu on mobile */
+  .sidenav-container.mobile .sidenav,
+  .sidenav-container.mobile .sidenav-small {
+    width: 100%;
+  }
+}
+
+/* Tablet Styles */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .sidenav-container {
+    /* Optionally adjust width for tablets */
+  }
+}
+
+/* Ensure main content shifts when sidenav is present on desktop */
+@media screen and (min-width: 768px) {
+  .main-content {
+    margin-left: 90px; /* Width of collapsed sidenav */
+    transition: margin-left 0.3s ease;
+  }
+
+  .main-content.expanded {
+    margin-left: 280px; /* Width of expanded sidenav */
+  }
+}
+
+/* Mobile - main content takes full width */
+@media screen and (max-width: 767px) {
+  .main-content {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+}
+
+/* Improve touch targets for mobile */
+@media screen and (max-width: 767px) {
+  .sidenav-title-container {
+    // min-height: 48px;
+    // padding: 12px 16px;
+  }
+
+  .sidenav-title {
+    gap: 16px;
+  }
+
+  .sidenav-title-icon {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}
+
+/* Prevent body scroll when mobile menu is open */
+body.mobile-menu-open {
+  overflow: hidden;
+}
+
+/* Add smooth scrolling for mobile menu */
+.sidenav-container.mobile {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}

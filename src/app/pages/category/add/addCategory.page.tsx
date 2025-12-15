@@ -349,7 +349,9 @@ if(categoryId ){
   }, [selectedSubCategoryOption])
 
   return (
-    <div className="addCategoryContainer">
+    <div className="addCategoryContainer"
+    style={{padding:'20px 12px'}}
+    >
       <VStack className="addCategory" gap="$3">
         <VStack gap="$2">
           <Label required labelName="Category Name"></Label>

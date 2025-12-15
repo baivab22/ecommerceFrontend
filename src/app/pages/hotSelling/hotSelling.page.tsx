@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './_hotSelling.scss'
+import { BASE_URL, FILE_URL } from 'src/config';
 
 const HotSellingProducts = () => {
   const [products, setProducts] = useState([]);
@@ -13,14 +14,14 @@ const HotSellingProducts = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Update this with your actual API base URL and file URL
-  const API_BASE_URL = 'https://abhushangallery.com/api'; // Change to your backend URL
-  const FILE_URL = 'http://localhost:8000'; // Change to match your FILE_URL from config
+  // const API_BASE_URL = 'https://abhushangallery.com/api'; // Change to your backend URL
+  // const FILE_URL = 'http://localhost:8000'; // Change to match your FILE_URL from config
 
   // Fetch all products with pagination
   const fetchProducts = async (page = 1, search = '') => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/product`, {
+      const response = await axios.get(`${BASE_URL}/product`, {
         params: {
           page,
           limit: 12, // Show 12 products per page
@@ -49,7 +50,7 @@ const HotSellingProducts = () => {
   // Fetch current hot selling products
   const fetchHotSellingProducts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/products/hot-selling`);
+      const response = await axios.get(`${BASE_URL}/products/hot-selling`);
       console.log('Hot Selling Products:', response.data);
       setHotSellingProducts(response.data.data || []);
     } catch (error) {
@@ -60,7 +61,7 @@ const HotSellingProducts = () => {
   // Add product to hot selling
   const addToHotSelling = async (productId) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/products/hot-selling`, {
+      const response = await axios.post(`${BASE_URL}/products/hot-selling`, {
         productId
       });
       
@@ -76,7 +77,7 @@ const HotSellingProducts = () => {
   // Remove product from hot selling
   const removeFromHotSelling = async (productId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/products/hot-selling/${productId}`);
+      const response = await axios.delete(`${BASE_URL}/products/hot-selling/${productId}`);
       
       showMessage('success', response.data.message || 'Product removed from hot selling!');
       fetchHotSellingProducts();
@@ -125,7 +126,7 @@ const HotSellingProducts = () => {
     if (product?.images && product.images.length > 0) {
       const firstImage = product.images[0];
       if (firstImage?.coloredImage) {
-        return `https://abhushangallery.com/products/${firstImage.coloredImage}`;
+        return `${FILE_URL}/products/${firstImage.coloredImage}`;
       }
     }
     return '/assets/images/defaultProduct.jpeg'; // Fallback image
@@ -141,10 +142,10 @@ const HotSellingProducts = () => {
 
   return (
     <div className="hot-selling-container">
-      <div className="page-header">
+      {/* <div className="page-header">
         <h1 className="page-title">🔥 Manage Hot Selling Products</h1>
         <p className="page-subtitle">Select products to feature as hot selling items on your store</p>
-      </div>
+      </div> */}
 
       {/* Message Alert */}
       {message.text && (

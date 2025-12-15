@@ -4,7 +4,7 @@ import {
   getCartlistAction,
   updatedCartByProductIdAction
 } from 'src/app/pages/web/cart/cart.slice'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {useDispatch, useSelector} from 'src/store'
@@ -150,7 +150,7 @@ if(!!isAlreadyExistData){
       <div className="product-image">
         {product?.images?.length > 0 ? (
           <img
-            src={`https://abhushangallery.com/products/${productImages?.[0]}`}
+            src={`${FILE_URL}/products/${productImages?.[0]}`}
             alt={product.name}
           />
         ) : (

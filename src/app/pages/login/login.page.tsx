@@ -1,19 +1,15 @@
-// ============================================
-// FRONTEND FILE 1: LoginPage.tsx (COMPLETE REWRITE)
-// ============================================
-
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './_loginPage.scss'
 import { useDispatch } from 'src/store'
 import { ForgotPasswordAction, LoginAction } from './login.slice'
 import toast from 'react-hot-toast'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { setCookie } from 'src/helpers'
 import { useAuth } from 'src/app/routing'
-import { Eye, EyeOff } from 'lucide-react'
-import { useMedia } from 'src/hooks'
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
+import { BASE_URL } from 'src/config'
 
 interface GoogleUserData {
   email: string
@@ -34,12 +30,42 @@ interface FacebookUserData {
   }
 }
 
-const API_BASE_URL = 'http://localhost:8000/api'
-const FACEBOOK_APP_ID = '2593546121022183'
-const TIKTOK_CLIENT_KEY = 'YOUR_TIKTOK_CLIENT_KEY' // Replace with your TikTok Client Key
-const TIKTOK_REDIRECT_URI = 'http://localhost:3010/tiktok-callback' // Your callback URL
+interface LoginResponse {
+  message: string
+  success: boolean
+  user: {
+    _id: string
+    email: string
+    name: string
+    role: string
+    picture?: string
+  }
+  userRoles: string
+  token: string
+  expiresIn: string
+}
 
-// Facebook SDK type declaration
+// const API_BASE_URL = 'http://localhost:8000/api'
+
+// const API_BASE_URL = '/api'
+
+const FACEBOOK_APP_ID = '2593546121022183'
+
+const ADMIN_CREDENTIALS = [
+  {
+    email: 'adminemail12@gmail.com',
+    password: '123456783',
+    id: '68c432bec123ae6086bd1866',
+    name: 'Admin'
+  },
+  {
+    email: 'meromail123@gmail.com',
+    password: '12345673',
+    id: '68c432bec123ae6086bd1867',
+    name: 'Admin 2'
+  }
+] as const
+
 declare global {
   interface Window {
     FB: any
@@ -47,22 +73,31 @@ declare global {
   }
 }
 
-export const LoginPage = () => {
+export const LoginPage: React.FC = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { handleLogin } = useAuth()
+  
   const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [isFacebookSDKReady, setIsFacebookSDKReady] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { handleLogin } = useAuth()
-  const media = useMedia()
 
-  // Initialize Facebook SDK
+  const validateEmail = useCallback((email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email.trim())
+  }, [])
+
+  const checkAdminCredentials = useCallback((email: string, password: string) => {
+    return ADMIN_CREDENTIALS.find(
+      admin => admin.email === email && admin.password === password
+    )
+  }, [])
+
   useEffect(() => {
-    // Load Facebook SDK script
     const loadFacebookSDK = () => {
       if (document.getElementById('facebook-jssdk')) {
+        setIsFacebookSDKReady(true)
         return
       }
 
@@ -74,12 +109,13 @@ export const LoginPage = () => {
       script.crossOrigin = 'anonymous'
       
       const firstScript = document.getElementsByTagName('script')[0]
-      firstScript.parentNode?.insertBefore(script, firstScript)
+      if (firstScript && firstScript.parentNode) {
+        firstScript.parentNode.insertBefore(script, firstScript)
+      }
     }
 
-    // Initialize Facebook SDK when loaded
-    window.fbAsyncInit = function() {
-      window.FB.init({
+    window.fbAsyncInit = () => {
+      window.FB?.init({
         appId: FACEBOOK_APP_ID,
         cookie: true,
         xfbml: true,
@@ -87,176 +123,112 @@ export const LoginPage = () => {
       })
       
       setIsFacebookSDKReady(true)
-      console.log('Facebook SDK initialized successfully')
     }
 
     loadFacebookSDK()
   }, [])
 
-  // Handle TikTok callback
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
-    const code = searchParams.get('code')
-    const state = searchParams.get('state')
-    const error = searchParams.get('error')
+  const handleSuccessfulLogin = useCallback((data: LoginResponse) => {
 
-    if (error) {
-      toast.error('TikTok login was cancelled or failed')
-      navigate('/login', { replace: true })
-      return
+    console.log(data,"data value for login hai")
+    if (data?.user?._id) {
+      setCookie('userId', data.user._id)
+    }
+    
+    if (data.user?.picture) {
+      setCookie('userPicture', data.user.picture)
+    }
+    
+    if (data.user?.name) {
+      setCookie('userName', data.user.name)
     }
 
-    if (code && state) {
-      // Verify state to prevent CSRF attacks
-      const savedState = sessionStorage.getItem('tiktok_state')
-      
-      if (state !== savedState) {
-        toast.error('Invalid state parameter. Please try again.')
-        navigate('/login', { replace: true })
-        return
-      }
+    const userRole = data?.userRoles || 'USER'
+    setCookie('userRoles', userRole)
+    handleLogin(data.token, userRole, data)
+    navigate('/home')
+  }, [handleLogin, navigate])
 
-      // Clear the state
-      sessionStorage.removeItem('tiktok_state')
+  const handleLogins = useCallback(() => {
+    const trimmedEmail = loginData.email.trim()
+    const trimmedPassword = loginData.password
 
-      // Handle TikTok login with the code
-      handleTikTokCallback(code)
-    }
-  }, [location])
-
-  const handleLogins = () => {
-    if (loginData.email.length === 0 || loginData.password.length === 0) {
+    if (!trimmedEmail || !trimmedPassword) {
       toast.error('Please fill in both email and password')
       return
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(loginData.email)) {
+    if (!validateEmail(trimmedEmail)) {
       toast.error('Please enter a valid email address')
       return
     }
 
     setIsLoading(true)
 
-    let userRole = 'USER'
-
-    // Hardcoded admin credentials - direct login without API call
-    if (
-      loginData?.email === 'adminemail12@gmail.com' &&
-      loginData?.password === '123456783'
-    ) {
-      userRole = 'ADMIN'
-      setCookie('userRoles', 'ADMIN')
-      const mockAdminData = {
+    const adminMatch = checkAdminCredentials(trimmedEmail, trimmedPassword)
+    
+    if (adminMatch) {
+      const mockAdminData: LoginResponse = {
         message: 'Login successful',
         success: true,
         user: {
-          _id: '68c432bec123ae6086bd1866',
-          email: 'adminemail12@gmail.com',
-          name: 'Admin',
+          _id: adminMatch.id,
+          email: adminMatch.email,
+          name: adminMatch.name,
           role: 'ADMIN'
         },
         userRoles: 'ADMIN',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGM0MzJiZWMxMjNhZTYwODZiZDE4NjYiLCJlbWFpbCI6ImFkbWluZW1haWwxMkBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTg3MzUxOTQsImV4cCI6MTc1ODgyMTU5NH0.OUke0Im6mpImGyi8nH3OoMB-BU2Fj8j8Nsxzr338ZOo',
+        token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI${adminMatch.id}IiwiZW1haWwiOiIke adminMatch.email}Iiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU4NzM1MTk0LCJleHAiOjE3NTg4MjE1OTR9.OUke0Im6mpImGyi8nH3OoMB-BU2Fj8j8Nsxzr338ZOo`,
         expiresIn: '24h'
       }
-      handleLogin(mockAdminData.token, 'ADMIN', mockAdminData)
-      setCookie('userId', mockAdminData.user._id)
-      toast.success('Logged in as Admin')
+      
+      handleSuccessfulLogin(mockAdminData)
+      toast.success(`Welcome ${adminMatch.name}!`)
       setIsLoading(false)
-      navigate('/home')
-      return
-    } else if (
-      loginData?.email === 'meromail123@gmail.com' &&
-      loginData?.password === '12345673'
-    ) {
-      userRole = 'ADMIN'
-      setCookie('userRoles', 'ADMIN')
-      const mockAdminData = {
-        message: 'Login successful',
-        success: true,
-        user: {
-          _id: '68c432bec123ae6086bd1867',
-          email: 'meromail123@gmail.com',
-          name: 'Admin 2',
-          role: 'ADMIN'
-        },
-        userRoles: 'ADMIN',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGM0MzJiZWMxMjNhZTYwODZiZDE4NjciLCJlbWFpbCI6Im1lcm9tYWlsMTIzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1ODczNTE5NCwiZXhwIjoxNzU4ODIxNTk0fQ.OUke0Im6mpImGyi8nH3OoMB-BU2Fj8j8Nsxzr338ZOo',
-        expiresIn: '24h'
-      }
-      handleLogin(mockAdminData.token, 'ADMIN', mockAdminData)
-      setCookie('userId', mockAdminData.user._id)
-      toast.success('Logged in as Admin')
-      setIsLoading(false)
-      navigate('/home')
       return
     }
 
-    // Regular login flow via API
     dispatch(
       LoginAction({
         loginBody: {
-          email: loginData.email.trim(),
-          password: loginData.password
+          email: trimmedEmail,
+          password: trimmedPassword
         },
         onSuccess: (data: any) => {
           setIsLoading(false)
           toast.success('Logged in successfully')
-
-          if (data?.user?._id) {
-            setCookie('userId', data.user._id)
-          }
-
-          // Handle role assignment
-          if (data?.userRoles) {
-            setCookie('userRoles', data.userRoles)
-            handleLogin(data.token, data.userRoles, data)
-          } else {
-            setCookie('userRoles', 'USER')
-            handleLogin(data.token, 'USER', data)
-          }
-
-          navigate('/home')
+          handleSuccessfulLogin(data)
         },
         onError: (error: any) => {
           setIsLoading(false)
-          if (error?.response?.status === 401) {
-            toast.error('Invalid email or password')
-          } else if (error?.response?.status === 404) {
-            toast.error('User not found')
-          } else if (error?.response?.status >= 500) {
-            toast.error('Server error. Please try again later.')
-          } else {
-            toast.error(
-              error?.response?.data?.message || 'Login failed. Please try again.'
-            )
+          const status = error?.response?.status
+          
+          const errorMessages: Record<number, string> = {
+            401: 'Invalid email or password',
+            404: 'User not found',
+            500: 'Server error. Please try again later.',
+            502: 'Server error. Please try again later.',
+            503: 'Server error. Please try again later.'
           }
+          
+          const errorMessage = status && status >= 500 
+            ? errorMessages[500] 
+            : errorMessages[status] || error?.response?.data?.message || 'Login failed. Please try again.'
+          
+          toast.error(errorMessage)
         }
       })
     )
-  }
+  }, [loginData, validateEmail, checkAdminCredentials, handleSuccessfulLogin, dispatch])
 
-  const handleGoogleLoginSuccess = async (credentialResponse: any) => {
+  const handleGoogleLoginSuccess = useCallback(async (credentialResponse: any) => {
     try {
       setIsLoading(true)
-      
-      // Decode the JWT credential from Google
-      const decodedResponse: GoogleUserData = jwtDecode(
-        credentialResponse.credential
-      )
+      const decodedResponse: GoogleUserData = jwtDecode(credentialResponse.credential)
 
-      console.log('Google User Data:', decodedResponse)
-
-      // Call the separate Google login endpoint
-      const response = await fetch(`${API_BASE_URL}/google-login`, {
+      const response = await fetch(`${BASE_URL}/google-login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           googleToken: credentialResponse.credential,
           name: decodedResponse.name,
@@ -264,58 +236,28 @@ export const LoginPage = () => {
         }),
       })
 
-      const data = await response.json()
+      const data: LoginResponse = await response.json()
 
       if (!response.ok) {
         throw new Error(data.message || 'Google login failed')
       }
 
-      setIsLoading(false)
       toast.success(`Welcome ${decodedResponse.name}!`)
-
-      // Store user information
-      if (data?.user?._id) {
-        setCookie('userId', data.user._id)
-      }
-
-      if (data.user?.picture) {
-        setCookie('userPicture', data.user.picture)
-      }
-      
-      if (data.user?.name) {
-        setCookie('userName', data.user.name)
-      }
-
-      // Handle role assignment
-      if (data?.userRoles) {
-        setCookie('userRoles', data.userRoles)
-        handleLogin(data.token, data.userRoles, data)
-      } else {
-        setCookie('userRoles', 'USER')
-        handleLogin(data.token, 'USER', data)
-      }
-
-      navigate('/home')
+      handleSuccessfulLogin(data)
     } catch (error: any) {
-      setIsLoading(false)
-      console.error('Google Login Error:', error)
       toast.error(error.message || 'Google login failed. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [handleSuccessfulLogin])
 
-  const handleGoogleLoginError = () => {
-    console.error('Google Login Failed')
+  const handleGoogleLoginError = useCallback(() => {
     toast.error('Google login failed. Please try again.')
-  }
+  }, [])
 
-  const handleFacebookLogin = () => {
-    if (!isFacebookSDKReady) {
-      toast.error('Facebook SDK is still loading. Please try again in a moment.')
-      return
-    }
-
-    if (!window.FB) {
-      toast.error('Facebook SDK not loaded. Please refresh the page.')
+  const handleFacebookLogin = useCallback(() => {
+    if (!isFacebookSDKReady || !window.FB) {
+      toast.error('Facebook is still loading. Please try again in a moment.')
       return
     }
 
@@ -323,410 +265,240 @@ export const LoginPage = () => {
 
     window.FB.login(
       (response: any) => {
-        console.log('Facebook login response:', response)
-
         if (response.authResponse) {
-          // User successfully logged in
           const { accessToken, userID } = response.authResponse
 
-          // Get user profile information
-          window.FB.api('/me', { fields: 'name,email,picture' }, async (userInfo: FacebookUserData) => {
-            console.log('Facebook user info:', userInfo)
+          window.FB.api(
+            '/me',
+            { fields: 'name,email,picture' },
+            async (userInfo: FacebookUserData) => {
+              try {
+                const backendResponse = await fetch(`${BASE_URL}/facebook-login`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    accessToken,
+                    userID,
+                    name: userInfo.name,
+                    email: userInfo.email,
+                    picture: userInfo.picture?.data?.url,
+                  }),
+                })
 
-            try {
-              // Send to backend
-              const backendResponse = await fetch(`${API_BASE_URL}/facebook-login`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  accessToken: accessToken,
-                  userID: userID,
-                  name: userInfo.name,
-                  email: userInfo.email,
-                  picture: userInfo.picture?.data?.url,
-                }),
-              })
+                const data: LoginResponse = await backendResponse.json()
 
-              const data = await backendResponse.json()
+                if (!backendResponse.ok) {
+                  throw new Error(data.message || 'Facebook login failed')
+                }
 
-              if (!backendResponse.ok) {
-                throw new Error(data.message || 'Facebook login failed')
+                toast.success(`Welcome ${userInfo.name}!`)
+
+                console.log("facebook login data",data)
+                handleSuccessfulLogin(data)
+              } catch (error: any) {
+                toast.error(error.message || 'Facebook login failed. Please try again.')
+              } finally {
+                setIsLoading(false)
               }
-
-              setIsLoading(false)
-              toast.success(`Welcome ${userInfo.name}!`)
-
-              // Store user information
-              if (data?.user?._id) {
-                setCookie('userId', data.user._id)
-              }
-
-              if (data.user?.picture) {
-                setCookie('userPicture', data.user.picture)
-              }
-              
-              if (data.user?.name) {
-                setCookie('userName', data.user.name)
-              }
-
-              // Handle role assignment
-              if (data?.userRoles) {
-                setCookie('userRoles', data.userRoles)
-                handleLogin(data.token, data.userRoles, data)
-              } else {
-                setCookie('userRoles', 'USER')
-                handleLogin(data.token, 'USER', data)
-              }
-
-              navigate('/home')
-            } catch (error: any) {
-              setIsLoading(false)
-              console.error('Facebook Login Backend Error:', error)
-              toast.error(error.message || 'Facebook login failed. Please try again.')
             }
-          })
+          )
         } else {
-          // User cancelled login or did not fully authorize
           setIsLoading(false)
           toast.error('Facebook login was cancelled')
-          console.log('Facebook login cancelled by user')
         }
       },
       { scope: 'public_profile,email' }
     )
-  }
+  }, [isFacebookSDKReady, handleSuccessfulLogin])
 
-  const handleTikTokLogin = () => {
-    // Generate random state for CSRF protection
-    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  const handleForgotPassword = useCallback(() => {
+    const trimmedEmail = loginData.email.trim()
     
-    // Store state in sessionStorage for verification
-    sessionStorage.setItem('tiktok_state', state)
-    
-    // TikTok OAuth authorization URL
-    const scope = 'user.info.basic' // Request basic user info
-    const authUrl = `https://www.tiktok.com/v2/auth/authorize/?client_key=${TIKTOK_CLIENT_KEY}&scope=${scope}&response_type=code&redirect_uri=${encodeURIComponent(TIKTOK_REDIRECT_URI)}&state=${state}`
-    
-    console.log('Redirecting to TikTok OAuth:', authUrl)
-    
-    // Redirect to TikTok authorization page
-    window.location.href = authUrl
-  }
-
-  const handleTikTokCallback = async (code: string) => {
-    try {
-      setIsLoading(true)
-      console.log('Processing TikTok callback with code:', code)
-
-      // Send authorization code to backend
-      const response = await fetch(`${API_BASE_URL}/tiktok-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: code,
-          redirectUri: TIKTOK_REDIRECT_URI
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'TikTok login failed')
-      }
-
-      setIsLoading(false)
-      toast.success(`Welcome ${data.user.name || 'TikTok User'}!`)
-
-      // Store user information
-      if (data?.user?._id) {
-        setCookie('userId', data.user._id)
-      }
-
-      if (data.user?.picture) {
-        setCookie('userPicture', data.user.picture)
-      }
-      
-      if (data.user?.name) {
-        setCookie('userName', data.user.name)
-      }
-
-      // Handle role assignment
-      if (data?.userRoles) {
-        setCookie('userRoles', data.userRoles)
-        handleLogin(data.token, data.userRoles, data)
-      } else {
-        setCookie('userRoles', 'USER')
-        handleLogin(data.token, 'USER', data)
-      }
-
-      navigate('/home')
-    } catch (error: any) {
-      setIsLoading(false)
-      console.error('TikTok Login Error:', error)
-      toast.error(error.message || 'TikTok login failed. Please try again.')
-      navigate('/login', { replace: true })
-    }
-  }
-
-  const handleForgotPassword = () => {
-    if (!loginData.email) {
+    if (!trimmedEmail) {
       toast.error('Please enter your email address first')
       return
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(loginData.email)) {
+    if (!validateEmail(trimmedEmail)) {
       toast.error('Please enter a valid email address')
       return
     }
 
     dispatch(
       ForgotPasswordAction({
-        userEmail: loginData.email.trim(),
+        userEmail: trimmedEmail,
         onSuccess: () => {
           toast.success('Password reset link has been sent to your email')
         },
         onError: (error: any) => {
           toast.error(
-            error?.response?.data?.message ||
-              'Failed to send reset link. Please try again.'
+            error?.response?.data?.message || 'Failed to send reset link. Please try again.'
           )
         }
       })
     )
-  }
+  }, [loginData.email, validateEmail, dispatch])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading) {
       handleLogins()
     }
-  }
+  }, [handleLogins, isLoading])
 
-  React.useEffect(() => {
-    console.log('LoginPage mounted')
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData(prev => ({ ...prev, email: e.target.value }))
   }, [])
 
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData(prev => ({ ...prev, password: e.target.value }))
+  }, [])
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev)
+  }, [])
+
+  const navigateToRegister = useCallback(() => {
+    navigate('/register')
+  }, [navigate])
+
   return (
-    <>
-      <h2 className="login-title">Log in</h2>
-      <div className="container" style={{ paddingTop: 0 }}>
-        <div className="login-form">
-          <div>
-            <label htmlFor="email">Email </label>
+    <div className="login-page-wrapper">
+      <div className="login-container">
+        <h1 className="login-title">Sign In</h1>
+        <p className="login-subtitle">Enter your credentials to continue</p>
+
+        <div className="form-group">
+          <label htmlFor="email">Email Address</label>
+          <div className="input-wrapper">
+            <Mail size={20} className="input-icon" />
             <input
               id="email"
               type="email"
-              placeholder="example@gmail.com"
-              name="email"
-              required
+              placeholder="you@example.com"
               value={loginData.email}
-              onChange={(e) =>
-                setLoginData((prev) => ({ ...prev, email: e.target.value }))
-              }
+              onChange={handleEmailChange}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
+              autoComplete="email"
+              aria-label="Email Address"
             />
           </div>
+        </div>
 
-          <div style={{ position: 'relative' }}>
-            <label htmlFor="password">Password </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="password"
-                name="password"
-                required
-                value={loginData.password}
-                onChange={(e) =>
-                  setLoginData((prev) => ({
-                    ...prev,
-                    password: e.target.value
-                  }))
-                }
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <div className="input-wrapper">
+            <Lock size={20} className="input-icon" />
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={loginData.password}
+              onChange={handlePasswordChange}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              autoComplete="current-password"
+              aria-label="Password"
+              className="with-toggle"
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="password-toggle"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              tabIndex={0}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+        </div>
+
+        <div className="forgot-password-wrapper">
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className="forgot-password-link"
+            disabled={isLoading}
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          onClick={handleLogins}
+          disabled={isLoading}
+          className="btn-sign-in"
+          aria-label={isLoading ? 'Signing in' : 'Sign in'}
+        >
+          {isLoading ? 'Signing in...' : 'Sign In'}
+        </button>
+
+        <div className="divider">
+          <div className="divider-line" />
+          <span className="divider-text">Or continue with</span>
+          <div className="divider-line" />
+        </div>
+
+        <div className="social-login-buttons">
+          <div className="social-button-wrapper">
+            <button
+              type="button"
+              onClick={() => {
+                const googleBtn = document.querySelector('[role="button"]') as HTMLElement
+                googleBtn?.click()
+              }}
+              className="btn-social btn-google"
+              disabled={isLoading}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Google
+            </button>
+            <div style={{ display: 'none' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleLoginSuccess}
+                onError={handleGoogleLoginError}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="continue_with"
+                shape="rectangular"
               />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '60%',
-                  cursor: 'pointer',
-                  transform: 'translateY(-50%)'
-                }}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </span>
             </div>
           </div>
 
           <button
-            className="btn btn--form"
-            style={{
-              background: isLoading ? '#ccc' : 'rgb(197 49 213)',
-              cursor: isLoading ? 'not-allowed' : 'pointer'
-            }}
-            type="submit"
-            onClick={handleLogins}
-            disabled={isLoading}
+            type="button"
+            onClick={handleFacebookLogin}
+            disabled={isLoading || !isFacebookSDKReady}
+            className="btn-social btn-facebook"
+            aria-label={
+              isLoading
+                ? 'Connecting to Facebook'
+                : !isFacebookSDKReady
+                ? 'Loading Facebook'
+                : 'Continue with Facebook'
+            }
           >
-            {isLoading ? 'Logging in...' : 'Log in'}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Facebook
           </button>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%',
-              flexDirection: !media.md ? 'column' : 'row',
-              gap: !media.md ? '10px' : '0'
-            }}
-          >
-            <p
-              onClick={handleForgotPassword}
-              style={{
-                cursor: 'pointer',
-                color: 'rgb(197 49 213)',
-                textDecoration: 'underline'
-              }}
-            >
-              Forgot Password?
-            </p>
-
-            <div>
-              Not Registered yet?{' '}
-              <span
-                onClick={() => navigate('/register')}
-                style={{
-                  cursor: 'pointer',
-                  color: 'rgb(197 49 213)',
-                  textDecoration: 'underline'
-                }}
-              >
-                Register Now
-              </span>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              margin: '20px 0',
-              gap: '10px'
-            }}
-          >
-            <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-            <span style={{ color: '#666', fontSize: '14px' }}>OR</span>
-            <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-          </div>
-
-          {/* Social Login Buttons */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-              alignItems: 'center'
-            }}
-          >
-            {/* Google Login Button */}
-            <GoogleLogin
-              onSuccess={handleGoogleLoginSuccess}
-              onError={handleGoogleLoginError}
-              useOneTap
-              theme="outline"
-              size="large"
-              text="continue_with"
-              shape="rectangular"
-            />
-
-            {/* Facebook Login Button */}
-            <button
-              onClick={handleFacebookLogin}
-              disabled={isLoading || !isFacebookSDKReady}
-              style={{
-                width: '100%',
-                maxWidth: '400px',
-                padding: '10px 20px',
-                border: '1px solid #1877f2',
-                borderRadius: '4px',
-                background: isLoading || !isFacebookSDKReady ? '#ccc' : '#1877f2',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: isLoading || !isFacebookSDKReady ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading && isFacebookSDKReady) {
-                  e.currentTarget.style.background = '#166fe5'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading && isFacebookSDKReady) {
-                  e.currentTarget.style.background = '#1877f2'
-                }
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              {isLoading ? 'Connecting...' : !isFacebookSDKReady ? 'Loading Facebook...' : 'Continue with Facebook'}
-            </button>
-
-            {/* TikTok Login Button */}
-            <button
-              onClick={handleTikTokLogin}
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                maxWidth: '400px',
-                padding: '10px 20px',
-                border: '1px solid #000',
-                borderRadius: '4px',
-                background: isLoading ? '#ccc' : '#000',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.background = '#333'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.background = '#000'
-                }
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
-              </svg>
-              {isLoading ? 'Connecting...' : 'Continue with TikTok'}
-            </button>
-          </div>
         </div>
+
+        <p className="signup-link">
+          Don't have an account?{' '}
+          <button type="button" onClick={navigateToRegister}>
+            Sign up
+          </button>
+        </p>
       </div>
-    </>
+    </div>
   )
 }

@@ -31,7 +31,7 @@ import toast from 'react-hot-toast'
 import {getCookie} from 'src/helpers'
 import {useMedia} from 'src/hooks'
 import {useAuth} from 'src/app/routing'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import { fetchHolidayModeAction, selectHolidayMode } from 'src/app/pages/holidayMode/holidayMode.slice'
 
 export const ProductWebDetail = () => {
@@ -567,7 +567,7 @@ export const ProductWebDetail = () => {
                           onTouchStart={handleTouchStart}
                         >
                           <CustomVideoPlayer
-                            videoUrl={`https://abhushangallery.com/video/${productDetailData?.video}`}
+                            videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
 
                             productDetails={{
 

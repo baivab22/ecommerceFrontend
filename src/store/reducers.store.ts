@@ -14,7 +14,7 @@ import SocialLinksReducer from 'src/app/pages/socialLinks/socialLinks.slice'
 import ResetPasswordReducer from 'src/app/pages/resetPassword/resetPassword.slice'
 import LoginReducer from 'src/app/pages/login/login.slice'
 import HolidayModeReducer from 'src/app/pages/holidayMode/holidayMode.slice'
-
+import qrScanReducer from 'src/app/pages/qrScanner/qrScanner.slice'
 export const store = configureStore({
   reducer: {
     product: productReducer,
@@ -28,6 +28,7 @@ export const store = configureStore({
     socialLinks: SocialLinksReducer,
     resetPassword: ResetPasswordReducer,
     Login: LoginReducer,
-    holidayMode:HolidayModeReducer
+    holidayMode:HolidayModeReducer,
+  scan:qrScanReducer
   }
 })

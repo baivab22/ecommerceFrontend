@@ -3,7 +3,7 @@ import {useStepContext} from '@mui/material'
 import {useState, useRef, useEffect} from 'react'
 import ReactImageMagnify from 'react-image-magnify'
 import {Skeleton} from '@mui/material'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 
 export const ZoomSlider = ({data}: {data: any}) => {
   console.log(data, 'data required')
@@ -20,7 +20,7 @@ export const ZoomSlider = ({data}: {data: any}) => {
 
     setLoading(true)
     const images = data?.map((item: any, index: number) => {
-      return `https://abhushangallery.com/products/${item}`
+      return `${FILE_URL}/products/${item}`
     })
 
     console.log(images, 'images values')

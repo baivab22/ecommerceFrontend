@@ -145,7 +145,7 @@ console.log(preSelected, 'preSelected')
   
 
   return (
-    <VStack gap="$3">
+    <VStack gap="$3" style={{padding:'12px 20px'}} >
       {/* SubCategory Name */}
       <VStack gap="$2">
         <Label required labelName="Sub Category Name" />

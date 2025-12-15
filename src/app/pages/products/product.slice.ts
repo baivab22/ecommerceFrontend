@@ -65,6 +65,30 @@ const getHotSellingProductsAction = createAsyncThunk(
   }
 )
 
+const getWatchAndShopProductsAction = createAsyncThunk(
+  'product/watch-and-shop',
+  async (
+    {
+      onSuccess
+    }: {
+      onSuccess?: (data: any) => void
+    },
+    thunkAPI
+  ) => {
+    try {
+      const response = await productService.getProductList({
+        isWatchAndShop: true,
+        limit: 20 // Fetch enough items
+      })
+
+      onSuccess?.(response)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Cannot get watch and shop products!')
+    }
+  }
+)
+
 const getAllProductVariantImagesAction = createAsyncThunk(
   'colorVariant/list',
   async (
@@ -321,6 +345,8 @@ const initialState: {
   createproductVariantList: any
   hotSellingProducts?: any
   hotSellingProductsLoading: boolean
+  watchAndShopData?: any[]
+  watchAndShopLoading: boolean
 } = {
   loading: false,
   data: undefined,
@@ -338,7 +364,9 @@ const initialState: {
   createProductVariantLoading: false,
   createproductVariantList: undefined,
   hotSellingProducts: undefined,
-  hotSellingProductsLoading: false
+  hotSellingProductsLoading: false,
+  watchAndShopData: undefined,
+  watchAndShopLoading: false
 }
 
 const productSlice = createSlice({
@@ -369,6 +397,17 @@ const productSlice = createSlice({
     })
     builder.addCase(getHotSellingProductsAction.rejected, (state) => {
       state.hotSellingProductsLoading = false
+    })
+
+    builder.addCase(getWatchAndShopProductsAction.pending, (state) => {
+      state.watchAndShopLoading = true
+    })
+    builder.addCase(getWatchAndShopProductsAction.fulfilled, (state, action) => {
+      state.watchAndShopLoading = false
+      state.watchAndShopData = action.payload.data
+    })
+    builder.addCase(getWatchAndShopProductsAction.rejected, (state) => {
+      state.watchAndShopLoading = false
     })
 
     builder.addCase(getAllProductVariantImagesAction.pending, (state) => {
@@ -475,6 +514,7 @@ const productSlice = createSlice({
 export {
   getProductListAction,
   getHotSellingProductsAction,
+  getWatchAndShopProductsAction,
   delteProductAction,
   getProductDetailByIdAction,
   createProductAction,

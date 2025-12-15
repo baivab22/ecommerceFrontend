@@ -55,6 +55,10 @@
     }
 
     &-right {
+
+      // border: 2px solid red;
+
+      gap:unset;
       flex: 2;
       &-price {
         .originalPrice {

@@ -7,6 +7,9 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   envPrefix: 'REACT_APP_',
   plugins: [react(), tsconfigPaths({root: '.'})],
+  define: {
+    'process.env': {}
+  },
   // resolve: {
   //   alias: {
   //     src: path.join(__dirname, 'src')

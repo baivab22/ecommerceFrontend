@@ -9,7 +9,7 @@ import {useMedia, useQuery} from 'src/hooks'
 import {IoIosArrowBack, IoIosArrowForward} from 'react-icons/io'
 import {WatchAndShopCard} from '../watchAndShop/watchAndShop.component'
 import {IoClose} from 'react-icons/io5'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {useBodyOverflowHiddenOnClassInView} from 'src/hooks/useBodyScrollOverlay.hook'
 
 export const ProductCarousel = ({data}: {data: any}) => {
@@ -98,7 +98,7 @@ export const ProductCarousel = ({data}: {data: any}) => {
                   <IoClose size={20} color="red" stroke="white"></IoClose>
                 </button>
                 <video
-                  src={`https://abhushangallery.com/video/${data[activeVideoIndex]?.video}`}
+                  src={`${FILE_URL}/video/${data[activeVideoIndex]?.video}`}
                   controls
                   autoPlay
                   className="activeVideo"

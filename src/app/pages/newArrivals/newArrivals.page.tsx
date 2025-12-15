@@ -17,7 +17,7 @@ import {
 import {useNavigate} from 'react-router-dom'
 import {toast} from 'react-hot-toast'
 import {getCategoryListAction} from '../category/category.slice'
-import {useDebounceValue} from 'src/hooks'
+import {useDebounceValue, useMedia} from 'src/hooks'
 export const NewArrivalListPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -105,7 +105,7 @@ export const NewArrivalListPage = () => {
   }, [searchTxt, selectedCateory])
 
   console.log(data?.length, 'data length')
-
+const media=useMedia();
   return (
     <div>
       <Box>
@@ -115,15 +115,35 @@ export const NewArrivalListPage = () => {
             placeholder="Search Your Product"
             onChange={handleSearch}
           ></SearchField>
-          <SelectField
+
+
+
+          {
+            !media.md &&         <SelectField
             // defaultValue={category?.[0]}
             options={category}
             value={selectedCateory}
-            width="320px"
+              containerStyle={{width:'max-content'}}
+            // width={!media.md?"320px":"unset"}
             onChangeValue={(data) => setSelectedCategory(data)}
             placeholder={'Filter Product By Category'}
           />
+          }
+  
         </HStack>
+
+                {
+            media.md &&         <SelectField
+            // defaultValue={category?.[0]}
+            options={category}
+            value={selectedCateory}
+            // width={!media.md?"320px":"unset"}
+            onChangeValue={(data) => setSelectedCategory(data)}
+            containerStyle={{width:'max-content'}}
+            placeholder={'Filter Product By Category'}
+          />
+          }
+  
 
         <Table
           columns={[

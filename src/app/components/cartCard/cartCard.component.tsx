@@ -7,7 +7,7 @@ import {
   getCartlistAction,
   updatedCartByProductIdAction
 } from 'src/app/pages/web/cart/cart.slice'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import {useDispatch} from 'src/store'
@@ -115,7 +115,7 @@ export const CartCard = ({
         <HStack className="cartCard-left" gap="$3">
           <HStack className="cartCard-left-image">
             <img
-              src={`https://abhushangallery.com/products/${data?.productId?.images[0]?.coloredImage}`}
+              src={`${FILE_URL}/products/${data?.productId?.images[0]?.coloredImage}`}
             />
           </HStack>
           <VStack className="cartCard-left-detail">

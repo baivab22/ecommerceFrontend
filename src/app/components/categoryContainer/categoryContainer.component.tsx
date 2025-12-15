@@ -97,7 +97,7 @@ import {useMedia, useQuery} from 'src/hooks'
 import {IoIosArrowBack, IoIosArrowForward} from 'react-icons/io'
 import {WatchAndShopCard} from '../watchAndShop/watchAndShop.component'
 import {IoClose} from 'react-icons/io5'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {useNavigate} from 'react-router-dom'
 
 export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean}) => {
@@ -201,7 +201,7 @@ export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean
               return (
                 <SwiperSlide key={item.id}>
                   <CategorryContainers
-                    imgSrc={`https://abhushangallery.com/${mainImage}`}
+                    imgSrc={`${FILE_URL}/${mainImage}`}
                     name={item.name}
                     linkValue={`/products?categoryId=${item.id}&categoryname=${item.name}`}
                   />

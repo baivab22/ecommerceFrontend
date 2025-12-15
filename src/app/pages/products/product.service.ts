@@ -13,6 +13,7 @@ const getProductList = async (query?: {
   nestedSubCategoryId?: string
   page?: number
   limit?: number
+  isWatchAndShop?: boolean
 }) => {
   console.log('Service query:', query)
 
@@ -28,7 +29,8 @@ const getProductList = async (query?: {
     isNewArrivals: query?.isNewArrivals ?? '',
     nestedSubCategoryId: query?.nestedSubCategoryId ?? '',
     page: query?.page ?? 1,
-    limit: query?.limit ?? 12
+    limit: query?.limit ?? 12,
+    isWatchAndShop: query?.isWatchAndShop ?? ''
   })
 
   console.log('Service response:', response)

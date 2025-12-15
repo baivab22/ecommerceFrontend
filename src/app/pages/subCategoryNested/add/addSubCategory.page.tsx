@@ -65,7 +65,7 @@ export const AddSubCategoryPageNested = () => {
   }
 
   return (
-    <VStack gap="$3">
+    <VStack gap="$3" style={{padding:'12px 20px'}}>
       <VStack gap="$2">
         <Label required labelName="Sub Category Name"></Label>
 

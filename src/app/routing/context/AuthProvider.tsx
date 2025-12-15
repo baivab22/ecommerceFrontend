@@ -100,6 +100,8 @@ export const AuthProvider = memo(({children}: any) => {
         loginData,
         setLoginData,
         handleLogin: (token?: string, role?: string,loginDatas?:any) => {
+
+          console.log(loginDatas,"login datas value hai")
           token && setCookie('token', token)
           role && loginSuccess(role)
       setLoginData(loginDatas)
@@ -114,6 +116,8 @@ export const AuthProvider = memo(({children}: any) => {
           removeCookie('@token')
           removeCookie('userId')
           removeCookie('userRoles')
+              removeCookie('userName')
+                  removeCookie('userPicture')
         }
       }}
     >

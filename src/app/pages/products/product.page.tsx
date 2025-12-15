@@ -13,10 +13,10 @@ import {
 import {useNavigate} from 'react-router-dom'
 import {toast} from 'react-hot-toast'
 import {getCategoryListAction} from '../category/category.slice'
-import {useDebounceValue} from 'src/hooks'
+import {useDebounceValue, useMedia} from 'src/hooks'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {useQuery} from 'src/hooks'
 
 export const ProductListPage = () => {
@@ -167,26 +167,47 @@ export const ProductListPage = () => {
       })
     )
   }, [dispatch, currentPage, debouncedSearchTxt, selectedCateory])
-
+const media=useMedia();
   return (
     <div>
       <Box>
         <HStack justify="space-between" gap={'$4'} style={{margin: '20px 0'}}>
-          <Button title="Add Product" onClick={() => navigate('add')}></Button>
-          <Button title="Download Pdf" onClick={handlePdfDownload}></Button>
-          <SearchField
+          <Button title="Add Product" onClick={() => navigate('add')}
+            style={{
+              padding:!media.md?'8px':'8px 20px'
+            }}
+            ></Button>
+          <Button title="Download Pdf" onClick={handlePdfDownload}
+              style={{
+              padding:!media.md?'8px':'8px 20px'
+            }}
+          ></Button>
+          {
+            media.md  &&    <SearchField
             placeholder="Search Your Product"
             value={searchTxt}
             onChange={handleSearch}
           ></SearchField>
+          }
+       
           <SelectField
             options={category}
             value={selectedCateory}
-            width="320px"
+            // width="320px"
             onChangeValue={(data) => setSelectedCategory(data)}
             placeholder={'Filter Product By Category'}
           />
         </HStack>
+    {
+            !media.md  &&    <SearchField
+            placeholder="Search Your Product"
+            value={searchTxt}
+            onChange={handleSearch}
+          ></SearchField>
+          }
+        <div> 
+          
+        </div>
         <div ref={proudctCardRef}>
           <Table
             columns={[
@@ -213,7 +234,7 @@ export const ProductListPage = () => {
                 render: (datas) => (
                   <div>
                     <img
-                      src={`https://abhushangallery.com/products/${datas?.[0]?.coloredImage}`}
+                      src={`${FILE_URL}/products/${datas?.[0]?.coloredImage}`}
                       style={{height: '70px', width: '100px'}}
                       alt="product"
                     ></img>

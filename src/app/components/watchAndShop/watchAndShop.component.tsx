@@ -6,7 +6,7 @@ import 'swiper/css/navigation'
 import { useMedia } from 'src/hooks'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import { Play, X } from 'lucide-react'
-import { FILE_URL } from 'src/config'
+import { BASE_URL, FILE_URL } from 'src/config'
 import { HStack, VStack } from 'src/app/common'
 import { getNprPrice } from 'src/helpers/nprPrice.helper'
 import './_watchAndShop.scss'
@@ -16,6 +16,8 @@ export const WatchAndShopSection = ({ data }: { data: any }) => {
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [activeVideoIndex, setActiveVideoIndex] = useState(0)
   const swiperRef = useRef(null)
+
+  console.log(data,"data value finally")
 
   const getSlides = () => {
     if (media?.xs) return 2
@@ -91,7 +93,7 @@ export const WatchAndShopSection = ({ data }: { data: any }) => {
         <FullscreenVideoModal
           data={data[activeVideoIndex]}
           onClose={() => setIsFullScreen(false)}
-          videoUrl={`https://abhushangallery.com/video/${data[activeVideoIndex]?.video}`}
+          videoUrl={`${FILE_URL}/video/${data[activeVideoIndex]?.video}`}
           allData={data}
           currentIndex={activeVideoIndex}
           setActiveIndex={setActiveVideoIndex}
@@ -119,7 +121,8 @@ export const WatchAndShopCard = ({
           }}
         >
           <div className="videosWatch">
-            <video src={`https://abhushangallery.com/video/${data?.video}`} muted autoPlay loop playsInline />
+              <video src={`http://localhost:8000/uploads/video/${data?.video}`} muted autoPlay loop playsInline />
+            {/* <video src={`https://abhushangallery.com/video/${data?.video}`} muted autoPlay loop playsInline /> */}
           </div>
 
           <button
@@ -132,7 +135,7 @@ export const WatchAndShopCard = ({
             aria-label="Play video"
             type="button"
           >
-            <Play size={32} color="white" fill="white" />
+            <Play size={32} color="white" fill="white" />..
           </button>
         </div>
 
@@ -140,7 +143,7 @@ export const WatchAndShopCard = ({
         <HStack className="productDetailCardWatch">
           <div className="productImageWatch">
             <img
-              src={`https://abhushangallery.com/products/${data?.images?.[0]?.coloredImage}`}
+              src={`${BASE_URL}/products/${data?.images?.[0]?.coloredImage}`}
               onError={(event) => {
                 event.currentTarget.src =
                   'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg'

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState, useRef} from 'react'
 import {useDispatch, useSelector} from 'src/store'
-import {useParams} from 'src/hooks'
+import {useMedia, useParams} from 'src/hooks'
 import {
   Button,
   CheckBox,
@@ -29,7 +29,7 @@ import {toast} from 'react-hot-toast'
 import ImageUploader from 'src/app/common/imageUploader/imageUploader.common'
 import VideoUploader from 'src/app/common/videoUploader/videoUploader.common'
 import {v4 as uuidv4} from 'uuid'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 
 export const AddProductPage = () => {
   const navigate = useNavigate()
@@ -186,7 +186,7 @@ export const AddProductPage = () => {
       }))
 
       const videoUrl = productDetailData?.video
-        ? `https://abhushangallery.com/video/${productDetailData.video}`
+        ? `${FILE_URL}/video/${productDetailData.video}`
         : null
 
       if (videoUrl) {
@@ -379,7 +379,8 @@ export const AddProductPage = () => {
     formData.append('discountPercentage', data.discountPercentage)
     formData.append('description', data.description)
     console.log(data.video, 'data video')
-    formData.append('video', data.video)
+
+formData.append('video', data.video)
     formData.append('stockQuantity', data.stockQuantity)
     formData.append('isHotSelling', JSON.stringify(isHotSelling))
 
@@ -490,7 +491,7 @@ const handleColorVariant = async () => {
       // ✅ CASE 2: Existing image (string filename)
       else if (typeof item.image === 'string' && item.existingImagePath) {
         try {
-          const imageUrl = `https://abhushangallery.com/products/${item.existingImagePath}`;
+          const imageUrl = `${FILE_URL}/products/${item.existingImagePath}`;
           const response = await fetch(imageUrl);
           if (!response.ok) throw new Error(`Failed to fetch ${imageUrl}`);
           const blob = await response.blob();
@@ -555,10 +556,12 @@ const handleColorVariant = async () => {
   console.log(productDetailData?.images, productDetailData, 'images data value')
 
   console.log('isHot selling value', isHotSelling)
-
+const media=useMedia();
   return (
     <div className="addProductContainer">
-      <div className="addProduct">
+      <div className="addProduct"
+      style={{padding:'20px 12px'}}
+      >
         <div className="addProduct-input">
           <Label required labelName="Product Name"></Label>
           <InputField
@@ -571,7 +574,7 @@ const handleColorVariant = async () => {
           ></InputField>
         </div>
 
-        <HStack gap="$3">
+        <div style={{display:'flex',gap:'12px',flexDirection:!media.md?'column':'row'}}>
           <div className="addProduct-input">
             <Label required labelName="Category"></Label>
             <SelectField
@@ -602,7 +605,7 @@ const handleColorVariant = async () => {
               }
             />
           </div>
-        </HStack>
+        </div>
 
         {/* NEW: Nested SubCategory Dropdown - Only shows when nested options exist */}
         {(nestedSubCategory && nestedSubCategory.length > 0) || selectedNestedSubCategory ? (
@@ -697,7 +700,12 @@ const handleColorVariant = async () => {
             ?.fill(10)
             ?.map((item: any, index: number) => {
               return (
-                <HStack key={index + item.name}>
+                <div
+                  div
+                 style={{display:'flex',gap:'12px',flexDirection:!media.md?'column':'row'}}
+                 key={index + item.name}
+                // HStack 
+                >
                   <div style={{minWidth:'300px'}}>
                     <ImageUploader
                       key={index}
@@ -760,7 +768,7 @@ const handleColorVariant = async () => {
                       onClick={handleColorVariant}
                     ></Button>
                   </div>
-                </HStack>
+                </div>
               )
             })}
 
@@ -779,7 +787,7 @@ const handleColorVariant = async () => {
           <VideoUploader
             defaultVideo={
               productId && !!productDetailData
-                ? `https://abhushangallery.com/video/${productDetailData?.video}`
+                ? `${FILE_URL}/video/${productDetailData?.video}`
                 : ''
             }
             onVideoChange={handleVideo}

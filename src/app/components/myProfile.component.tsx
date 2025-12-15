@@ -1,16 +1,20 @@
 import React from 'react';
 import { useSelector } from 'src/store';
+import { useAuth } from '../routing';
 
 export const MyProfile = () => {
   const data = useSelector((state: any) => state.Login);
+
+
+  const {loginData}=useAuth()
   console.log(data, "payload in login slice login page");
 
   const profileData = {
-    name: data?.loginData?.name && data?.loginData?.name !== "undefined undefined" 
-      ? data?.loginData?.name 
+    name: loginData?.user?.name && loginData?.user?.name !== "undefined undefined" 
+      ? loginData?.user?.name 
       : "Not set",
-    email: data?.loginData?.user?.email || "Not available",
-    role: data?.loginData?.userRoles || "Not assigned"
+    email: loginData?.user?.email || "user123@gmail.com",
+    role: loginData?.userRoles || "User"
   };
 
   return (

@@ -8,7 +8,7 @@ import {ActivityIndicator, Chip, HStack, Title, VStack} from 'src/app/common'
 import {CarouselSlider, ZoomSlider} from 'src/app/components'
 import ReactStarsRating from 'react-awesome-stars-rating'
 import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
-import {FILE_URL} from 'src/config'
+import {BASE_URL, FILE_URL} from 'src/config'
 import {createCartByUserIdAction, getCartlistAction} from '../cart/cart.slice'
 import toast from 'react-hot-toast'
 import {getCookie} from 'src/helpers'
@@ -315,7 +315,7 @@ export const OrderDetailsPage = () => {
                         onMouseDown={handleMouseDown}
                       >
                         <CustomVideoPlayer
-                          videoUrl={`https://abhushangallery.com/video/${productDetailData?.video}`}
+                          videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
                           thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
                         ></CustomVideoPlayer>
                       </div>

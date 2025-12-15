@@ -45,6 +45,9 @@ import ReturnPolicy from 'src/app/pages/returnPolicy'
 import ShippingPolicy from 'src/app/pages/shippingPolicy'
 import HolidayModePage from 'src/app/pages/holidayMode/holidayMode.page'
 import HotSellingProducts from 'src/app/pages/hotSelling/hotSelling.page'
+import SalesAnalytics from 'src/app/pages/salesAnalytics'
+import QRScanner from 'src/app/pages/qrScanner'
+import EmailMarketingDashboard from 'src/app/pages/emailMarketing'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -201,6 +204,30 @@ export const Router: RouteObject[] = [
       {
         path: '',
         element: <HotSellingProducts />
+      }
+    ]
+  },
+
+       {
+    path: '/dash-selling-analysis',
+    // element: <Sample />
+    element: <ProtectedAuth />,
+    children: [
+      {
+        path: '',
+        element: <SalesAnalytics/>
+      }
+    ]
+  },
+
+       {
+    path: '/dash-mark-shipped',
+    // element: <Sample />
+    element: <ProtectedAuth />,
+    children: [
+      {
+        path: '',
+        element: <QRScanner />
       }
     ]
   },
@@ -502,6 +529,27 @@ export const Router: RouteObject[] = [
         path: 'update/:socialLinksId',
         element: <AddSocialLinksPage />
       }
+    ]
+  },
+
+  {
+    path: '/dash-emailMarketing',
+
+    element: <ProtectedAuth />,
+    children: [
+      {
+        path: '',
+        element: <EmailMarketingDashboard />
+      },
+      // {
+      //   path: 'add',
+      //   element: <AddSocialLinksPage />
+      // },
+
+      // {
+      //   path: 'update/:socialLinksId',
+      //   element: <AddSocialLinksPage />
+      // }
     ]
   },
 

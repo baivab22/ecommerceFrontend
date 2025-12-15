@@ -445,7 +445,9 @@ export const TopHeader = () => {
 
   useEffect(() => {
     const userId = getCookie('userId')
-    userId && dispatch(getCartlistAction({ userId: userId }))
+
+    console.log("get cart list action finally")
+    !!userId && dispatch(getCartlistAction({ userId: userId }))
   }, [dispatch])
 
   useEffect(() => {
@@ -503,7 +505,9 @@ export const TopHeader = () => {
 
   return (
     <>
-      <div className="header-top">
+      <div className="header-top"
+
+      >
         <div className="container" style={{ paddingBottom: '0px' }}>
           <ul className="header-social-container">
             <li>
