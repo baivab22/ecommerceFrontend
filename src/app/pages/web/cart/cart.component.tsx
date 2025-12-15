@@ -7505,7 +7505,7 @@ export const CartPage = () => {
 
   // Subtotal calculation
   const subtotal = useMemo(() => {
-    return cartProducts.reduce((acc, item) => {
+    return cartProducts?.reduce((acc, item) => {
       const unitPrice = item.productId?.discountedPrice || 0
       const quantity = item.quantity || 0
       const itemTotal = unitPrice * quantity

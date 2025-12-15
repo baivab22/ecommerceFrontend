@@ -54,7 +54,7 @@ export const ProductCard = ({data}: {data: any}) => {
                 productImages.length > 0
                   ?
                   
-                  `http://localhost:8000/uploads/products/${productImages?.[0]}` : '/assets/images/defaultProduct.jpeg'  }
+                  `${FILE_URL}/products/${productImages?.[0]}` : '/assets/images/defaultProduct.jpeg'  }
 
                         alt={data?.name}
             

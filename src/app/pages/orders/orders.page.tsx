@@ -2671,8 +2671,8 @@ const OrderPDF = ({data}) => {
   const calculateOrderTotals = (products) => {
     if (!products || products.length === 0) return { totalQuantity: 0, totalPrice: 0 }
     
-    const totalQuantity = products.reduce((sum, product) => sum + (product.quantity || 0), 0)
-    const totalPrice = products.reduce((sum, product) => sum + (product.price || 0), 0)
+    const totalQuantity = products?.reduce((sum, product) => sum + (product.quantity || 0), 0)
+    const totalPrice = products?.reduce((sum, product) => sum + (product.price || 0), 0)
     
     return { totalQuantity, totalPrice }
   }

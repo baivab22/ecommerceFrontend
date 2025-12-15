@@ -121,7 +121,7 @@ export const WatchAndShopCard = ({
           }}
         >
           <div className="videosWatch">
-              <video src={`http://localhost:8000/uploads/video/${data?.video}`} muted autoPlay loop playsInline />
+              <video src={`${FILE_URL}/video/${data?.video}`} muted autoPlay loop playsInline />
             {/* <video src={`https://abhushangallery.com/video/${data?.video}`} muted autoPlay loop playsInline /> */}
           </div>
 

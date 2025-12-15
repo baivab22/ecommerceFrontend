@@ -89,8 +89,8 @@ const SalesAnalytics: React.FC = () => {
       revenue: item.totalRevenue
     }));
 
-  const totalSales = salesData.reduce((sum: number, item: SalesItem) => sum + item.totalSales, 0);
-  const totalOrders = salesData.reduce((sum: number, item: SalesItem) => sum + item.orderCount, 0);
+  const totalSales = salesData?.reduce((sum: number, item: SalesItem) => sum + item.totalSales, 0);
+  const totalOrders = salesData?.reduce((sum: number, item: SalesItem) => sum + item.orderCount, 0);
 
   return (
     <div style={{ padding: '12px', fontFamily: 'Arial, sans-serif' }}>

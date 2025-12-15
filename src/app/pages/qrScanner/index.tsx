@@ -721,7 +721,7 @@ const QRScanner = () => {
   };
 
   // Calculate order statistics
-  const orderStats = scannedOrders.reduce((stats, order) => {
+  const orderStats = scannedOrders?.reduce((stats, order) => {
     if (order.status === 'success' && order.orderDetail) {
       stats.totalAmount += order.orderDetail.totalAmount || 0;
       stats.totalProducts += order.orderDetail.products?.length || 0;
