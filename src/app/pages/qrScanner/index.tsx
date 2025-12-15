@@ -509,7 +509,7 @@ const QRScanner = () => {
       
       console.log('Bulk mark result:', result);
 
-      if (result.success) {
+      if ((result as any).success) {
         // Update all selected orders to success status
         setScannedOrders(prev => 
           prev.map(order => 
@@ -531,7 +531,7 @@ const QRScanner = () => {
         playSuccessSound();
         toast.success(`Successfully confirmed ${selectedOrders.length} order(s)!`);
       } else {
-        throw new Error(result.message || 'Failed to confirm scans');
+        throw new Error((result as any).message  || 'Failed to confirm scans');
       }
       
     } catch (error: any) {

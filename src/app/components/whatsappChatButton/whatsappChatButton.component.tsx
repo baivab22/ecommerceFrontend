@@ -215,16 +215,16 @@ const SocialChatButtons = ({
         onClick={handleWhatsAppClick}
         onMouseEnter={() => setWhatsappHovered(true)}
         onMouseLeave={() => setWhatsappHovered(false)}
-        style={whatsappButtonStyle}
+        style={whatsappButtonStyle as any}
         aria-label="Chat on WhatsApp"
       >
         <MessageCircle style={{ width: '28px', height: '28px', position: 'relative', zIndex: 1 }} />
         
-        <span style={tooltipStyle(whatsappHovered)}>
+        <span style={tooltipStyle(whatsappHovered) as any}>
           Chat on WhatsApp
         </span>
         
-        <span style={pulseStyle('#22c55e')}></span>
+        <span style={pulseStyle('#22c55e') as any}></span>
       </button>
 
       {/* Facebook Messenger Button */}
@@ -232,23 +232,23 @@ const SocialChatButtons = ({
         onClick={handleFacebookClick}
         onMouseEnter={() => setFacebookHovered(true)}
         onMouseLeave={() => setFacebookHovered(false)}
-        style={facebookButtonStyle}
+        style={facebookButtonStyle as any}
         aria-label="Chat on Facebook Messenger"
       >
         {/* Facebook Messenger Icon (SVG) */}
         <svg 
-          style={facebookIconStyle}
+          style={facebookIconStyle as any}
           viewBox="0 0 24 24" 
           fill="currentColor"
         >
           <path d="M12 2C6.477 2 2 6.145 2 11.243c0 2.912 1.448 5.51 3.712 7.21V22l3.397-1.867c.906.251 1.87.384 2.891.384 5.523 0 10-4.145 10-9.243C22 6.145 17.523 2 12 2zm.993 12.416l-2.556-2.73-4.99 2.73 5.49-5.833 2.617 2.73 4.929-2.73-5.49 5.833z"/>
         </svg>
         
-        <span style={tooltipStyle(facebookHovered)}>
+        <span style={tooltipStyle(facebookHovered) as any}>
           Chat on Facebook
         </span>
         
-        <span style={pulseStyle('#1877F2')}></span>
+        <span style={pulseStyle('#1877F2') as any}></span>
       </button>
     </>
   );

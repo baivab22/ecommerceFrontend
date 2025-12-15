@@ -86,8 +86,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Bold"
         >
           B
@@ -101,8 +101,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Italic"
         >
           I
@@ -116,8 +116,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Underline"
         >
           U
@@ -136,8 +136,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Link"
         >
           🔗
@@ -151,8 +151,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Image"
         >
           🖼️
@@ -166,8 +166,8 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
             backgroundColor: 'transparent',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseOver={(e:any) => e.target.style.backgroundColor = '#e5e7eb'}
+          onMouseOut={(e:any) => e.target.style.backgroundColor = 'transparent'}
           title="Code"
         >
           {'</>'}
@@ -177,7 +177,7 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        rows="12"
+        rows={12}
         style={{
           width: '100%',
           padding: '16px',
@@ -211,7 +211,7 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
 // };
 
 // Notification Component
-const Notification = ({ notification, onClose }) => {
+const Notification = ({ notification, onClose }:any) => {
   if (!notification) return null;
 
   const getNotificationStyles = () => {
@@ -646,12 +646,12 @@ export default function EmailMarketingDashboard() {
                   color: activeTab === tab.id ? '#2563eb' : '#6b7280',
                   transition: 'all 0.2s'
                 }}
-                onMouseOver={(e) => {
+                onMouseOver={(e:any) => {
                   if (activeTab !== tab.id) {
                     e.target.style.color = '#374151';
                   }
                 }}
-                onMouseOut={(e) => {
+                onMouseOut={(e:any) => {
                   if (activeTab !== tab.id) {
                     e.target.style.color = '#6b7280';
                   }
@@ -702,7 +702,7 @@ export default function EmailMarketingDashboard() {
                       value={formData.subject}
                       onChange={handleInputChange}
                       placeholder="Enter email subject"
-                      style={inputStyle}
+                      style={inputStyle as any}
                       onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                       onBlur={(e) => e.target.style.boxShadow = 'none'}
                     />
@@ -725,7 +725,7 @@ export default function EmailMarketingDashboard() {
                       value={formData.previewText}
                       onChange={handleInputChange}
                       placeholder="Text shown in inbox preview"
-                      style={inputStyle}
+                      style={inputStyle as any}
                       onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                       onBlur={(e) => e.target.style.boxShadow = 'none'}
                     />
@@ -759,8 +759,8 @@ export default function EmailMarketingDashboard() {
                           backgroundColor: 'transparent',
                           cursor: 'pointer'
                         }}
-                        onMouseOver={(e) => e.target.style.color = '#1d4ed8'}
-                        onMouseOut={(e) => e.target.style.color = '#2563eb'}
+                        onMouseOver={(e:any) => e.target.style.color = '#1d4ed8'}
+                        onMouseOut={(e:any) => e.target.style.color = '#2563eb'}
                       >
                         {showPreview ? <Code style={{ width: '16px', height: '16px' }} /> : <Eye style={{ width: '16px', height: '16px' }} />}
                         {showPreview ? 'Show Editor' : 'Show Preview'}
@@ -813,7 +813,7 @@ export default function EmailMarketingDashboard() {
                       style={{
                         ...inputStyle,
                         cursor: 'pointer'
-                      }}
+                      } as any}
                       onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                       onBlur={(e) => e.target.style.boxShadow = 'none'}
                     >
@@ -894,12 +894,12 @@ export default function EmailMarketingDashboard() {
                       value={formData.testEmails}
                       onChange={handleInputChange}
                       placeholder="email1@example.com, email2@example.com"
-                      rows="3"
+                      rows={3}
                       style={{
                         ...inputStyle,
                         fontSize: '14px',
                         resize: 'vertical'
-                      }}
+                      } as any}
                       onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                       onBlur={(e) => e.target.style.boxShadow = 'none'}
                     />
@@ -1030,12 +1030,12 @@ export default function EmailMarketingDashboard() {
                     transition: 'all 0.2s',
                     opacity: loading || !formData.subject || !formData.htmlContent ? 0.5 : 1
                   }}
-                  onMouseOver={(e) => {
+                  onMouseOver={(e:any) => {
                     if (!loading && formData.subject && formData.htmlContent) {
                       e.target.style.backgroundColor = '#dbeafe';
                     }
                   }}
-                  onMouseOut={(e) => {
+                  onMouseOut={(e:any) => {
                     if (!loading && formData.subject && formData.htmlContent) {
                       e.target.style.backgroundColor = 'white';
                     }
@@ -1163,7 +1163,7 @@ export default function EmailMarketingDashboard() {
                           fontWeight: 'bold',
                           color: '#1f2937'
                         }}>
-                          {value} users
+                          {value as any} users
                         </span>
                       </div>
                     ))}
@@ -1301,8 +1301,8 @@ export default function EmailMarketingDashboard() {
                           transition: 'background-color 0.2s',
                           borderBottom: '1px solid #e5e7eb'
                         }}
-                        onMouseOver={(e) => e.target.parentElement.style.backgroundColor = '#f8fafc'}
-                        onMouseOut={(e) => e.target.parentElement.style.backgroundColor = 'transparent'}
+                        onMouseOver={(e:any) => e.target.parentElement.style.backgroundColor = '#f8fafc'}
+                        onMouseOut={(e:any) => e.target.parentElement.style.backgroundColor = 'transparent'}
                       >
                         <td style={{
                           padding: '16px 24px',

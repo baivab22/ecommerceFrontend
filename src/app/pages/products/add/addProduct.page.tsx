@@ -701,7 +701,7 @@ const media=useMedia();
             ?.map((item: any, index: number) => {
               return (
                 <div
-                  div
+                
                  style={{display:'flex',gap:'12px',flexDirection:!media.md?'column':'row'}}
                  key={index + item.name}
                 // HStack 
