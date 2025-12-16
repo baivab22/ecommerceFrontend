@@ -6,7 +6,7 @@ import {
 import { getOrderDetailByIdAction } from '../products/product.slice';
 import { 
   markOrderScanAction, 
-  
+  // bulkMarkAction,
   getSalesAnalyticsAction 
 } from './qrScanner.slice';
 import { useDispatch, useSelector } from 'src/store';
@@ -420,9 +420,7 @@ declare var BarcodeDetector: {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 const QRScanner = () => {
-  // const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
-
-  const dispatch=useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
   const { orderDetailData, orderDetailLoading } = useSelector(
     (state: any) => state.product
   );
@@ -621,17 +619,23 @@ const QRScanner = () => {
       return orderDetailCacheRef.current.get(orderId)!;
     }
 
-    try {
-      const result:any = await dispatch(getOrderDetailByIdAction({orderId})).unwrap();
+          if(!orderDetailLoading){    try {
+
+      const result = await dispatch(getOrderDetailByIdAction({orderId})).unwrap();
       if (result.success && result.data) {
+        //@ts-ignore
         orderDetailCacheRef.current.set(orderId, result.data);
         return result.data;
       }
+
+      //@ts-ignore
       throw new Error(result.message || 'Failed to fetch order details');
     } catch (error: any) {
       console.error('Error fetching order details:', error);
       throw error;
-    }
+    }}
+
+
   }, [dispatch]);
 
   // Check if productOrderId is already in the table
@@ -689,17 +693,15 @@ const QRScanner = () => {
         // Fetch order details
         const orderDetail = await fetchOrderDetail(order.orderId, order.productOrderId);
         
-        // Validate that orderDetail is a valid OrderDetail object (not an error response)
-        const isValidOrderDetail = orderDetail && 'products' in orderDetail && '_id' in orderDetail;
-        
         // Update order with details
         setScannedOrders(prev => prev.map(o => 
           o.id === order.id ? { 
             ...o, 
-            orderDetail: isValidOrderDetail ? orderDetail : null, 
-            status: isValidOrderDetail ? 'pending' : 'error', 
+            orderDetail, 
+            status: 'pending', 
             isLoadingDetail: false,
-            errorMessage: isValidOrderDetail ? undefined : 'Invalid order details received'
+            // Update orderId with actual orderId from details if available
+            orderId: orderDetail.orderId || o.orderId
           } : o
         ));
 
@@ -821,7 +823,7 @@ const QRScanner = () => {
 
       // Call bulk mark API - note: bulkMarkAction might need to be defined or imported
       const result = await dispatch(markOrderScanAction({ 
-        productorderIds: productOrderIds as any
+        productorderIds: productOrderIds 
       })).unwrap();
       
       console.log('Bulk mark result:', result);
@@ -1037,7 +1039,7 @@ const QRScanner = () => {
     
     // Include shipping price if available
     const shipping = order.orderDetail.shippingPrice || 0;
-    return order.orderDetail.totalAmount + shipping;
+    return order.orderDetail.totalAmount ;
   }, []);
 
   // Load analytics data
@@ -1267,11 +1269,9 @@ const QRScanner = () => {
                 width: '100%',
                 height: '100%',
                 display: scanning ? 'block' : 'none',
-                position:"relative"
-                
+                position:'relative'
               }}
               muted
-              
               playsInline
             />
             
@@ -1517,7 +1517,7 @@ const QRScanner = () => {
                         />
                       </td>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px',border:'2px solid red' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <ProductImage imageUrl={getFirstProductImage(order)}>
                             {!getFirstProductImage(order) && 'No Image'}
                           </ProductImage>
