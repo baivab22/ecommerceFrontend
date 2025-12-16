@@ -420,13 +420,15 @@ declare var BarcodeDetector: {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 const QRScanner = () => {
-  const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
+  // const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
   const { orderDetailData, orderDetailLoading } = useSelector(
     (state: any) => state.product
   );
   const { salesData, topProducts, loading: scanLoading } = useSelector(
     (state: any) => state.scan
   );
+
+  const dispatch=useDispatch()
 
   // State management
   const [scanning, setScanning] = useState(false);
@@ -694,6 +696,7 @@ const QRScanner = () => {
         const orderDetail = await fetchOrderDetail(order.orderId, order.productOrderId);
         
         // Update order with details
+        //@ts-ignore
         setScannedOrders(prev => prev.map(o => 
           o.id === order.id ? { 
             ...o, 
@@ -701,6 +704,7 @@ const QRScanner = () => {
             status: 'pending', 
             isLoadingDetail: false,
             // Update orderId with actual orderId from details if available
+            //@ts-ignore
             orderId: orderDetail.orderId || o.orderId
           } : o
         ));
@@ -822,7 +826,9 @@ const QRScanner = () => {
       );
 
       // Call bulk mark API - note: bulkMarkAction might need to be defined or imported
+
       const result = await dispatch(markOrderScanAction({ 
+        //@ts-ignore
         productorderIds: productOrderIds 
       })).unwrap();
       
