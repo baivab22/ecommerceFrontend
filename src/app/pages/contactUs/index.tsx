@@ -104,7 +104,7 @@ export const ContactUs = () => {
                     color: '#4a4a4a',
                     lineHeight: '1.6'
                   }}>
-                    Kalimati, Kathmandu<br />
+                    Kathmandu<br />
                     Nepal - 44600
                   </div>
                 </div>

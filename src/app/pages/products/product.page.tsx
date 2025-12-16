@@ -16,44 +16,45 @@ import {getCategoryListAction} from '../category/category.slice'
 import {useDebounceValue, useMedia} from 'src/hooks'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import {BASE_URL, FILE_URL} from 'src/config'
+import {FILE_URL} from 'src/config'
 import {useQuery} from 'src/hooks'
 
 export const ProductListPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const query = useQuery()
+  const media = useMedia()
+  
   const [searchTxt, setSearchTxt] = useState('')
   const debouncedSearchTxt = useDebounceValue(searchTxt, 500)
-
-  const {data, loading, pagination}: any = useSelector((state: any) => state.product)
-
-  console.log(data, 'data', pagination, 'totalCount')
-  
   const [category, setCategory] = useState<any>([])
-  const [selectedCateory, setSelectedCategory] = useState<any>('')
+  const [selectedCategory, setSelectedCategory] = useState<any>('')
+  
+  const {data, loading, pagination}: any = useSelector((state: any) => state.product)
   const {categoryData}: any = useSelector((state: any) => state.category)
 
+  const proudctCardRef = useRef<HTMLDivElement | null>(null)
+  
   const currentPage = query?.page ? Number(query.page) : 1
   const perPage = 5
 
+  // Fetch categories on mount
   useEffect(() => {
     dispatch(
       getCategoryListAction({
-        onSuccess: () => console.log('categoryList fetch Successfully')
+        onSuccess: () => console.log('Categories fetched successfully')
       })
     )
   }, [dispatch])
 
+  // Map category data for select field
   useEffect(() => {
-    const mappedCategory = categoryData?.map((item: any, index: number) => {
-      return {
-        id: item.id,
-        label: item.name,
-        value: item.name,
-        subCategory: item.subCategories
-      }
-    })
+    const mappedCategory = categoryData?.map((item: any) => ({
+      id: item.id,
+      label: item.name,
+      value: item.name,
+      subCategory: item.subCategories
+    }))
 
     mappedCategory?.unshift({
       id: '',
@@ -65,23 +66,21 @@ export const ProductListPage = () => {
     setCategory(mappedCategory)
   }, [categoryData])
 
-  const handleSearch = (e: any) => {
-    setSearchTxt(e.target.value)
-  }
-
-  // Fetch products whenever page, search, or category changes
+  // Fetch products whenever dependencies change
   useEffect(() => {
     const queryParams: any = {
       page: currentPage,
-      limit: perPage
+      limit: perPage,
+      sort: 'createdAt',
+      order: 'desc'
     }
 
     if (debouncedSearchTxt) {
       queryParams.search = debouncedSearchTxt
     }
 
-    if (selectedCateory?.id) {
-      queryParams.categoryId = selectedCateory.id
+    if (selectedCategory?.id) {
+      queryParams.categoryId = selectedCategory.id
     }
 
     dispatch(
@@ -92,20 +91,20 @@ export const ProductListPage = () => {
         query: queryParams
       })
     )
-  }, [debouncedSearchTxt, selectedCateory, currentPage, dispatch])
+  }, [debouncedSearchTxt, selectedCategory, currentPage, dispatch, perPage])
 
-  const proudctCardRef = useRef<HTMLDivElement | null>(null)
+  const handleSearch = (e: any) => {
+    setSearchTxt(e.target.value)
+  }
   
   const handlePdfDownload = () => {
     if (proudctCardRef.current) {
       html2canvas(proudctCardRef.current, {scale: 2, useCORS: true}).then(
         (canvas) => {
-          console.log(canvas, 'canvas value')
           const aspectRatio = canvas.width / canvas.height
-          var img = canvas.toDataURL('image/png')
-          console.log(img, 'required img')
+          const img = canvas.toDataURL('image/png')
 
-          var doc = new jsPDF({format: 'a4'})
+          const doc = new jsPDF({format: 'a4'})
           doc.setFillColor(255, 255, 255)
           doc.rect(
             0,
@@ -130,8 +129,6 @@ export const ProductListPage = () => {
   }
 
   const handlePageChange = useCallback((page: number) => {
-    // Page change is already handled by the Table component
-    // which updates the URL query params
     console.log('Page changed to:', page)
   }, [])
 
@@ -139,22 +136,24 @@ export const ProductListPage = () => {
     dispatch(
       delteProductAction({
         productId: item.id,
-        onSuccess: (data: any) => {
+        onSuccess: () => {
           onCloseModalHandler()
           toast.success('Product deleted successfully')
           
-          // Re-fetch current page data
+          // Re-fetch current page data with sort parameters
           const queryParams: any = {
             page: currentPage,
-            limit: perPage
+            limit: perPage,
+            sort: 'createdAt',
+            order: 'desc'
           }
 
           if (debouncedSearchTxt) {
             queryParams.search = debouncedSearchTxt
           }
 
-          if (selectedCateory?.id) {
-            queryParams.categoryId = selectedCateory.id
+          if (selectedCategory?.id) {
+            queryParams.categoryId = selectedCategory.id
           }
 
           dispatch(
@@ -166,57 +165,56 @@ export const ProductListPage = () => {
         }
       })
     )
-  }, [dispatch, currentPage, debouncedSearchTxt, selectedCateory])
-const media=useMedia();
+  }, [dispatch, currentPage, perPage, debouncedSearchTxt, selectedCategory])
+
   return (
     <div>
       <Box>
         <HStack justify="space-between" gap={'$4'} style={{margin: '20px 0'}}>
-          <Button title="Add Product" onClick={() => navigate('add')}
+          <Button 
+            title="Add Product" 
+            onClick={() => navigate('add')}
             style={{
-              padding:!media.md?'8px':'8px 20px'
+              padding: !media.md ? '8px' : '8px 20px'
             }}
-            ></Button>
-          <Button title="Download Pdf" onClick={handlePdfDownload}
-              style={{
-              padding:!media.md?'8px':'8px 20px'
+          />
+          <Button 
+            title="Download Pdf" 
+            onClick={handlePdfDownload}
+            style={{
+              padding: !media.md ? '8px' : '8px 20px'
             }}
-          ></Button>
-          {
-            media.md  &&    <SearchField
-            placeholder="Search Your Product"
-            value={searchTxt}
-            onChange={handleSearch}
-          ></SearchField>
-          }
-       
+          />
+          {media.md && (
+            <SearchField
+              placeholder="Search Your Product"
+              value={searchTxt}
+              onChange={handleSearch}
+            />
+          )}
           <SelectField
             options={category}
-            value={selectedCateory}
-            // width="320px"
+            value={selectedCategory}
             onChangeValue={(data) => setSelectedCategory(data)}
-            placeholder={'Filter Product By Category'}
+            placeholder="Filter Product By Category"
           />
         </HStack>
-    {
-            !media.md  &&    <SearchField
+        
+        {!media.md && (
+          <SearchField
             placeholder="Search Your Product"
             value={searchTxt}
             onChange={handleSearch}
-          ></SearchField>
-          }
-        <div> 
-          
-        </div>
+          />
+        )}
+        
         <div ref={proudctCardRef}>
           <Table
             columns={[
               {
                 field: 'name',
                 name: 'Name',
-                render: (datas) => {
-                  return <div>{datas}</div>
-                }
+                render: (datas) => <div>{datas}</div>
               },
               {
                 field: 'discountedPrice',
@@ -235,9 +233,9 @@ const media=useMedia();
                   <div>
                     <img
                       src={`${FILE_URL}/products/${datas?.[0]?.coloredImage}`}
-                      style={{height: '70px', width: '100px'}}
+                      style={{height: '70px', width: '100px', objectFit: 'cover'}}
                       alt="product"
-                    ></img>
+                    />
                   </div>
                 )
               }
@@ -251,7 +249,7 @@ const media=useMedia();
               onDelete: handleDelete
             }}
             pagination={{
-              totalCount: Number(pagination.totalProducts ?? 0),
+              totalCount: Number(pagination?.totalProducts ?? 0),
               perPage: perPage
             }}
             onPageChange={handlePageChange}

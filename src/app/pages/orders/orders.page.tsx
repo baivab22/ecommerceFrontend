@@ -1852,7 +1852,7 @@ Aabhushan Gallery Team`
               display: 'flex',
               justifyContent: 'space-between'
             }}>
-              <span>Qty: ${product.quantity}</span>
+              <span>Qty: {product.quantity}</span>
               <div>
                 Variant:
                 <span
@@ -2723,7 +2723,7 @@ const OrderPDF = ({data}) => {
                     <Text style={styles.addressTitle}>ORIGIN</Text>
                     <View style={styles.divider} />
                     <Text style={styles.name}>Aabhushan Gallery</Text>
-                    <Text style={styles.address}>Kalimati, Kathmandu</Text>
+                    <Text style={styles.address}> Kathmandu</Text>
                     <Text style={styles.address}>Nepal 44600</Text>
                     <Text style={styles.contact}>T: 9861698400</Text>
                   </View>
@@ -2742,8 +2742,8 @@ const OrderPDF = ({data}) => {
                     )}
                     <View style={styles.divider} />
                     <Text style={styles.name}>{item.customerName || 'Customer'}</Text>
-                    <Text style={styles.address}>{item.shippingLocation}</Text>
-                    {item.locationAddress && <Text style={styles.address}>{item.locationAddress}</Text>}
+                    <Text style={styles.address}>Address by user:{item.shippingLocation}</Text>
+                    {item.locationAddress && <Text style={styles.address}>Address From Map:{item.locationAddress}</Text>}
                     <Text style={styles.contact}>T: {item.phoneNumber}</Text>
                   </View>
                 </View>

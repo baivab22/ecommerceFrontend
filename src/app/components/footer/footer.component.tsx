@@ -92,7 +92,7 @@ export const Footer = () => {
             <div className="footer__contact-info">
               <div className="footer__contact-item">
                 <MapPin className="footer__contact-icon" />
-                <span>Kalimati, Kathmandu</span>
+                <span>Kathmandu</span>
               </div>
               <div className="footer__contact-item">
                 <Phone className="footer__contact-icon" />

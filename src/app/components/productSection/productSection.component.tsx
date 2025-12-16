@@ -126,19 +126,17 @@ export const ProductSection = ({
     } else if (homeCategory === 'isNewArrivals') {
       query.isNewArrivals = true
     }
+    // For 'allProducts', we don't add any filter to get all products
 
     console.log('api hit with query:', query)
     
     dispatch(getProductListAction({
       onSuccess: () => console.log('Products fetched successfully'),
       // query
-    
     }))
   }, [homeCategory, dispatch])
 
   const {data, loading}: any = useSelector((state: any) => state.product)
-
-
 
   console.log(data, 'data from ps', loading, "loading value")
 
@@ -161,10 +159,32 @@ export const ProductSection = ({
     return null
   }
 
+  // Filter and sort products based on homeCategory
+  const getFilteredProducts = () => {
+    let filtered = [...data]
+    
+    if (homeCategory === 'isBestSelling') {
+      filtered = filtered.filter((item: any) => item.isBestSelling === true)
+    } else if (homeCategory === 'isNewArrivals') {
+      filtered = filtered.filter((item: any) => item.isNewArrivals === true)
+    } else if (homeCategory === 'allProducts') {
+      // Sort by creation date (newest first) for allProducts
+      filtered = filtered.sort((a: any, b: any) => {
+        const dateA = new Date(a.createdAt || a.created_at || 0).getTime()
+        const dateB = new Date(b.createdAt || b.created_at || 0).getTime()
+        return dateB - dateA // Descending order (newest first)
+      })
+    }
+    
+    return filtered.slice(0, 4)
+  }
+
+  const filteredProducts = getFilteredProducts()
+
   return (
     <div className="jobsSectionContainer">
       <div className="jobsSectionContainer-header">
-        {data?.length > 0 && header}
+        {filteredProducts.length > 0 && header}
 
         <div className="jobsSectionContainer-header-right">
           {/* <div className="jobsSectionContainer-header-right-common">
@@ -176,39 +196,23 @@ export const ProductSection = ({
         </div>
       </div>
 
-      {/* <div className="jobsSectionContainer-items">
-        {data?.filter((item: any, index: number) => {
-      return  homeCategory === 'isBestSelling'? item.isBestSelling === true: item?.isNewArrivals===true
-    })?.slice(0, 4).map((item: any, index: number) => {
-          return <ProductCard data={item} key={item.id} />
-        })}
-      </div> */}
-
       <div className="jobsSectionContainer-items">
-  {data
-    ?.filter((item: any) => {
-      if (homeCategory === 'isBestSelling') return item.isBestSelling === true;
-      if (homeCategory === 'isNewArrivals') return item.isNewArrivals === true;
-      return true; // show all if no category matches
-    })
-    ?.slice(0, 4)
-    .map((item: any) => (
-      <ProductCard data={item} key={item.id} />
-    ))}
-</div>
-
+        {filteredProducts.map((item: any) => (
+          <ProductCard data={item} key={item.id} />
+        ))}
+      </div>
 
       {isHomePage && (
         <div
           className="jobsSectionContainer-seemore"
           onClick={() => {
-            navigate(
-              `/products?${
-                homeCategory === 'isBestSelling'
-                  ? 'isBestSelling=true'
-                  : 'isNewArrivals=true'
-              }`
-            )
+            if (homeCategory === 'isBestSelling') {
+              navigate('/products?isBestSelling=true')
+            } else if (homeCategory === 'isNewArrivals') {
+              navigate('/products?isNewArrivals=true')
+            } else if (homeCategory === 'allProducts') {
+              navigate('/products')
+            }
           }}
         >
           See more

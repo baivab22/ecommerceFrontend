@@ -121,6 +121,15 @@ export const HomePage = () => {
 
       <CompWrapper>
         <VStack gap="$4">
+
+
+
+                 <ProductSection
+            header="OUR PRODUCTS"
+            isHomePage={true}
+            homeCategory="allProducts"
+          ></ProductSection>
+
           <ProductSection
             header="BEST SELLING"
             isHomePage={true}
