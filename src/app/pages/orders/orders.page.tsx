@@ -1476,6 +1476,7 @@ import { IoCheckboxOutline } from 'react-icons/io5'
 import toast from 'react-hot-toast'
 import { AxiosResponse } from 'axios'
 import { EditIcon } from 'lucide-react'
+import { BASE_URL } from 'src/config'
 
 export const OrderListPage = () => {
   const navigate = useNavigate()
@@ -1689,7 +1690,7 @@ export const OrderListPage = () => {
   const sendInvoiceEmail = async (order: any) => {
     try {
       
-      const response = await fetch('http://localhost:8000/api/send-invoice', {
+      const response = await fetch(`${BASE_URL}/send-invoice`, {
 
         method: 'POST',
         headers: {
@@ -2759,10 +2760,20 @@ const OrderPDF = ({data}) => {
                       <Text style={styles.summaryLabel}>QTY</Text>
                       <Text style={styles.summaryValue}>{totalQuantity}</Text>
                     </View>
+
+
+
                     <View style={styles.summaryItem}>
                       <Text style={styles.summaryLabel}>SUBTOTAL</Text>
                       <Text style={styles.summaryValue}>Rs. {totalPrice.toFixed(2)}</Text>
                     </View>
+{
+  !!item.includeGiftBox &&     <View style={styles.summaryItem}>
+                      <Text style={styles.summaryLabel}>GiftBox Charge</Text>
+                      <Text style={styles.summaryValue}>Rs.400}</Text>
+                    </View>
+}
+                  
                     <View style={styles.summaryItem}>
                       <Text style={styles.summaryLabel}>SHIPPING</Text>
                       <Text style={styles.summaryValue}>Rs. {item?.shippingPrice || 0}</Text>
@@ -2780,11 +2791,11 @@ const OrderPDF = ({data}) => {
                     <View style={styles.paymentHighlight}>
                       <View style={styles.paymentRow}>
                         <Text style={styles.paymentLabel}>ADVANCE PAID</Text>
-                        <Text style={styles.paymentValue}>Rs. 300.00</Text>
+                        <Text style={styles.paymentValue}>Rs. ${item?.shippingPrice}</Text>
                       </View>
                       <View style={[styles.paymentRow, styles.balanceRow]}>
                         <Text style={styles.balanceLabel}>BALANCE DUE</Text>
-                        <Text style={styles.balanceAmount}>Rs. {(item?.totalAmount - 300).toFixed(2)}</Text>
+                        <Text style={styles.balanceAmount}>Rs. {(item?.totalAmount - item?.shippingPrice).toFixed(2)}</Text>
                       </View>
                     </View>
                   )}
