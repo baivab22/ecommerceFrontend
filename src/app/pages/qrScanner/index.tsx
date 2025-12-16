@@ -1,6 +1,4 @@
-
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
@@ -8,21 +6,23 @@ import {
 import { getOrderDetailByIdAction } from '../products/product.slice';
 import { 
   markOrderScanAction, 
-//   bulkMarkAction,
+  bulkMarkAction,
   getSalesAnalyticsAction 
 } from './qrScanner.slice';
 import { useDispatch, useSelector } from 'src/store';
 import toast from 'react-hot-toast'
 import styled from 'styled-components';
 import { BASE_URL, FILE_URL } from 'src/config';
+import { ThunkDispatch } from '@reduxjs/toolkit';
+import { AnyAction } from 'redux';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   
   & > div {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 24px;
 
@@ -35,18 +35,20 @@ const PageContainer = styled.div`
 const ScannerGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 24px;
+  gap: 32px;
   align-items: start;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1280px) {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 `;
 
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 20px;
+  margin-bottom: 32px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -60,7 +62,11 @@ const StatsGrid = styled.div`
 const ChartsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 32px;
+
+  @media (max-width: 1280px) {
+    gap: 24px;
+  }
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
@@ -68,16 +74,15 @@ const ChartsGrid = styled.div`
 `;
 
 const TabContainer = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 8px;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   
-  /* Hide scrollbar for cleaner look but allow scrolling */
   &::-webkit-scrollbar {
     display: none;
   }
@@ -85,6 +90,227 @@ const TabContainer = styled.div`
   scrollbar-width: none;
 `;
 
+const ScannerCard = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const StatusBadge = styled.span<{ status: 'pending' | 'success' | 'error' | 'loading' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  ${({ status }) => {
+    switch (status) {
+      case 'success':
+        return 'background-color: #d1fae5; color: #065f46;';
+      case 'loading':
+        return 'background-color: #fef3c7; color: #92400e;';
+      case 'pending':
+        return 'background-color: #dbeafe; color: #1e40af;';
+      case 'error':
+        return 'background-color: #fee2e2; color: #991b1b;';
+      default:
+        return 'background-color: #f3f4f6; color: #4b5563;';
+    }
+  }}
+`;
+
+const Button = styled.button<{ variant?: 'primary' | 'danger' | 'success' | 'outline' }>`
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  
+  ${({ variant = 'primary' }) => {
+    switch (variant) {
+      case 'primary':
+        return `
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          &:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-1px);
+          }
+        `;
+      case 'danger':
+        return `
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          &:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-1px);
+          }
+        `;
+      case 'success':
+        return `
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          &:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-1px);
+          }
+        `;
+      case 'outline':
+        return `
+          background: transparent;
+          color: #3b82f6;
+          border: 2px solid #3b82f6;
+          &:hover {
+            background: #eff6ff;
+          }
+        `;
+    }
+  }}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+`;
+
+const TableContainer = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  overflow: hidden;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    
+    th {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      
+      &:first-child {
+        border-top-left-radius: 8px;
+      }
+      
+      &:last-child {
+        border-top-right-radius: 8px;
+      }
+    }
+  }
+  
+  tbody {
+    tr {
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: #f8fafc;
+      }
+      
+      td {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+      }
+    }
+  }
+`;
+
+const ProductImage = styled.div<{ imageUrl?: string }>`
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: ${({ imageUrl }) => imageUrl ? `url(${imageUrl})` : '#f3f4f6'};
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 10px;
+`;
+
+const CameraPreview = styled.div`
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 4/3;
+  
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const ScanOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  border: 3px solid rgba(16, 185, 129, 0.5);
+  border-radius: 12px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    animation: scan 2s ease-in-out infinite;
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
 
 interface Product {
   _id: string;
@@ -135,6 +361,7 @@ interface OrderDetail {
   paymentMethod: string;
   isScanned: boolean;
   scannedAt?: string;
+  orderStatus?: string;
 }
 
 interface ScannedOrder {
@@ -147,6 +374,7 @@ interface ScannedOrder {
   status: 'pending' | 'success' | 'error' | 'loading';
   errorMessage?: string;
   checked?: boolean;
+  isLoadingDetail?: boolean;
 }
 
 interface AnalyticsData {
@@ -192,7 +420,7 @@ declare var BarcodeDetector: {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 const QRScanner = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
   const { orderDetailData, orderDetailLoading } = useSelector(
     (state: any) => state.product
   );
@@ -220,6 +448,7 @@ const QRScanner = () => {
   const lastScanTimeRef = useRef<number>(0);
   const scanCooldownRef = useRef<number>(3000);
   const processingOrderRef = useRef<string | null>(null);
+  const orderDetailCacheRef = useRef<Map<string, OrderDetail>>(new Map());
 
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -340,8 +569,8 @@ const QRScanner = () => {
       const constraints = {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined,
-          width: { ideal: 640 },
-          height: { ideal: 480 },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
           facingMode: deviceId ? undefined : 'environment'
         }
       };
@@ -383,6 +612,26 @@ const QRScanner = () => {
     processingOrderRef.current = null;
   }, []);
 
+  // Fetch order details by ID
+  const fetchOrderDetail = useCallback(async (orderId: string, productOrderId: string) => {
+    // Check cache first
+    if (orderDetailCacheRef.current.has(orderId)) {
+      return orderDetailCacheRef.current.get(orderId)!;
+    }
+
+    try {
+      const result = await dispatch(getOrderDetailByIdAction({orderId})).unwrap();
+      if (result.success && result.data) {
+        orderDetailCacheRef.current.set(orderId, result.data);
+        return result.data;
+      }
+      throw new Error(result.message || 'Failed to fetch order details');
+    } catch (error: any) {
+      console.error('Error fetching order details:', error);
+      throw error;
+    }
+  }, [dispatch]);
+
   // Check if productOrderId is already in the table
   const isProductOrderInTable = useCallback((productOrderId: string): boolean => {
     return scannedOrders.some(order => order.productOrderId === productOrderId);
@@ -394,6 +643,7 @@ const QRScanner = () => {
     if (isProductOrderInTable(productOrderId)) {
       console.log('Product order already in table, skipping:', productOrderId);
       playErrorSound();
+      toast.error(`Order ${productOrderId} already scanned`);
       return false;
     }
 
@@ -402,11 +652,12 @@ const QRScanner = () => {
       orderId,
       productOrderId,
       orderDetail,
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       date: new Date().toLocaleDateString(),
       status: status,
       errorMessage,
-      checked: false
+      checked: false,
+      isLoadingDetail: status === 'pending'
     };
     
     setScannedOrders(prev => [newOrder, ...prev]);
@@ -414,12 +665,58 @@ const QRScanner = () => {
     
     if (status === 'success') {
       playSuccessSound();
+      toast.success(`Order ${productOrderId} confirmed!`);
     } else if (status === 'error') {
       playErrorSound();
     }
 
     return true;
   }, [playSuccessSound, playErrorSound, isProductOrderInTable]);
+
+  // Process pending order details
+  const processPendingOrderDetails = useCallback(async () => {
+    const pendingOrders = scannedOrders.filter(order => order.isLoadingDetail && order.status === 'pending');
+    
+    for (const order of pendingOrders) {
+      try {
+        // Update status to loading
+        setScannedOrders(prev => prev.map(o => 
+          o.id === order.id ? { ...o, isLoadingDetail: true } : o
+        ));
+
+        // Fetch order details
+        const orderDetail = await fetchOrderDetail(order.orderId, order.productOrderId);
+        
+        // Update order with details
+        setScannedOrders(prev => prev.map(o => 
+          o.id === order.id ? { 
+            ...o, 
+            orderDetail, 
+            status: 'pending', 
+            isLoadingDetail: false,
+            // Update orderId with actual orderId from details if available
+            orderId: orderDetail.orderId || o.orderId
+          } : o
+        ));
+
+        console.log('Order details fetched successfully:', order.productOrderId);
+        
+      } catch (error: any) {
+        console.error('Failed to fetch order details:', error);
+        
+        setScannedOrders(prev => prev.map(o => 
+          o.id === order.id ? { 
+            ...o, 
+            status: 'error', 
+            errorMessage: error.message || 'Failed to fetch order details',
+            isLoadingDetail: false 
+          } : o
+        ));
+        
+        toast.error(`Failed to load order ${order.productOrderId}`);
+      }
+    }
+  }, [scannedOrders, fetchOrderDetail]);
 
   // Handle order scanning with duplicate prevention and cooldown
   const handleOrderScan = useCallback(async (scannedData: string) => {
@@ -431,26 +728,31 @@ const QRScanner = () => {
       return;
     }
 
-    // Parse the scanned data - assuming format contains productOrderId
-    // Try to extract productOrderId from different possible formats
-    let productOrderId = scannedData;
-    let orderId = scannedData;
+    // Check if we're already processing an order
+    if (processingOrderRef.current) {
+      console.log('Already processing an order, skipping scan');
+      return;
+    }
 
-    // If the scanned data contains a colon, assume format: "orderId:productOrderId"
+    // Parse the scanned data
+    let productOrderId = scannedData.trim();
+    let orderId = productOrderId;
+
+    // Try to extract orderId and productOrderId from different formats
     if (scannedData.includes(':')) {
       const parts = scannedData.split(':');
-      orderId = parts[0];
-      productOrderId = parts[1] || parts[0];
-    }
-    // If it's a long string, it might be just the productOrderId
-    else if (scannedData.length > 10) {
-      productOrderId = scannedData;
-      orderId = scannedData; // Use same value for both if not specified
+      orderId = parts[0].trim();
+      productOrderId = parts[1]?.trim() || orderId;
+    } else if (scannedData.includes('|')) {
+      const parts = scannedData.split('|');
+      orderId = parts[0].trim();
+      productOrderId = parts[1]?.trim() || orderId;
     }
 
-    // Check if currently processing this order
-    if (processingOrderRef.current === orderId) {
-      console.log('Order is currently being processed, skipping:', orderId);
+    // Validate scanned data
+    if (!productOrderId || productOrderId.length < 5) {
+      console.log('Invalid scanned data:', scannedData);
+      toast.error('Invalid QR code. Please scan a valid order QR code.');
       return;
     }
 
@@ -459,7 +761,7 @@ const QRScanner = () => {
     processingOrderRef.current = orderId;
     
     try {
-      // Add to pending list without making API call
+      // Add to pending list
       const added = addScannedOrder(orderId, productOrderId, null, 'pending');
       
       if (!added) {
@@ -470,13 +772,22 @@ const QRScanner = () => {
       
       console.log('Order added to pending list:', { orderId, productOrderId });
       
+      // Process pending orders in the next tick
+      setTimeout(() => {
+        processPendingOrderDetails();
+      }, 0);
+      
     } catch (err) {
       console.error('Error processing scan:', err);
-      addScannedOrder(orderId, productOrderId, null, 'error', 'Failed to process scan');
-      setCurrentScanningOrderId(null);
-      processingOrderRef.current = null;
+      toast.error('Failed to process scanned order');
+    } finally {
+      // Reset processing state after a short delay
+      setTimeout(() => {
+        processingOrderRef.current = null;
+        setCurrentScanningOrderId(null);
+      }, 1000);
     }
-  }, [addScannedOrder]);
+  }, [addScannedOrder, processPendingOrderDetails]);
 
   // Confirm and process selected scans using bulkMarkAction
   const confirmSelectedScans = useCallback(async () => {
@@ -504,8 +815,10 @@ const QRScanner = () => {
         )
       );
 
-      // Call bulk mark API
-      const result = await dispatch(markOrderScanAction({ productorderIds:productOrderIds as any })).unwrap();
+      // Call bulk mark API - note: bulkMarkAction might need to be defined or imported
+      const result = await dispatch(markOrderScanAction({ 
+        productorderIds: productOrderIds 
+      })).unwrap();
       
       console.log('Bulk mark result:', result);
 
@@ -517,7 +830,12 @@ const QRScanner = () => {
               ? { 
                   ...order, 
                   status: 'success' as const,
-                  checked: false // Uncheck after successful confirmation
+                  checked: false, // Uncheck after successful confirmation
+                  orderDetail: order.orderDetail ? {
+                    ...order.orderDetail,
+                    isScanned: true,
+                    scannedAt: new Date().toISOString()
+                  } : null
                 }
               : order
           )
@@ -531,7 +849,7 @@ const QRScanner = () => {
         playSuccessSound();
         toast.success(`Successfully confirmed ${selectedOrders.length} order(s)!`);
       } else {
-        throw new Error((result as any).message  || 'Failed to confirm scans');
+        throw new Error((result as any).message || 'Failed to confirm scans');
       }
       
     } catch (error: any) {
@@ -560,7 +878,9 @@ const QRScanner = () => {
   // Scan for barcodes
   const scanBarcode = useCallback(async () => {
     if (!videoRef.current || !detectorRef.current || videoRef.current.readyState !== 4) {
-      animationFrameRef.current = requestAnimationFrame(scanBarcode);
+      if (scanning) {
+        animationFrameRef.current = requestAnimationFrame(scanBarcode);
+      }
       return;
     }
 
@@ -601,13 +921,19 @@ const QRScanner = () => {
 
   // Clear all scanned data
   const clearScannedData = () => {
+    if (scannedOrders.length > 0 && !window.confirm('Are you sure you want to clear all scanned orders?')) {
+      return;
+    }
+    
     setScannedOrders([]);
     setScanCount(0);
     setCurrentPage(1);
     scannedProductOrderIdsRef.current.clear();
+    orderDetailCacheRef.current.clear();
     lastScanTimeRef.current = 0;
     setCurrentScanningOrderId(null);
     processingOrderRef.current = null;
+    toast.success('All scanned orders cleared');
   };
 
   // Copy result to clipboard
@@ -622,6 +948,7 @@ const QRScanner = () => {
     const orderToRemove = scannedOrders.find(order => order.id === id);
     if (orderToRemove) {
       scannedProductOrderIdsRef.current.delete(orderToRemove.productOrderId);
+      orderDetailCacheRef.current.delete(orderToRemove.orderId);
     }
     
     // Also clear processing state if this was the current order
@@ -631,13 +958,14 @@ const QRScanner = () => {
     }
     
     setScannedOrders(prev => prev.filter(item => item.id !== id));
+    toast.success('Order removed');
   };
 
   // Toggle checkbox for individual order
   const toggleCheck = (id: string) => {
     setScannedOrders(prev =>
       prev.map(order =>
-        order.id === id
+        order.id === id && order.status === 'pending'
           ? { ...order, checked: !order.checked }
           : order
       )
@@ -646,37 +974,67 @@ const QRScanner = () => {
 
   // Toggle select all checkboxes
   const toggleSelectAll = () => {
-    const allChecked = scannedOrders.every(order => order.checked);
+    const allChecked = scannedOrders.every(order => order.checked || order.status !== 'pending');
     setScannedOrders(prev =>
       prev.map(order => ({
         ...order,
-        checked: !allChecked && order.status === 'pending' // Only allow selecting pending orders
+        checked: !allChecked && order.status === 'pending'
       }))
     );
   };
 
-  // Get product names for display (handles multiple products)
-  const getProductNames = (order: ScannedOrder): string => {
-    if (!order.orderDetail?.products?.length) return 'Pending...';
+  // Get product names for display
+  const getProductNames = useCallback((order: ScannedOrder): string => {
+    if (!order.orderDetail?.products?.length) {
+      return order.isLoadingDetail ? 'Loading...' : 'No product details';
+    }
     
     const productNames = order.orderDetail.products.map(product => 
-      product.productId?.name || 'Unknown Product'
+      product.productId?.name || product.name || 'Unknown Product'
     );
     
-    if (productNames.length === 1) {
-      return productNames[0];
-    } else {
-      return `${productNames[0]} +${productNames.length - 1} more`;
-    }
-  };
+    if (productNames.length === 0) return 'No products';
+    if (productNames.length === 1) return productNames[0];
+    
+    return `${productNames[0]} +${productNames.length - 1} more`;
+  }, []);
 
   // Get first product image
-  const getFirstProductImage = (order: ScannedOrder): string | null => {
-    if (!order.orderDetail?.products?.[0]?.productId?.images?.[0]?.coloredImage) {
-      return null;
+  const getFirstProductImage = useCallback((order: ScannedOrder): string | null => {
+    if (!order.orderDetail?.products?.[0]) return null;
+    
+    const product = order.orderDetail.products[0];
+    
+    // Try productId images first
+    if (product.productId?.images?.[0]?.coloredImage) {
+      return `${FILE_URL}/products/${product.productId.images[0].coloredImage}`;
     }
-    return `${FILE_URL}/products/${order.orderDetail.products[0].productId.images[0].coloredImage}`;
-  };
+    
+    // Fallback to any other image property
+    if ((product as any).image) {
+      return `${FILE_URL}/products/${(product as any).image}`;
+    }
+    
+    return null;
+  }, []);
+
+  // Get product count
+  const getProductCount = useCallback((order: ScannedOrder): number => {
+    if (!order.orderDetail?.products?.length) return 0;
+    
+    return order.orderDetail.products.reduce((total, product) => 
+      total + (product.quantity || 1), 0
+    );
+  }, []);
+
+  // Get total amount
+  const getTotalAmount = useCallback((order: ScannedOrder): number => {
+    if (!order.orderDetail?.totalAmount) return 0;
+    
+    // Include shipping price if available
+    const shipping = order.orderDetail.shippingPrice || 0;
+    return order.orderDetail.totalAmount + shipping;
+  }, []);
 
   // Load analytics data
   const loadAnalyticsData = useCallback(() => {
@@ -684,7 +1042,7 @@ const QRScanner = () => {
   }, [dispatch, analyticsPeriod]);
 
   // Format sales data for charts
-  const formatSalesData = () => {
+  const formatSalesData = useCallback(() => {
     if (!salesData) return [];
 
     return salesData.map(item => {
@@ -696,7 +1054,8 @@ const QRScanner = () => {
       } else if (analyticsPeriod === 'yearly') {
         name = `${item._id.year}`;
       } else {
-        name = `${item._id.month}/${item._id.year}`;
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        name = `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
       }
 
       return {
@@ -707,10 +1066,10 @@ const QRScanner = () => {
         revenue: item.totalSales
       };
     });
-  };
+  }, [salesData, analyticsPeriod]);
 
   // Format top products data
-  const formatTopProductsData = () => {
+  const formatTopProductsData = useCallback(() => {
     if (!topProducts) return [];
 
     return topProducts.map(item => ({
@@ -718,29 +1077,35 @@ const QRScanner = () => {
       value: item.totalQuantity,
       revenue: item.totalRevenue
     }));
-  };
+  }, [topProducts]);
 
   // Calculate order statistics
-  const orderStats = scannedOrders?.reduce((stats, order) => {
-    if (order.status === 'success' && order.orderDetail) {
-      stats.totalAmount += order.orderDetail.totalAmount || 0;
-      stats.totalProducts += order.orderDetail.products?.length || 0;
-      stats.scannedOrders++;
-      if (order.orderDetail.isScanned) {
-        stats.fulfilledOrders++;
+  const orderStats = useMemo(() => {
+    return scannedOrders.reduce((stats, order) => {
+      if (order.status === 'success' && order.orderDetail) {
+        stats.totalAmount += getTotalAmount(order);
+        stats.totalProducts += getProductCount(order);
+        stats.scannedOrders++;
+        if (order.orderDetail.isScanned) {
+          stats.fulfilledOrders++;
+        }
       }
-    }
-    return stats;
-  }, { totalAmount: 0, totalProducts: 0, scannedOrders: 0, fulfilledOrders: 0 });
+      return stats;
+    }, { totalAmount: 0, totalProducts: 0, scannedOrders: 0, fulfilledOrders: 0 });
+  }, [scannedOrders, getTotalAmount, getProductCount]);
 
   // Pagination calculations
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentOrders = scannedOrders.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(scannedOrders.length / itemsPerPage);
+  const pagination = useMemo(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentOrders = scannedOrders.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(scannedOrders.length / itemsPerPage);
+
+    return { indexOfLastItem, indexOfFirstItem, currentOrders, totalPages };
+  }, [scannedOrders, currentPage, itemsPerPage]);
 
   const nextPage = () => {
-    if (currentPage < totalPages) {
+    if (currentPage < pagination.totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -752,8 +1117,15 @@ const QRScanner = () => {
   };
 
   // Get selected orders count
-  const selectedOrdersCount = scannedOrders.filter(order => order.checked).length;
-  const pendingOrdersCount = scannedOrders.filter(order => order.status === 'pending').length;
+  const selectedOrdersCount = useMemo(() => 
+    scannedOrders.filter(order => order.checked).length,
+    [scannedOrders]
+  );
+
+  const pendingOrdersCount = useMemo(() => 
+    scannedOrders.filter(order => order.status === 'pending').length,
+    [scannedOrders]
+  );
 
   // Initialize component
   useEffect(() => {
@@ -781,6 +1153,7 @@ const QRScanner = () => {
     } else {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     }
 
@@ -798,23 +1171,22 @@ const QRScanner = () => {
     }
   }, [activeTab, loadAnalyticsData]);
 
+  // Process pending orders when orders change
+  useEffect(() => {
+    const pendingCount = scannedOrders.filter(o => o.isLoadingDetail).length;
+    if (pendingCount > 0) {
+      processPendingOrderDetails();
+    }
+  }, [scannedOrders, processPendingOrderDetails]);
+
   // Render Scanner Tab
   const renderScannerTab = () => (
     <ScannerGrid>
       {/* Left Column - Camera Section */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px'
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Camera Controls */}
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{ marginBottom: '16px' }}>
+        <ScannerCard>
+          <div style={{ marginBottom: '20px' }}>
             <label style={{ 
               display: 'block', 
               marginBottom: '8px', 
@@ -830,74 +1202,51 @@ const QRScanner = () => {
               disabled={scanning}
               style={{
                 width: '100%',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: '2px solid #e5e7eb',
                 fontSize: '14px',
-                backgroundColor: scanning ? '#f9fafb' : 'white'
+                backgroundColor: scanning ? '#f9fafb' : 'white',
+                transition: 'border-color 0.2s ease',
+                cursor: scanning ? 'not-allowed' : 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 16px center',
+                backgroundSize: '20px'
               }}
             >
               <option value="">Default Camera</option>
               {cameras.map(camera => (
                 <option key={camera.deviceId} value={camera.deviceId}>
-                  {camera.label || `Camera ${camera.deviceId.slice(0, 10)}`}
+                  {camera.label || `Camera ${camera.deviceId.slice(0, 8)}...`}
                 </option>
               ))}
             </select>
           </div>
 
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px',
-            flexWrap: 'wrap'
-          }}>
-            <button
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Button
+              variant={scanning ? 'danger' : 'success'}
               onClick={() => scanning ? stopCamera() : startCamera(selectedCamera)}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: scanning ? '#dc2626' : '#059669',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                flex: 1,
-                minWidth: '140px',
-                transition: 'all 0.2s'
-              }}
+              style={{ flex: 1 }}
             >
               {scanning ? '⏹️ Stop Scanning' : '▶️ Start Scanning'}
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="outline"
               onClick={clearScannedData}
               disabled={scannedOrders.length === 0}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: scannedOrders.length === 0 ? '#9ca3af' : '#d97706',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: scannedOrders.length === 0 ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                flex: 1,
-                minWidth: '140px'
-              }}
+              style={{ flex: 1 }}
             >
               🗑️ Clear All
-            </button>
+            </Button>
           </div>
-        </div>
+        </ScannerCard>
 
         {/* Camera Preview */}
-        <div style={{ 
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-        }}>
+        <ScannerCard>
           <h3 style={{ 
             margin: '0 0 16px 0',
             fontSize: '18px',
@@ -907,23 +1256,18 @@ const QRScanner = () => {
             Camera Preview
           </h3>
           
-          <div style={{ 
-            position: 'relative',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            backgroundColor: '#000',
-            aspectRatio: '4/3'
-          }}>
+          <CameraPreview>
             <video
               ref={videoRef}
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
                 display: scanning ? 'block' : 'none',
-                position: 'relative',
+                position:"relative"
+                
               }}
               muted
+              
               playsInline
             />
             
@@ -935,115 +1279,92 @@ const QRScanner = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: '#1f2937',
+                background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
                 color: '#9ca3af',
                 fontSize: '16px',
                 gap: '12px'
               }}>
-                <div style={{ fontSize: '48px' }}>📷</div>
+                <div style={{ fontSize: '64px' }}>📷</div>
                 <div style={{ textAlign: 'center' }}>
-                  <div>Camera is off</div>
-                  <div style={{ fontSize: '14px', marginTop: '4px' }}>Click "Start Scanning" to begin</div>
+                  <div style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px' }}>Camera Offline</div>
+                  <div style={{ fontSize: '14px' }}>Click "Start Scanning" to begin</div>
                 </div>
               </div>
             )}
 
-            {scanning && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                pointerEvents: 'none',
-                border: '3px solid #10b981',
-                borderRadius: '8px'
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  top: '20%',
-                  left: '10%',
-                  right: '10%',
-                  height: '3px',
-                  background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
-                  animation: 'scan 2s ease-in-out infinite'
-                }} />
-              </div>
-            )}
-          </div>
+            {scanning && <ScanOverlay />}
+          </CameraPreview>
 
           <div style={{
-            marginTop: '12px',
-            padding: '12px',
-            backgroundColor: scanning ? '#d1fae5' : '#f3f4f6',
-            borderRadius: '6px',
+            marginTop: '16px',
+            padding: '16px',
+            background: scanning ? 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' : '#f8fafc',
+            borderRadius: '10px',
             textAlign: 'center',
             fontSize: '14px',
             fontWeight: '500',
-            color: scanning ? '#065f46' : '#6b7280'
+            color: scanning ? '#065f46' : '#6b7280',
+            border: `2px solid ${scanning ? '#10b981' : '#e5e7eb'}`
           }}>
             {scanning ? '🔍 Scanning for order barcodes...' : '⏸️ Scanner paused'}
             {currentScanningOrderId && (
-              <div style={{ marginTop: '4px', fontSize: '12px' }}>
+              <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: '600', color: '#1e40af' }}>
                 Last scanned: {currentScanningOrderId}
               </div>
             )}
           </div>
-        </div>
+        </ScannerCard>
 
         {error && (
           <div style={{
-            padding: '16px',
-            backgroundColor: '#fef2f2',
-            color: '#dc2626',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
+            padding: '20px',
+            background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+            color: '#991b1b',
+            border: '2px solid #fca5a5',
+            borderRadius: '12px',
             fontSize: '14px'
           }}>
-            <div style={{ fontWeight: '600', marginBottom: '4px' }}>Error:</div>
+            <div style={{ fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚠️</span>
+              <span>Error</span>
+            </div>
             {error}
           </div>
         )}
       </div>
 
       {/* Right Column - Orders Table */}
-      <div style={{
-        padding: '20px',
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '800px'
-      }}>
+      <TableContainer>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '20px',
+          marginBottom: '24px',
           paddingBottom: '16px',
           borderBottom: '2px solid #f1f5f9'
         }}>
-          <h3 style={{ 
-            margin: 0,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#1e293b'
-          }}>
-            Scanned Orders ({scannedOrders.length})
+          <div>
+            <h3 style={{ 
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: '700',
+              color: '#1e293b'
+            }}>
+              Scanned Orders ({scannedOrders.length})
+            </h3>
             {pendingOrdersCount > 0 && (
-              <span style={{ 
+              <div style={{ 
                 fontSize: '14px', 
                 color: '#3b82f6',
-                marginLeft: '8px',
-                fontWeight: 'normal'
+                marginTop: '4px',
+                fontWeight: '500'
               }}>
-                ({pendingOrdersCount} pending)
-              </span>
+                {pendingOrdersCount} pending • {selectedOrdersCount} selected
+              </div>
             )}
-          </h3>
+          </div>
           
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <select
               value={itemsPerPage}
               onChange={(e) => {
@@ -1051,106 +1372,84 @@ const QRScanner = () => {
                 setCurrentPage(1);
               }}
               style={{
-                padding: '6px 8px',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                fontSize: '12px'
+                padding: '8px 12px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '500',
+                backgroundColor: 'white',
+                cursor: 'pointer'
               }}
             >
-              <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
               <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
             </select>
-            
-            {scannedOrders.length > 0 && (
-              <button
-                onClick={clearScannedData}
-                style={{
-                  padding: '6px 12px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '500'
-                }}
-              >
-                Clear All
-              </button>
-            )}
           </div>
         </div>
 
         {/* Confirm Button Section */}
         {pendingOrdersCount > 0 && (
           <div style={{
-            marginBottom: '16px',
-            padding: '16px',
-            backgroundColor: '#f0f9ff',
-            border: '1px solid #bae6fd',
-            borderRadius: '8px',
+            marginBottom: '20px',
+            padding: '20px',
+            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+            border: '2px solid #bae6fd',
+            borderRadius: '12px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ fontSize: '14px', color: '#0369a1', fontWeight: '500' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ fontSize: '15px', color: '#0369a1', fontWeight: '600' }}>
                 {selectedOrdersCount} of {pendingOrdersCount} pending order(s) selected
               </div>
-              {selectedOrdersCount > 0 && (
+              {selectedOrdersCount > 0 && selectedOrdersCount < pendingOrdersCount && (
                 <button
                   onClick={toggleSelectAll}
                   style={{
-                    padding: '4px 8px',
+                    padding: '6px 12px',
                     backgroundColor: 'transparent',
                     color: '#3b82f6',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '4px',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '6px',
                     cursor: 'pointer',
-                    fontSize: '12px'
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  {scannedOrders.every(order => order.checked) ? 'Deselect All' : 'Select All'}
+                  Select All Pending
                 </button>
               )}
             </div>
             
-            <button
+            <Button
+              variant="success"
               onClick={confirmSelectedScans}
               disabled={selectedOrdersCount === 0 || isConfirming}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: selectedOrdersCount === 0 || isConfirming ? '#9ca3af' : '#059669',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: selectedOrdersCount === 0 || isConfirming ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                minWidth: '160px'
-              }}
+              style={{ minWidth: '180px' }}
             >
               {isConfirming ? (
                 <>
-                  <span style={{ marginRight: '8px' }}>🔄</span>
+                  <LoadingSpinner />
                   Confirming...
                 </>
               ) : (
                 <>
-                  <span style={{ marginRight: '8px' }}>✅</span>
+                  <span style={{ fontSize: '16px' }}>✅</span>
                   Confirm ({selectedOrdersCount})
                 </>
               )}
-            </button>
+            </Button>
           </div>
         )}
 
         {scannedOrders.length === 0 ? (
           <div style={{
             textAlign: 'center',
-            padding: '60px 20px',
+            padding: '80px 20px',
             color: '#9ca3af',
             flex: 1,
             display: 'flex',
@@ -1158,522 +1457,488 @@ const QRScanner = () => {
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-            <div style={{ fontSize: '16px', fontWeight: '500' }}>No orders scanned yet</div>
-            <div style={{ fontSize: '14px', marginTop: '8px' }}>Scanned orders will appear here</div>
+            <div style={{ 
+              fontSize: '72px', 
+              marginBottom: '24px',
+              opacity: 0.5 
+            }}>📋</div>
+            <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>No orders scanned yet</div>
+            <div style={{ fontSize: '14px' }}>Start scanning to see orders here</div>
           </div>
         ) : (
           <>
             <div style={{ 
               overflow: 'auto',
               flex: 1,
-              marginBottom: '16px'
+              marginBottom: '20px',
+              borderRadius: '8px'
             }}>
-              <table style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                fontSize: '13px'
-              }}>
+              <Table>
                 <thead>
-                  <tr style={{
-                    backgroundColor: '#f8fafc',
-                    position: 'sticky',
-                    top: 0
-                  }}>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'center',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase',
-                      width: '40px'
-                    }}>
+                  <tr>
+                    <th style={{ width: '50px' }}>
                       <input
                         type="checkbox"
-                        checked={scannedOrders.length > 0 && scannedOrders.every(order => order.checked && order.status === 'pending')}
+                        checked={scannedOrders.length > 0 && 
+                                 scannedOrders.filter(o => o.status === 'pending')
+                                   .every(order => order.checked)}
                         onChange={toggleSelectAll}
                         disabled={pendingOrdersCount === 0}
                         style={{
-                          cursor: pendingOrdersCount > 0 ? 'pointer' : 'not-allowed'
+                          cursor: pendingOrdersCount > 0 ? 'pointer' : 'not-allowed',
+                          transform: 'scale(1.2)'
                         }}
                       />
                     </th>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase'
-                    }}>Product</th>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase'
-                    }}>Order Info</th>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'center',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase'
-                    }}>Status</th>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'right',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase'
-                    }}>Total</th>
-                    <th style={{
-                      padding: '12px 6px',
-                      textAlign: 'center',
-                      fontWeight: '600',
-                      color: '#475569',
-                      borderBottom: '2px solid #e2e8f0',
-                      fontSize: '11px',
-                      textTransform: 'uppercase'
-                    }}>Actions</th>
+                    <th style={{ width: '200px' }}>Product Details</th>
+                    <th>Order Information</th>
+                    <th style={{ width: '120px' }}>Status</th>
+                    <th style={{ width: '100px' }}>Amount</th>
+                    <th style={{ width: '100px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentOrders.map((order, index) => (
-                    <tr 
-                      key={order.id}
-                      style={{
-                        backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc',
-                        borderBottom: '1px solid #f1f5f9'
-                      }}
-                    >
-                      <td style={{ 
-                        padding: '12px 6px',
-                        textAlign: 'center',
-                        verticalAlign: 'top'
-                      }}>
+                  {pagination.currentOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td>
                         <input
                           type="checkbox"
                           checked={order.checked || false}
                           onChange={() => toggleCheck(order.id)}
                           disabled={order.status !== 'pending'}
                           style={{
-                            cursor: order.status === 'pending' ? 'pointer' : 'not-allowed'
+                            cursor: order.status === 'pending' ? 'pointer' : 'not-allowed',
+                            transform: 'scale(1.2)'
                           }}
                         />
                       </td>
-                      <td style={{ padding: '12px 6px', verticalAlign: 'top' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {getFirstProductImage(order) ? (
-                            <img 
-                              src={getFirstProductImage(order)} 
-                              alt="Product"
-                              style={{
-                                width: '40px',
-                                height: '40px',
-                                objectFit: 'cover',
-                                borderRadius: '4px'
-                              }}
-                            />
-                          ) : (
-                            <div style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: '#e5e7eb',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#9ca3af',
-                              fontSize: '10px'
-                            }}>
-                              No Image
-                            </div>
-                          )}
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px',border:'2px solid red' }}>
+                          <ProductImage imageUrl={getFirstProductImage(order)}>
+                            {!getFirstProductImage(order) && 'No Image'}
+                          </ProductImage>
                           <div>
                             <div style={{ 
                               fontWeight: '600', 
                               color: '#1e293b',
-                              fontSize: '12px',
-                              lineHeight: '1.2'
+                              fontSize: '13px',
+                              lineHeight: '1.3',
+                              marginBottom: '4px'
                             }}>
                               {getProductNames(order)}
                             </div>
                             <div style={{ 
-                              fontSize: '10px', 
+                              fontSize: '11px', 
                               color: '#64748b',
-                              marginTop: '2px'
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
                             }}>
-                              {order.orderDetail?.products?.length || '?'} item(s)
+                              <span>🛒 {getProductCount(order)} item(s)</span>
+                              {order.orderDetail?.products?.[0]?.productId?.discountedPrice && (
+                                <>
+                                  <span>•</span>
+                                  <span>💰 NPR {order.orderDetail.products[0].productId.discountedPrice}</span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px 6px', verticalAlign: 'top' }}>
-                        <div style={{ fontSize: '11px', lineHeight: '1.3' }}>
-                          <div><strong>Order ID:</strong> {order.orderId}</div>
-                          <div><strong>Product Order ID:</strong> {order.productOrderId}</div>
-                          <div><strong>Phone:</strong> {order.orderDetail?.phoneNumber || '-'}</div>
-                          <div><strong>Location:</strong> {order.orderDetail?.shippingLocation || '-'}</div>
-                          <div><strong>Payment:</strong> {order.orderDetail?.paymentMethod || '-'}</div>
-                          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
-                            {order.timestamp}
+                      <td>
+                        <div style={{ fontSize: '12px', lineHeight: '1.5' }}>
+                          <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ color: '#475569' }}>Order ID:</strong>{' '}
+                            <span style={{ 
+                              color: '#3b82f6', 
+                              fontWeight: '500',
+                              fontFamily: 'monospace',
+                              fontSize: '11px'
+                            }}>
+                              {order.orderId}
+                            </span>
+                          </div>
+                          <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ color: '#475569' }}>Customer:</strong>{' '}
+                            <span style={{ color: '#1e293b' }}>
+                              {order.orderDetail?.userId?.name || 'Unknown'}
+                            </span>
+                          </div>
+                          <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ color: '#475569' }}>Phone:</strong>{' '}
+                            <span style={{ color: '#1e293b', fontWeight: '500' }}>
+                              {order.orderDetail?.phoneNumber || '-'}
+                            </span>
+                          </div>
+                          <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ color: '#475569' }}>Delivery:</strong>{' '}
+                            <span style={{ 
+                              color: order.orderDetail?.isHomeDelivery ? '#059669' : '#d97706',
+                              fontWeight: '500'
+                            }}>
+                              {order.orderDetail?.isHomeDelivery ? 'Home Delivery' : 'Pickup'}
+                            </span>
+                          </div>
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: '#94a3b8',
+                            marginTop: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>🕒 {order.timestamp}</span>
+                            {order.orderDetail?.paymentMethod && (
+                              <span>• {order.orderDetail.paymentMethod}</span>
+                            )}
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px 6px', verticalAlign: 'top', textAlign: 'center' }}>
-                        <div>
-                          <span style={{
-                            padding: '4px 6px',
-                            backgroundColor: order.status === 'success' ? '#10b981' : 
-                                           order.status === 'loading' ? '#f59e0b' : 
-                                           order.status === 'pending' ? '#3b82f6' : '#ef4444',
-                            color: 'white',
-                            borderRadius: '8px',
-                            fontSize: '10px',
-                            fontWeight: '500',
-                            display: 'inline-block',
-                            marginBottom: '4px'
-                          }}>
-                            {order.status === 'success' ? 'SUCCESS' : 
-                             order.status === 'loading' ? 'LOADING' : 
-                             order.status === 'pending' ? 'PENDING' : 'ERROR'}
-                          </span>
-                          {(order.status === 'error' || order.status === 'loading') && (
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <StatusBadge status={order.status}>
+                            {order.status === 'loading' && '🔄 '}
+                            {order.status === 'success' && '✅ '}
+                            {order.status === 'pending' && '⏳ '}
+                            {order.status === 'error' && '❌ '}
+                            {order.status.toUpperCase()}
+                          </StatusBadge>
+                          
+                          {order.isLoadingDetail && (
                             <div style={{ 
-                              fontSize: '9px', 
-                              color: order.status === 'loading' ? '#f59e0b' : '#ef4444', 
-                              marginTop: '2px',
-                              maxWidth: '120px',
+                              fontSize: '11px', 
+                              color: '#f59e0b',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <LoadingSpinner style={{ width: '12px', height: '12px' }} />
+                              Loading details...
+                            </div>
+                          )}
+                          
+                          {(order.status === 'error' && order.errorMessage) && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#ef4444',
                               wordBreak: 'break-word'
                             }}>
                               {order.errorMessage}
                             </div>
                           )}
-                          {order.status === 'success' && (
-                            <div style={{ marginTop: '4px' }}>
-                              <span style={{
-                                padding: '2px 6px',
-                                backgroundColor: '#3b82f6',
-                                color: 'white',
-                                borderRadius: '8px',
-                                fontSize: '9px',
-                                fontWeight: '500'
-                              }}>
-                                ✅ CONFIRMED
-                              </span>
+                          
+                          {order.orderDetail?.isScanned && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#059669',
+                              fontWeight: '500'
+                            }}>
+                              ✅ Confirmed
                             </div>
                           )}
                         </div>
                       </td>
-                      <td style={{ 
-                        padding: '12px 6px',
-                        textAlign: 'right',
-                        fontWeight: '600',
-                        color: '#059669',
-                        verticalAlign: 'top',
-                        fontSize: '12px'
-                      }}>
-                        {order.orderDetail ? `NPR ${order.orderDetail.totalAmount?.toFixed(2)}` : '-'}
+                      <td>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ 
+                            fontSize: '16px', 
+                            fontWeight: '700', 
+                            color: '#059669' 
+                          }}>
+                            NPR {getTotalAmount(order).toFixed(2)}
+                          </div>
+                          {order.orderDetail?.shippingPrice && order.orderDetail.shippingPrice > 0 && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#64748b',
+                              marginTop: '2px'
+                            }}>
+                              + NPR {order.orderDetail.shippingPrice.toFixed(2)} shipping
+                            </div>
+                          )}
+                        </div>
                       </td>
-                      <td style={{ 
-                        padding: '12px 6px',
-                        textAlign: 'center',
-                        verticalAlign: 'top'
-                      }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                          <button
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <Button
+                            variant="outline"
                             onClick={() => copyToClipboard(order.orderId)}
-                            style={{
-                              padding: '4px 6px',
-                              backgroundColor: '#8b5cf6',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '10px',
-                              width: '100%'
-                            }}
-                            title="Copy Order ID"
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
                           >
-                            📋 Copy ID
-                          </button>
-                          <button
+                            📋 Copy
+                          </Button>
+                          <Button
+                            variant="danger"
                             onClick={() => removeItem(order.id)}
-                            style={{
-                              padding: '4px 6px',
-                              backgroundColor: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '10px',
-                              width: '100%'
-                            }}
-                            title="Delete"
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
                           >
                             🗑️ Delete
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </Table>
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {pagination.totalPages > 1 && (
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '16px 0',
-                borderTop: '1px solid #e2e8f0'
+                padding: '20px 0',
+                borderTop: '2px solid #e2e8f0'
               }}>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>
-                  Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, scannedOrders.length)} of {scannedOrders.length} orders
+                <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
+                  Showing {pagination.indexOfFirstItem + 1}-{Math.min(pagination.indexOfLastItem, scannedOrders.length)} of {scannedOrders.length} orders
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <button
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <Button
+                    variant="outline"
                     onClick={prevPage}
                     disabled={currentPage === 1}
-                    style={{
-                      padding: '8px 12px',
-                      backgroundColor: currentPage === 1 ? '#f3f4f6' : '#3b82f6',
-                      color: currentPage === 1 ? '#9ca3af' : 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                      fontSize: '12px'
-                    }}
+                    style={{ padding: '8px 16px' }}
                   >
-                    Previous
-                  </button>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
+                    ← Previous
+                  </Button>
+                  
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (pagination.totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= pagination.totalPages - 2) {
+                        pageNum = pagination.totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '8px',
+                            backgroundColor: currentPage === pageNum ? '#3b82f6' : 'transparent',
+                            color: currentPage === pageNum ? 'white' : '#64748b',
+                            border: `2px solid ${currentPage === pageNum ? '#3b82f6' : '#e5e7eb'}`,
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: currentPage === pageNum ? '600' : '500',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
                     onClick={nextPage}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      padding: '8px 12px',
-                      backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#3b82f6',
-                      color: currentPage === totalPages ? '#9ca3af' : 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                      fontSize: '12px'
-                    }}
+                    disabled={currentPage === pagination.totalPages}
+                    style={{ padding: '8px 16px' }}
                   >
-                    Next
-                  </button>
+                    Next →
+                  </Button>
                 </div>
               </div>
             )}
           </>
         )}
-      </div>
+      </TableContainer>
     </ScannerGrid>
   );
 
-  // Render Analytics Tab (unchanged from original)
+  // Render Analytics Tab (unchanged from original but optimized)
   const renderAnalyticsTab = () => (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px'
-    }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Analytics Controls */}
-      <div style={{
-        padding: '20px',
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h3 style={{ 
-          margin: 0,
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#1e293b'
-        }}>
-          Sales Analytics Dashboard
-        </h3>
-        
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <select
-            value={analyticsPeriod}
-            onChange={(e) => setAnalyticsPeriod(e.target.value as any)}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              backgroundColor: 'white'
-            }}
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
+      <ScannerCard>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#1e293b' }}>
+            📈 Sales Analytics Dashboard
+          </h3>
           
-          <button
-            onClick={loadAnalyticsData}
-            disabled={scanLoading}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: scanLoading ? 'not-allowed' : 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            {scanLoading ? 'Loading...' : 'Refresh Data'}
-          </button>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <select
+              value={analyticsPeriod}
+              onChange={(e) => setAnalyticsPeriod(e.target.value as any)}
+              style={{
+                padding: '10px 16px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '10px',
+                fontSize: '14px',
+                backgroundColor: 'white',
+                fontWeight: '500',
+                minWidth: '140px',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="daily">📅 Daily</option>
+              <option value="weekly">🗓️ Weekly</option>
+              <option value="monthly">📊 Monthly</option>
+              <option value="yearly">📈 Yearly</option>
+            </select>
+            
+            <Button
+              variant="primary"
+              onClick={loadAnalyticsData}
+              disabled={scanLoading}
+              style={{ minWidth: '140px' }}
+            >
+              {scanLoading ? (
+                <>
+                  <LoadingSpinner />
+                  Loading...
+                </>
+              ) : (
+                '🔄 Refresh'
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      </ScannerCard>
 
       {/* Sales Overview Cards */}
       <StatsGrid>
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>Total Scanned</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>
-            {scannedOrders.length}
-          </div>
-        </div>
-        
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>Total Revenue</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#059669' }}>
-            NPR {orderStats.totalAmount.toFixed(2)}
-          </div>
-        </div>
-        
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>Products Sold</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>
-            {orderStats.totalProducts}
-          </div>
-        </div>
-        
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>Fulfillment Rate</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#3b82f6' }}>
-            {orderStats.scannedOrders > 0 ? ((orderStats.fulfilledOrders / orderStats.scannedOrders) * 100).toFixed(1) : 0}%
-          </div>
-        </div>
+        {[
+          { 
+            title: 'Total Scanned', 
+            value: scannedOrders.length, 
+            color: '#3b82f6',
+            icon: '📱'
+          },
+          { 
+            title: 'Total Revenue', 
+            value: `NPR ${orderStats.totalAmount.toFixed(2)}`, 
+            color: '#059669',
+            icon: '💰'
+          },
+          { 
+            title: 'Products Sold', 
+            value: orderStats.totalProducts, 
+            color: '#8b5cf6',
+            icon: '🛒'
+          },
+          { 
+            title: 'Fulfillment Rate', 
+            value: `${orderStats.scannedOrders > 0 ? ((orderStats.fulfilledOrders / orderStats.scannedOrders) * 100).toFixed(1) : 0}%`, 
+            color: '#f59e0b',
+            icon: '✅'
+          }
+        ].map((stat, index) => (
+          <ScannerCard key={index}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '32px', 
+                marginBottom: '12px',
+                background: `linear-gradient(135deg, ${stat.color}20 0%, ${stat.color}40 100%)`,
+                width: '64px',
+                height: '64px',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {stat.icon}
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '8px', fontWeight: '500' }}>
+                {stat.title}
+              </div>
+              <div style={{ 
+                fontSize: '28px', 
+                fontWeight: '800', 
+                color: stat.color,
+                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                {stat.value}
+              </div>
+            </div>
+          </ScannerCard>
+        ))}
       </StatsGrid>
 
       {/* Charts Grid */}
       <ChartsGrid>
         {/* Sales Trend Chart */}
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          height: '400px'
-        }}>
-          <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
-            Sales Trend
+        <ScannerCard>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
+            📈 Sales Trend
           </h4>
-          <ResponsiveContainer width="100%" height="90%">
+          <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={formatSalesData()}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={12} />
               <Tooltip 
-                formatter={(value) => [`NPR ${value}`, 'Revenue']}
+                formatter={(value) => [`NPR ${Number(value).toLocaleString()}`, 'Revenue']}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Area type="monotone" dataKey="revenue" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+              <Area 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="#8884d8" 
+                fillOpacity={1} 
+                fill="url(#colorRevenue)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </ScannerCard>
 
         {/* Orders Chart */}
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          height: '400px'
-        }}>
-          <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
-            Orders & Items
+        <ScannerCard>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
+            📊 Orders & Items
           </h4>
-          <ResponsiveContainer width="100%" height="90%">
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={formatSalesData()}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
               <Legend />
-              <Bar dataKey="orders" fill="#82ca9d" name="Orders" />
-              <Bar dataKey="items" fill="#8884d8" name="Items" />
+              <Bar dataKey="orders" fill="#82ca9d" name="Orders" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="items" fill="#8884d8" name="Items" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ScannerCard>
 
         {/* Top Products Chart */}
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          height: '400px'
-        }}>
-          <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
-            Top Selling Products
+        <ScannerCard>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
+            🏆 Top Selling Products
           </h4>
-          <ResponsiveContainer width="100%" height="90%">
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={formatTopProductsData()}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                outerRadius={80}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -1681,32 +1946,43 @@ const QRScanner = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value, 'Quantity']} />
+              <Tooltip 
+                formatter={(value) => [value, 'Quantity']}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
             </PieChart>
           </ResponsiveContainer>
-        </div>
+        </ScannerCard>
 
         {/* Revenue by Product */}
-        <div style={{
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          height: '400px'
-        }}>
-          <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
-            Revenue by Product
+        <ScannerCard>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
+            💰 Revenue by Product
           </h4>
-          <ResponsiveContainer width="100%" height="90%">
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={formatTopProductsData()}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-              <YAxis />
-              <Tooltip formatter={(value) => [`NPR ${value}`, 'Revenue']} />
-              <Bar dataKey="revenue" fill="#ff8042" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis 
+                dataKey="name" 
+                angle={-45} 
+                textAnchor="end" 
+                height={80} 
+                stroke="#64748b" 
+                fontSize={12} 
+              />
+              <YAxis stroke="#64748b" fontSize={12} />
+              <Tooltip 
+                formatter={(value) => [`NPR ${Number(value).toLocaleString()}`, 'Revenue']}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
+              <Bar 
+                dataKey="revenue" 
+                fill="#ff8042" 
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ScannerCard>
       </ChartsGrid>
     </div>
   );
@@ -1714,47 +1990,59 @@ const QRScanner = () => {
   return (
     <PageContainer>
       <div>
-        
         {/* Header */}
         <div style={{ 
           textAlign: 'center', 
-          marginBottom: '32px',
-          padding: '24px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          marginBottom: '40px',
+          padding: '32px 24px',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+          borderRadius: '20px',
+          boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.3)',
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          <div style={{
+            position: 'absolute',
+            top: '-50%',
+            left: '-50%',
+            right: '-50%',
+            bottom: '-50%',
+            background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+            pointerEvents: 'none'
+          }} />
+          
           <h1 style={{ 
-            color: '#1e293b', 
-            marginBottom: '8px',
-            fontSize: '28px',
-            fontWeight: '700'
+            fontSize: '36px',
+            fontWeight: '800',
+            marginBottom: '12px',
+            letterSpacing: '-0.5px'
           }}>
-            Order Scanner & Analytics
+            Order Scanner & Analytics Dashboard
           </h1>
           <p style={{ 
-            color: '#64748b',
-            fontSize: '16px',
-            margin: 0
+            fontSize: '18px',
+            opacity: 0.9,
+            margin: '0 auto 24px',
+            maxWidth: '600px'
           }}>
-            Scan order barcodes and analyze sales performance
+            Scan order barcodes in real-time and analyze sales performance with advanced insights
           </p>
           <div style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '16px',
-            marginTop: '16px',
-            fontSize: '14px',
-            color: '#475569'
+            gap: '24px',
+            fontSize: '15px',
+            fontWeight: '500'
           }}>
-            <span>📷 {cameras.length} cameras</span>
-            <span>•</span>
+            <span>📷 {cameras.length} cameras available</span>
+            <span style={{ opacity: 0.5 }}>•</span>
             <span>📊 {scanCount} total scans</span>
-            <span>•</span>
-            <span>✅ {orderStats.fulfilledOrders} fulfilled</span>
-            <span>•</span>
-            <span>💰 NPR {orderStats.totalAmount.toFixed(2)}</span>
+            <span style={{ opacity: 0.5 }}>•</span>
+            <span>✅ {orderStats.fulfilledOrders} fulfilled orders</span>
+            <span style={{ opacity: 0.5 }}>•</span>
+            <span>💰 NPR {orderStats.totalAmount.toLocaleString()}</span>
           </div>
         </div>
 
@@ -1763,36 +2051,48 @@ const QRScanner = () => {
           <button
             onClick={() => setActiveTab('scanner')}
             style={{
-              padding: '12px 24px',
-              backgroundColor: activeTab === 'scanner' ? '#3b82f6' : 'transparent',
+              padding: '16px 32px',
+              background: activeTab === 'scanner' ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : 'white',
               color: activeTab === 'scanner' ? 'white' : '#64748b',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '16px',
+              fontWeight: '700',
               flex: 1,
-              transition: 'all 0.2s'
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              boxShadow: activeTab === 'scanner' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
             }}
           >
-            📱 Scanner
+            <span style={{ fontSize: '20px' }}>📱</span>
+            Scanner Mode
           </button>
           <button
             onClick={() => setActiveTab('analytics')}
             style={{
-              padding: '12px 24px',
-              backgroundColor: activeTab === 'analytics' ? '#3b82f6' : 'transparent',
+              padding: '16px 32px',
+              background: activeTab === 'analytics' ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : 'white',
               color: activeTab === 'analytics' ? 'white' : '#64748b',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '16px',
+              fontWeight: '700',
               flex: 1,
-              transition: 'all 0.2s'
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              boxShadow: activeTab === 'analytics' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
             }}
           >
-            📈 Analytics
+            <span style={{ fontSize: '20px' }}>📈</span>
+            Analytics Dashboard
           </button>
         </TabContainer>
 
@@ -1806,6 +2106,34 @@ const QRScanner = () => {
             0% { transform: translateY(-100px); }
             50% { transform: translateY(200px); }
             100% { transform: translateY(500px); }
+          }
+          
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          
+          select:focus, button:focus {
+            outline: none;
+            ring: 2px solid rgba(59, 130, 246, 0.5);
+          }
+          
+          ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+          
+          ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+          }
+          
+          ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+          }
+          
+          ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
           }
         `}
       </style>

@@ -2472,8 +2472,8 @@ Aabhushan Gallery Team`
                             <option value="">Select Partner</option>
                             <option value="NCM">NCM</option>
                             <option value="NOT NCM">NOT NCM</option>
-                            <option value="Self Pickup">Self Pickup</option>
-                            <option value="Third Party">Third Party</option>
+                            {/* <option value="Self Pickup">Self Pickup</option>
+                            <option value="Third Party">Third Party</option> */}
                           </select>
                           <div style={{ display: 'flex', gap: '4px' }}>
                             <button
