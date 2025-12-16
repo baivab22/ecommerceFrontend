@@ -2770,7 +2770,7 @@ const OrderPDF = ({data}) => {
 {
   !!item.includeGiftBox &&     <View style={styles.summaryItem}>
                       <Text style={styles.summaryLabel}>GiftBox Charge</Text>
-                      <Text style={styles.summaryValue}>Rs.400}</Text>
+                      <Text style={styles.summaryValue}>Rs.400</Text>
                     </View>
 }
                   
