@@ -6,7 +6,7 @@ import {
 import { getOrderDetailByIdAction } from '../products/product.slice';
 import { 
   markOrderScanAction, 
-  bulkMarkAction,
+  
   getSalesAnalyticsAction 
 } from './qrScanner.slice';
 import { useDispatch, useSelector } from 'src/store';
@@ -420,7 +420,9 @@ declare var BarcodeDetector: {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 const QRScanner = () => {
-  const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
+  // const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
+
+  const dispatch=useDispatch();
   const { orderDetailData, orderDetailLoading } = useSelector(
     (state: any) => state.product
   );
@@ -620,7 +622,7 @@ const QRScanner = () => {
     }
 
     try {
-      const result = await dispatch(getOrderDetailByIdAction({orderId})).unwrap();
+      const result:any = await dispatch(getOrderDetailByIdAction({orderId})).unwrap();
       if (result.success && result.data) {
         orderDetailCacheRef.current.set(orderId, result.data);
         return result.data;
@@ -687,15 +689,17 @@ const QRScanner = () => {
         // Fetch order details
         const orderDetail = await fetchOrderDetail(order.orderId, order.productOrderId);
         
+        // Validate that orderDetail is a valid OrderDetail object (not an error response)
+        const isValidOrderDetail = orderDetail && 'products' in orderDetail && '_id' in orderDetail;
+        
         // Update order with details
         setScannedOrders(prev => prev.map(o => 
           o.id === order.id ? { 
             ...o, 
-            orderDetail, 
-            status: 'pending', 
+            orderDetail: isValidOrderDetail ? orderDetail : null, 
+            status: isValidOrderDetail ? 'pending' : 'error', 
             isLoadingDetail: false,
-            // Update orderId with actual orderId from details if available
-            orderId: orderDetail.orderId || o.orderId
+            errorMessage: isValidOrderDetail ? undefined : 'Invalid order details received'
           } : o
         ));
 
@@ -817,7 +821,7 @@ const QRScanner = () => {
 
       // Call bulk mark API - note: bulkMarkAction might need to be defined or imported
       const result = await dispatch(markOrderScanAction({ 
-        productorderIds: productOrderIds 
+        productorderIds: productOrderIds as any
       })).unwrap();
       
       console.log('Bulk mark result:', result);
