@@ -1085,7 +1085,7 @@ const QRScanner = () => {
     if (!topProducts) return [];
 
     return topProducts.map(item => ({
-      name: item.productDetails[0]?.name || 'Unknown Product',
+      name: item?.name || 'Unknown Product',
       value: item.totalQuantity,
       revenue: item.totalRevenue
     }));
