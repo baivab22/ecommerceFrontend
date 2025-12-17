@@ -908,12 +908,15 @@ const SalesAnalytics: React.FC = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
+                //@ts-ignore
                   data={formattedTopProducts}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={(entry) => {
                     const name = entry.name.length > 15 ? entry.name.substring(0, 12) + '...' : entry.name;
+
+                    //@ts-ignore
                     return `${name}: ${entry.totalQuantity}`;
                   }}
                   outerRadius={80}
