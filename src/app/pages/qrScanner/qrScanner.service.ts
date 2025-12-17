@@ -44,7 +44,7 @@ export interface SalesAnalyticsResponse {
 // ---------------------------
 
 const markOrderScan = async (orderId: [string]): Promise<ScanResponse> => {
-  const response = await api<ScanResponse>('post')('/scan/scan', undefined, { orderId });
+  const response = await api<ScanResponse>('post')('/scan', undefined, { orderId });
   return response.data;
 };
 

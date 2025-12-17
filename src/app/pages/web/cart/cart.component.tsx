@@ -876,7 +876,7 @@ useEffect(() => {
           }
           
           toast.success(
-          `Ordered Placed Successfully orderId: ${backendOrderId} and the invoice has been sent to your email.`,
+          `Ordered Placed Successfully orderId: ${backendOrderId}.`,
             { duration: 10000 }
           )
 
