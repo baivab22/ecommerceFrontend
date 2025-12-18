@@ -176,7 +176,7 @@ export const ProductSection = ({
       })
     }
     
-    return filtered.slice(0, 4)
+    return filtered.reverse().slice(0, 4)
   }
 
   const filteredProducts = getFilteredProducts()
