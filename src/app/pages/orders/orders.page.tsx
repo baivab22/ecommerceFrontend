@@ -2638,6 +2638,13 @@ Aabhushan Gallery Team`
 const OrderPDF = ({data}) => {
   const currentDate = new Date()
 
+  const truncateOrderNote = (note: string, limit = 50) => {
+    if (!note) return 'No note provided'
+    const trimmed = String(note).trim()
+    if (trimmed.length <= limit) return trimmed
+    return `${trimmed.slice(0, limit)}...`
+  }
+
   const generateQrCodeUrl = async (text: string) => {
     try {
       const image = await QRCode.toDataURL(text, {
@@ -2747,6 +2754,13 @@ const OrderPDF = ({data}) => {
                     {item.locationAddress && <Text style={styles.address}>Address From Map:{item.locationAddress}</Text>}
                     <Text style={styles.contact}>T: {item.phoneNumber}</Text>
                   </View>
+                </View>
+
+                {/* Order Note */}
+                <View style={styles.noteSection}>
+                  <Text style={styles.noteTitle}>ORDER NOTE</Text>
+                  <View style={styles.divider} />
+                  <Text style={styles.noteText}>{truncateOrderNote(item?.orderNote)}</Text>
                 </View>
 
                 {/* Financial Summary - Highlighted */}
@@ -2936,6 +2950,24 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#e0e0e0',
     marginVertical: 6
+  },
+  noteSection: {
+    padding: 10,
+    border: '1px solid #e0e0e0',
+    backgroundColor: '#ffffff',
+    marginBottom: 12
+  },
+  noteTitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 1.2,
+    marginBottom: 4
+  },
+  noteText: {
+    fontSize: 8,
+    color: '#333333',
+    lineHeight: 1.4
   },
   name: {
     fontSize: 7,

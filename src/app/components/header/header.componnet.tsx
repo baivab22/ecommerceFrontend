@@ -587,7 +587,9 @@ export const TopHeader = () => {
 
             <div 
               className="topHeader-cartProfile-profile" 
-              onClick={() => setSortVisible((prev) => !prev)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setSortVisible((prev) => !prev)}}
               style={{ padding: '10px' }}
             >
               <VStack className="sortMainContainer">
