@@ -38,10 +38,14 @@
 //   const navigate = useNavigate()
 //   const dispatch = useDispatch()
 
-//   const [orderList, setOrderLists] = useState<any>()
-//   const [selectedCategory, setSelectedCategory] = useState<any>()
-//   const orderData = useSelector((state: any) => state.cart)
-
+                    // {dateFilterType === 'custom' && startDate && endDate
+                    //   ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`
+                    //   : dateFilterType === 'last1hour'
+                    //     ? 'Last 1 Hour'
+                    //     : dateFilterType === 'last7days'
+                    //       ? 'Last 7 Days'
+                    //       : dateFilterType.charAt(0).toUpperCase() + dateFilterType.slice(1)
+                    // }
 //   // Date filter states
 //   const [startDate, setStartDate] = useState<string>('')
 //   const [endDate, setEndDate] = useState<string>('')
@@ -1475,8 +1479,8 @@ import { MdCheckBoxOutlineBlank } from 'react-icons/md'
 import { IoCheckboxOutline } from 'react-icons/io5'
 import toast from 'react-hot-toast'
 import { AxiosResponse } from 'axios'
-import { EditIcon } from 'lucide-react'
-import { BASE_URL } from 'src/config'
+import { EditIcon, Eye } from 'lucide-react'
+import { BASE_URL, FILE_URL } from 'src/config'
 
 export const OrderListPage = () => {
   const navigate = useNavigate()
@@ -1512,6 +1516,9 @@ export const OrderListPage = () => {
   const [activeOrderDetails, setActiveOrderDetails] = useState<any>(undefined)
   const [activeData, setActiveData] = useState<any>([{}])
 
+  const [showOrderModal, setShowOrderModal] = useState(false)
+  const [modalOrder, setModalOrder] = useState<any>(null)
+
   const orderPdf = useMemo(() => {
     if (!!activeOrderDetails) {
       return <OrderPDF data={activeData} />
@@ -1531,16 +1538,7 @@ export const OrderListPage = () => {
 
   // Helper function to parse date from OrderedAt string
   const parseOrderDate = (dateString: string) => {
-    if (!dateString) return null
-    try {
-      const cleanDate = dateString.replace(/,/g, '')
-      const date = new Date(cleanDate)
-      // Ensure valid date
-      if (isNaN(date.getTime())) return null
-      return date
-    } catch {
-      return null
-    }
+    return parseDate(dateString)
   }
 
   // Helper function to get date range based on filter type
@@ -1581,6 +1579,11 @@ export const OrderListPage = () => {
           end: new Date(today.getTime() + 24 * 60 * 60 * 1000),
         }
 
+      case 'last1hour': {
+        const start = new Date(now.getTime() - 60 * 60 * 1000)
+        return { start, end: now }
+      }
+
       case 'week':
         const weekStart = new Date(today)
         weekStart.setDate(today.getDate() - today.getDay())
@@ -1588,6 +1591,12 @@ export const OrderListPage = () => {
           start: weekStart,
           end: new Date(now.getTime() + 24 * 60 * 60 * 1000),
         }
+
+      case 'last7days': {
+        const start = new Date(now)
+        start.setDate(now.getDate() - 7)
+        return { start, end: now }
+      }
 
       case 'month':
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -1601,9 +1610,7 @@ export const OrderListPage = () => {
         const parsedEnd = parseDate(endDate || '')
         return {
           start: parsedStart,
-          end: parsedEnd
-            ? new Date(parsedEnd.getTime() + 24 * 60 * 60 * 1000)
-            : null,
+          end: parsedEnd ? new Date(parsedEnd.getTime() + 24 * 60 * 60 * 1000) : null,
         }
 
       default:
@@ -1618,7 +1625,7 @@ export const OrderListPage = () => {
 
     // Apply date filter
     if (dateFilterType !== 'all') {
-      const { start, end } = getDateRange(dateFilterType)
+      const { start, end } = getDateRange(dateFilterType, startDate, endDate)
 
       if (start !== null || end !== null) {
         filtered = filtered.filter((order: any) => {
@@ -1969,6 +1976,16 @@ Aabhushan Gallery Team`
     setEndDate(newValue)
   }, [])
 
+  const openOrderModal = useCallback((order: any) => {
+    setModalOrder(order)
+    setShowOrderModal(true)
+  }, [])
+
+  const closeOrderModal = useCallback(() => {
+    setShowOrderModal(false)
+    setModalOrder(null)
+  }, [])
+
   console.log(filteredOrders,"filteredOrders hai")
 
   return (
@@ -2072,6 +2089,57 @@ Aabhushan Gallery Team`
                   }}
                 >
                   All Orders
+                </button>
+
+                <button
+                  onClick={() => {
+                    setDateFilterType('last1hour')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'last1hour' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'last1hour' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'last1hour' ? 'bold' : 'normal'
+                  }}
+                >
+                  Last 1 Hour
+                </button>
+
+                <button
+                  onClick={() => {
+                    setDateFilterType('last7days')
+                    setShowCustomDateInputs(false)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'last7days' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'last7days' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'last7days' ? 'bold' : 'normal'
+                  }}
+                >
+                  Last 7 Days
+                </button>
+
+                <button
+                  onClick={handleCustomDateFilterToggle}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: dateFilterType === 'custom' ? '2px solid #1976d2' : '1px solid #ccc',
+                    backgroundColor: dateFilterType === 'custom' ? '#e3f2fd' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateFilterType === 'custom' ? 'bold' : 'normal'
+                  }}
+                >
+                  Custom Range
                 </button>
               </div>
 
@@ -2551,19 +2619,38 @@ Aabhushan Gallery Team`
                   render: (_, item) => {
                     return (
                       <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
-                        <Button
-                          title="View Details"
-                          onClick={() => {
-                            setShowDetails(true)
-                            setActiveOrderDetails(item)
-                            setActiveData([item])
-                          }}
-                          style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            minHeight: '24px'
-                          }}
-                        />
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            aria-label="View order details"
+                            onClick={() => openOrderModal(item)}
+                            style={{
+                              border: '1px solid #1976d2',
+                              background: 'white',
+                              color: '#1976d2',
+                              borderRadius: '4px',
+                              padding: '4px 6px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <Eye size={14} />
+                          </button>
+                          <Button
+                            title="View Details"
+                            onClick={() => {
+                              setShowDetails(true)
+                              setActiveOrderDetails(item)
+                              setActiveData([item])
+                            }}
+                            style={{
+                              fontSize: '10px',
+                              padding: '2px 6px',
+                              minHeight: '24px'
+                            }}
+                          />
+                        </div>
                         <Button
                           title="Confirm Order"
                           onClick={() => sendWhatsAppMessage(item)}
@@ -2604,6 +2691,228 @@ Aabhushan Gallery Team`
               pageFe={true}
             />
           </div>
+        )}
+
+        {modalOrder && (
+          <Modal
+            visible={showOrderModal}
+            modalSize="lg"
+            width="720px"
+            overlayBlur={6}
+            closeModal={closeOrderModal}
+          >
+            <div style={{ padding: '20px', maxHeight: '85vh', overflowY: 'auto', backgroundColor: '#fafafa',width:'100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 12, borderBottom: '2px solid #ddd' }}>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: '#333' }}>Order Details</div>
+                <button
+                  onClick={closeOrderModal}
+                  style={{ border: 'none', background: '#f5f5f5', fontSize: '20px', cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  aria-label="Close order details"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Order Info Section */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: 8, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>Order Information</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Order ID</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'monospace' }}>{modalOrder.productOrderId || modalOrder._id}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Placed At</div>
+                    <div style={{ fontSize: '13px' }}>{formatDate(modalOrder.OrderedAt)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Customer</div>
+                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{modalOrder.userId?.name || modalOrder.userId?.email || 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Phone</div>
+                    <div style={{ fontSize: '13px' }}>{modalOrder.phoneNumber || modalOrder.userId?.phone || '-'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Payment Method</div>
+                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{modalOrder.paymentMethod || '-'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Valley Status</div>
+                    <div style={{ fontSize: '13px', fontWeight: 500, color: modalOrder.isInsideValley ? '#2e7d32' : '#f57c00' }}>
+                      {modalOrder.isInsideValley ? 'Inside Valley' : 'Outside Valley'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Section */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: 8, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>Delivery Information</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Shipping Location</div>
+                    <div style={{ fontSize: '13px' }}>{modalOrder.shippingLocation || modalOrder.locationAddress || '-'}</div>
+                  </div>
+                  {modalOrder.deliveryPartner && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Delivery Partner</div>
+                      <div style={{ fontSize: '13px', fontWeight: 500 }}>{modalOrder.deliveryPartner}</div>
+                    </div>
+                  )}
+                  {modalOrder.isRedZone && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Red Zone</div>
+                      <div style={{ fontSize: '13px', color: '#d32f2f', fontWeight: 600 }}>Yes</div>
+                    </div>
+                  )}
+                  {(modalOrder.latitude && modalOrder.longitude) && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>GPS Location</div>
+                      <a
+                        href={`https://www.google.com/maps?q=${modalOrder.latitude},${modalOrder.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '13px', color: '#1976d2', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      >
+                        📍 View on Google Maps
+                      </a>
+                    </div>
+                  )}
+                  {modalOrder.orderNote && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Order Note</div>
+                      <div style={{ fontSize: '13px', fontStyle: 'italic', color: '#555' }}>{modalOrder.orderNote}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Products Section */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: 8, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>Products ({(modalOrder.products || []).length})</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {(modalOrder.products || []).map((product: any, index: number) => {
+                    // Resolve only the image for the color variant added in cart
+                    const images = product?.productId?.images || [];
+                    const targetColor = (product?.colorName || '').toString().trim().toLowerCase();
+                    let imageUrl: string | null = null;
+
+                    if (Array.isArray(images) && images.length > 0) {
+                      const first = images[0] as any;
+                      if (typeof first === 'string') {
+                        // Legacy: images as plain URLs
+                        imageUrl = first;
+                      } else {
+                        // Expected: images as objects with colorName + coloredImage
+                        const matched = images.find((img: any) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor);
+                        const chosen = matched || images[0];
+                        const colored = (chosen as any)?.coloredImage || (chosen as any)?.image || null;
+                        if (colored) {
+                          imageUrl = `${FILE_URL}/products/${colored}`;
+                        }
+                      }
+                    }
+
+                    return (
+                      <div key={index} style={{ border: '1px solid #e0e0e0', borderRadius: 8, padding: '12px', backgroundColor: '#fafafa' }}>
+                        <div style={{ display: 'flex', gap: 12, marginBottom: 12, alignItems: 'center' }}>
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={product.productId?.name || 'Product'}
+                              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: '1px solid #ddd', flexShrink: 0 }}
+                              onError={(e) => {
+                                const img = e.currentTarget as HTMLImageElement
+                                if ((img as any)._fallbackApplied) return
+                                ;(img as any)._fallbackApplied = true
+                                img.src = '/assets/images/defaultProduct.jpeg'
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={'/assets/images/defaultProduct.jpeg'}
+                              alt="No Image"
+                              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: '1px solid #ddd', flexShrink: 0, background: '#f0f0f0' }}
+                            />
+                          )}
+
+                          {/* Product Details */}
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: 6, color: '#333' }}>{product.productId?.name || 'Unknown Product'}</div>
+
+                            {/* Variant Information */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '8px 12px', fontSize: '12px' }}>
+                              {product.colorName && (
+                                <>
+                                  <span style={{ color: '#666', fontWeight: 500 }}>Color:</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ display: 'inline-block', width: 24, height: 24, borderRadius: 4, background: product.colorName, border: '2px solid #ccc' }} />
+                                    <span style={{ color: '#555' }}>{product.colorName}</span>
+                                  </div>
+                                </>
+                              )}
+                              {product.size && (
+                                <>
+                                  <span style={{ color: '#666', fontWeight: 500 }}>Size:</span>
+                                  <span style={{ color: '#555' }}>{product.size}</span>
+                                </>
+                              )}
+                              {product.sku && (
+                                <>
+                                  <span style={{ color: '#666', fontWeight: 500 }}>SKU:</span>
+                                  <span style={{ color: '#555', fontFamily: 'monospace' }}>{product.sku}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Quantity and Price */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid #ddd' }}>
+                          <div style={{ fontSize: '13px', color: '#666' }}>Qty: <span style={{ fontWeight: 600, color: '#333' }}>{product.quantity || 0}</span></div>
+                          <div style={{ fontSize: '14px', color: '#2e7d32', fontWeight: 700 }}>{getNprPrice(product.price || 0)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>Order Summary</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#666' }}>Subtotal</span>
+                    <span style={{ fontWeight: 600 }}>{getNprPrice(getTotalPrice(modalOrder.products || []))}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#666' }}>Shipping</span>
+                    <span style={{ fontWeight: 600 }}>{getNprPrice(modalOrder.shippingPrice || 0)}</span>
+                  </div>
+                  {modalOrder.giftBoxCharge > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                      <span style={{ color: '#666' }}>Gift Box</span>
+                      <span style={{ fontWeight: 600 }}>{getNprPrice(modalOrder.giftBoxCharge)}</span>
+                    </div>
+                  )}
+                  {modalOrder.deliveryPartnerPrice > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                      <span style={{ color: '#666' }}>Delivery Partner Charge</span>
+                      <span style={{ fontWeight: 600 }}>{getNprPrice(modalOrder.deliveryPartnerPrice)}</span>
+                    </div>
+                  )}
+                  <div style={{ borderTop: '2px solid #ddd', paddingTop: 8, marginTop: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px' }}>
+                      <span style={{ fontWeight: 700 }}>Total</span>
+                      <span style={{ fontWeight: 700, color: '#2e7d32' }}>{getNprPrice(modalOrder.totalAmount || 0)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
         )}
 
         {orderPdf}

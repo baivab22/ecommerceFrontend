@@ -17,7 +17,11 @@ import {
   MdEventBusy,
   MdShare,
   MdMenu,
-  MdClose
+  MdClose,
+  MdInsights,
+  MdLocalShipping,
+  MdEmail,
+  MdWhatshot
 } from 'react-icons/md'
 import SystemTitle from '../../../assets/images/logoss.png'
 
@@ -166,19 +170,19 @@ const SideNavComponent = React.memo(() => {
             ), isMobile, () => setMobileMenuOpen(false))}
 
             {getNav('Selling analysis', '/dash-selling-analysis', () => (
-              <MdShare size={20} />
+              <MdInsights size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
 
             {getNav('Mark shipped', '/dash-mark-shipped', () => (
-              <MdShare size={20} />
+              <MdLocalShipping size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
 
             {getNav('Email Marketing', '/dash-emailMarketing', () => (
-              <MdShare size={20} />
+              <MdEmail size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
 
             {getNav('Hot Selling', '/dash-hot-selling', () => (
-              <MdShare size={20} />
+              <MdWhatshot size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
           </Box>
         </animated.div>

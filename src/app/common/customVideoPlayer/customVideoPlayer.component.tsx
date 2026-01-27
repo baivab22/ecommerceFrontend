@@ -17,6 +17,7 @@ const CustomVideoPlayer = ({
   };
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Strip HTML tags from description
@@ -78,7 +79,28 @@ const CustomVideoPlayer = ({
                 width: isFromUploader ? '80px' : '120px'
               }}
             >
-              <video src={videoUrl} muted autoPlay loop playsInline />
+              {!videoFailed ? (
+                <video 
+                  src={videoUrl} 
+                  muted 
+                  autoPlay 
+                  loop 
+                  playsInline 
+                  onError={() => setVideoFailed(true)}
+                />
+              ) : (
+                <img 
+                  src={thumbnailUrl || '/assets/images/defaultProduct.jpeg'} 
+                  alt="Video unavailable"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    const img = e.currentTarget as HTMLImageElement;
+                    if ((img as any)._fallbackApplied) return;
+                    (img as any)._fallbackApplied = true;
+                    img.src = '/assets/images/defaultProduct.jpeg';
+                  }}
+                />
+              )}
             </div>
 
             <div className="play-button" onClick={toggleFullScreen}>
@@ -99,15 +121,31 @@ const CustomVideoPlayer = ({
 
             {/* Video */}
             <div className="video-container">
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                className="fullscreen-video"
-                controls
-                autoPlay
-                playsInline
-                controlsList="nodownload"
-              />
+              {!videoFailed ? (
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="fullscreen-video"
+                  controls
+                  autoPlay
+                  playsInline
+                  controlsList="nodownload"
+                  onError={() => setVideoFailed(true)}
+                />
+              ) : (
+                <img 
+                  src={thumbnailUrl || '/assets/images/defaultProduct.jpeg'} 
+                  alt="Video unavailable"
+                  className="fullscreen-video"
+                  style={{ objectFit: 'contain', backgroundColor: '#000' }}
+                  onError={(e) => {
+                    const img = e.currentTarget as HTMLImageElement;
+                    if ((img as any)._fallbackApplied) return;
+                    (img as any)._fallbackApplied = true;
+                    img.src = '/assets/images/defaultProduct.jpeg';
+                  }}
+                />
+              )}
             </div>
 
             {/* Bottom Footer with Product Info */}

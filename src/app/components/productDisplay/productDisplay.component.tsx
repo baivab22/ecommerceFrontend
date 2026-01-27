@@ -4,7 +4,7 @@ import {
   getCartlistAction,
   updatedCartByProductIdAction
 } from 'src/app/pages/web/cart/cart.slice'
-import {BASE_URL, FILE_URL} from 'src/config'
+import {FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {useDispatch, useSelector} from 'src/store'
@@ -15,6 +15,18 @@ import { useNavigate } from 'react-router-dom'
 const ProductDisplay = ({product}) => {
   const [quantity, setQuantity] = useState(1)
 
+  const availableStock = product?.stockQuantity ?? 0
+  const isOutOfStock = availableStock <= 0
+
+  useEffect(() => {
+    // Keep quantity within available stock and avoid showing 1 when out of stock
+    if (isOutOfStock) {
+      setQuantity(0)
+      return
+    }
+    setQuantity(prev => (availableStock && prev > availableStock ? availableStock : Math.max(prev, 1)))
+  }, [isOutOfStock, availableStock])
+
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1)
@@ -22,7 +34,15 @@ const ProductDisplay = ({product}) => {
   }
 
   const increaseQuantity = () => {
-    setQuantity(quantity + 1)
+    // Prevent selecting more than available stock
+    if (isOutOfStock) return
+    setQuantity(prev => {
+      if (availableStock && prev >= availableStock) {
+        toast.error(`Only ${availableStock} in stock`)
+        return prev
+      }
+      return prev + 1
+    })
   }
 
   // Default product data if none is provided
@@ -31,6 +51,7 @@ const ProductDisplay = ({product}) => {
     originalPrice: 1300,
     discountedPrice: 799,
     discountPercentage: 39,
+    stockQuantity: 0,
     image: '/api/placeholder/400/400',
     variant: 'Gold',
     features: [
@@ -64,6 +85,11 @@ const navigate=useNavigate();
 
 
   const handleAddToCart = (data: any) => {
+    if (!data?.stockQuantity || data.stockQuantity <= 0) {
+      toast.error('Product is out of stock')
+      return
+    }
+
     const userId = getCookie('userId')
 
     const roles = getCookie('userRoles')
@@ -86,13 +112,18 @@ const isAlreadyExistData = datas?.cartData?.[0]?.products?.find(
         console.log(isAlreadyExistData,!!isAlreadyExistData, 'isAlreadyExistData final hai')
 
 if(!!isAlreadyExistData){
+      const desiredQuantity = isAlreadyExistData.quantity + quantity
+      if (desiredQuantity > data.stockQuantity) {
+        toast.error(`Only ${data.stockQuantity} available`)
+        return
+      }
       dispatch(
         updatedCartByProductIdAction({
           data: {
             userId,
             productId:data.id,
-            quantity: isAlreadyExistData.quantity+quantity,
-            price:  Number(isAlreadyExistData.price * (isAlreadyExistData.quantity+quantity))
+            quantity: desiredQuantity,
+            price:  Number(isAlreadyExistData.price * desiredQuantity)
           },
           onSuccess: () => {
             toast.success('Product updated successfully')
@@ -106,12 +137,18 @@ if(!!isAlreadyExistData){
       )
 
 }else{
+      const desiredQuantity = quantity
+      if (desiredQuantity > data.stockQuantity) {
+        toast.error(`Only ${data.stockQuantity} available`)
+        return
+      }
+
   const cartData = {
         userId,
         products: [
           {
             productId: data?.id,
-            quantity: quantity,
+            quantity: desiredQuantity,
             price: data?.discountedPrice
           }
         ]
@@ -178,6 +215,10 @@ if(!!isAlreadyExistData){
           <p>{product?.subCategory?.name}</p>
         </div>
 
+        <p className="stock-info-text">
+          {isOutOfStock ? 'Out of stock' : `In stock: ${availableStock}`}
+        </p>
+
         <div className="quantity-container">
           <button onClick={decreaseQuantity} className="quantity-button">
             −
@@ -190,6 +231,7 @@ if(!!isAlreadyExistData){
 
         <button
           className="add-to-cart-button"
+          disabled={isOutOfStock}
           onClick={() => {
             !!auth.isLoggedin
               ? handleAddToCart(product)
@@ -197,7 +239,7 @@ if(!!isAlreadyExistData){
            handleLoggedOutAddItemToCart()
           }}
         >
-          ADD TO CART
+          {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
         </button>
       </div>
     </div>
