@@ -19,9 +19,14 @@ interface CartProduct {
     id: string
     discountedPrice: number
     stockQuantity?: number
+    images?: Array<{
+      colorName?: string
+    }>
+    colorName?: string
   }
   quantity: number
   price: number
+  colorName?: string
 }
 
 export const CartCard = ({

@@ -41,9 +41,14 @@ interface CartProduct {
     id: string
     discountedPrice: number
     stockQuantity?: number
+    images?: Array<{
+      colorName?: string
+    }>
+    colorName?: string
   }
   quantity: number
   price: number
+  colorName?: string
 }
 
 interface LocationCoordinates {
@@ -784,14 +789,18 @@ useEffect(() => {
       const unitPrice = item.productId?.discountedPrice || 0
       const quantity = item.quantity || 0
       const totalPriceForProduct = unitPrice * quantity
+      const colorName =
+        item?.colorName ||
+        item?.productId?.images?.[0]?.colorName ||
+        item?.productId?.colorName ||
+        'Default'
 
       console.log(item,"item products ordered")
       console.log(`Order Product ${item.productId?.id}: Unit ${unitPrice} × Qty ${quantity} = ${totalPriceForProduct}`)
       
       return {
         productId: item?.productId?.id,
-        //@ts-ignore
-        colorName: item?.colorName,
+        colorName,
         quantity: quantity,
         price: totalPriceForProduct,
       }

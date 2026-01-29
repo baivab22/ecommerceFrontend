@@ -193,7 +193,10 @@ export const ProductWebDetail = () => {
               productId: data?.id,
               quantity: 1,
               price: data?.discountedPrice,
-              colorName:productDetailData.images[activeColorIndex].colorName
+              colorName:
+                productDetailData?.images?.[activeColorIndex]?.colorName ||
+                productDetailData?.images?.[0]?.colorName ||
+                'Default'
             }
           ]
         }
@@ -226,7 +229,12 @@ export const ProductWebDetail = () => {
               price: Number(
                 isAlreadyExistData?.productId?.discountedPrice *
                   (isAlreadyExistData?.quantity + 1)
-              )
+              ),
+              colorName:
+                productDetailData?.images?.[activeColorIndex]?.colorName ||
+                isAlreadyExistData?.colorName ||
+                productDetailData?.images?.[0]?.colorName ||
+                'Default'
             },
             onSuccess: () => {
               toast.success('Product on cart updated successfully')
