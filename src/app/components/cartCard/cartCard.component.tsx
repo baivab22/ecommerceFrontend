@@ -18,6 +18,7 @@ interface CartProduct {
   productId: {
     id: string
     discountedPrice: number
+    stockQuantity?: number
   }
   quantity: number
   price: number
@@ -48,6 +49,13 @@ export const CartCard = ({
       // Validate quantity
       if (newQuantity < 1) {
         toast.error('Quantity must be at least 1')
+        return
+      }
+
+      // Check stock quantity
+      const stockQuantity = product.productId?.stockQuantity || 0
+      if (newQuantity > stockQuantity) {
+        toast.error(`Only ${stockQuantity} items available in stock`)
         return
       }
 
@@ -136,6 +144,11 @@ export const CartCard = ({
             <div
               style={{cursor: 'pointer', fontWeight: 'bold'}}
               onClick={() => {
+                const stockQuantity = data?.productId?.stockQuantity || 0
+                if (Number(quantity) + 1 > stockQuantity) {
+                  toast.error(`Only ${stockQuantity} items available in stock`)
+                  return
+                }
                 setQuantity((prev) => Number(prev) + 1)
                 onChangePrice(quantity + 1, data)
               }}

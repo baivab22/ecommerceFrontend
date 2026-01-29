@@ -40,6 +40,7 @@ interface CartProduct {
   productId: {
     id: string
     discountedPrice: number
+    stockQuantity?: number
   }
   quantity: number
   price: number
@@ -660,6 +661,13 @@ useEffect(() => {
       
       if (newQuantity < 1) {
         toast.error('Quantity must be at least 1')
+        return
+      }
+
+      // Check stock quantity
+      const stockQuantity = product.productId?.stockQuantity || 0
+      if (newQuantity > stockQuantity) {
+        toast.error(`Only ${stockQuantity} items available in stock`)
         return
       }
 
