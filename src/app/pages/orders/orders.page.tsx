@@ -208,6 +208,14 @@
 //       })
 //     }
 
+//     // Sort by creation date - newest first
+//     filtered.sort((a: any, b: any) => {
+//       const dateA = parseOrderDate(a.OrderedAt)
+//       const dateB = parseOrderDate(b.OrderedAt)
+//       if (!dateA || !dateB) return 0
+//       return dateB.getTime() - dateA.getTime()
+//     })
+
 //     return filtered
 //   }, [orderData, dateFilterType, startDate, endDate, searchQuery])
 
@@ -980,7 +988,7 @@
 //                             fontSize: '10px',
 //                             padding: '2px 6px',
 //                             minHeight: '24px',
-//                             backgroundColor: '#25D366',
+//                             backgroundColor: 'rgb(211 37 162 / 85%)',
 //                             color: 'white'
 //                           }}
 //                         />
@@ -2638,7 +2646,7 @@ Aabhushan Gallery Team`
                             <Eye size={14} />
                           </button>
                           <Button
-                            title="View Details"
+                            title="Print Details"
                             onClick={() => {
                               setShowDetails(true)
                               setActiveOrderDetails(item)
@@ -2658,7 +2666,7 @@ Aabhushan Gallery Team`
                             fontSize: '10px',
                             padding: '2px 6px',
                             minHeight: '24px',
-                            backgroundColor: '#25D366',
+                            backgroundColor: 'rgb(211 37 162 / 85%)',
                             color: 'white'
                           }}
                         />

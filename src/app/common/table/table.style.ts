@@ -21,7 +21,11 @@ export const StyledTableCell = materialStyled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
     fontWeight: 'bold',
     paddingTop: 12,
-    paddingBottom: 12
+    paddingBottom: 12,
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    backgroundColor: '#f5f5f5'
   },
   [`&.${tableCellClasses.body}`]: {
     paddingTop: 12,
