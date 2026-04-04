@@ -45,7 +45,9 @@ export const USER_ROLES: UserRoles = {
  'dash-holiday-mode/*',
  'dash-selling-analysis/*',
   'dash-mark-shipped/*',
-  '/dash-emailMarketing'
+  '/dash-emailMarketing',
+
+  '/dash-config/*'
   
 
     ]

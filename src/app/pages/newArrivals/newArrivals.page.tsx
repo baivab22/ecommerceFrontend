@@ -126,7 +126,7 @@ const media=useMedia();
               containerStyle={{width:'max-content'}}
             // width={!media.md?"320px":"unset"}
             onChangeValue={(data) => setSelectedCategory(data)}
-            placeholder={'Filter Product By Category'}
+            placeholder={'Category'}
           />
           }
   
@@ -140,7 +140,7 @@ const media=useMedia();
             // width={!media.md?"320px":"unset"}
             onChangeValue={(data) => setSelectedCategory(data)}
             containerStyle={{width:'max-content'}}
-            placeholder={'Filter Product By Category'}
+            placeholder={'Category'}
           />
           }
   

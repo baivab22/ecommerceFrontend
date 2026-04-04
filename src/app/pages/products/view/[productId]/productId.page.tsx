@@ -20,6 +20,21 @@ import {BASE_URL, FILE_URL} from 'src/config'
 const ProductDetailsPage = () => {
   const dispatch = useDispatch()
 
+  const resolveVideoUrl = (rawValue?: string) => {
+    if (!rawValue) return ''
+    const value = String(rawValue).trim()
+    if (/^https?:\/\//i.test(value)) return encodeURI(value)
+
+    const cleaned = value.replace(/^\/+/, '')
+    const safePath = encodeURI(cleaned)
+    if (cleaned.startsWith('video/')) return `${FILE_URL}/${safePath}`
+    if (cleaned.startsWith('uploads/')) {
+      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
+    }
+
+    return `${FILE_URL}/video/${safePath}`
+  }
+
   let {productId} = useParams()
 
   console.log(productId, 'productId')
@@ -98,10 +113,9 @@ const ProductDetailsPage = () => {
                     {/* <video controls width="640" height="360">
                       <source src={productDetailData?.video} type="video/mp4" />
                     </video> */}
-                    s
                     <CustomVideoPlayer
                       // videoUrl={productDetailData?.video}
-                      videoUrl={`${FILE_URL}/products/${productDetailData?.video}`}
+                      videoUrl={resolveVideoUrl(productDetailData?.video)}
                       thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
                     ></CustomVideoPlayer>
                   </HStack>

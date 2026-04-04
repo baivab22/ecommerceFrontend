@@ -26,6 +26,7 @@ import { useMeasure, useMedia } from 'src/hooks'
 import { TextArea } from 'src/app/common/textArea'
 import { CONTACT_NUMBER } from 'src/config/constant.config'
 import { fetchHolidayModeAction, selectHolidayMode } from '../../holidayMode/holidayMode.slice'
+import { useNavigate } from 'react-router-dom'
 
 // Types
 interface Option {
@@ -162,6 +163,7 @@ const OFFICE_DELIVERY = 70 // NPR
 
 export const CartPage = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const datas = useSelector((state: any) => state.cart)
   const media = useMedia()
   const userId = getCookie('userId')
@@ -205,6 +207,8 @@ export const CartPage = () => {
   // Holiday mode state
   const settings = useSelector(selectHolidayMode);
 
+  console.log(settings,"holiday mode settings")
+
   // Gift Box state
   const [includeGiftBox, setIncludeGiftBox] = useState(false)
   const [showGiftBoxModal, setShowGiftBoxModal] = useState(false)
@@ -237,9 +241,20 @@ export const CartPage = () => {
     }));
   }, [dispatch]);
 
-  // Check if holiday mode is active and orders are not allowed
+  // Check if holiday mode is active, orders are not allowed, and current time is within start and end date
   const isHolidayModeActive = useMemo(() => {
-    return settings?.isActive && !settings?.allowOrders;
+    if (!settings) return false;
+    if (!settings.isActive || settings.allowOrders) return false;
+    const now = new Date();
+    const start = settings.startDate ? new Date(settings.startDate) : null;
+    const end = settings.endDate ? new Date(settings.endDate) : null;
+    if (start && end) {
+
+      console.log(start,end,now >= start && now <= end,"start and end value")
+      return now >= start && now <= end;
+    }
+    // Fallback: if no start/end, just use isActive and allowOrders
+    return true;
   }, [settings]);
 
   const [location, setLocation] = useState({ lat: null, lng: null });
@@ -909,6 +924,7 @@ useEffect(() => {
           clearCartItems()
           resetForm()
           openWhatsApp(backendOrderId)
+          navigate('/')
         },
         onFailure: error => {
           console.error('Order failed:', error)
@@ -944,7 +960,8 @@ useEffect(() => {
     selectedDeliveryPartner,
     deliveryTimeMessage,
     deliveryPartnerPrice,
-    isBefore12PM
+    isBefore12PM,
+    navigate
   ])
 
   console.log(shippingRate,"shippingPrice value")

@@ -117,7 +117,7 @@ export const Footer = () => {
                 rel="noreferrer" 
                 className="footer__social-link"
               >
-                <Facebook className="footer__social-icon" />
+                <Facebook className="footer__social-icon" style={{ color: '#1877F3' }} />
                 <span>Facebook</span>
               </a>
               <a 
@@ -126,7 +126,7 @@ export const Footer = () => {
                 rel="noreferrer" 
                 className="footer__social-link"
               >
-                <Instagram className="footer__social-icon" />
+                <Instagram className="footer__social-icon" style={{ color: '#E4405F' }} />
                 <span>Instagram</span>
               </a>
               <a 
@@ -135,7 +135,7 @@ export const Footer = () => {
                 rel="noreferrer" 
                 className="footer__social-link"
               >
-                <FaTiktok className="footer__social-icon" />
+                <FaTiktok className="footer__social-icon" style={{ color: '#010101' }} />
                 <span>Tiktok</span>
               </a>
             </div>

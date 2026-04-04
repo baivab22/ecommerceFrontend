@@ -6,10 +6,27 @@ const getCartListByUserId = async ({userId}: {userId: string}) => {
   return response.data
 }
 
-const getOrderList = async () => {
-  const response = await api<Api.Base<any>>('get')(`/order`)
-  console.log('from cart service', response.data)
-  return response.data
+/**
+ * Fetch order list with pagination and filters
+ * @param {Object} params - { page, limit, search, startDate, endDate }
+ */
+const getOrderList = async (params: {
+  page?: number,
+  limit?: number,
+  search?: string,
+  startDate?: string,
+  endDate?: string
+} = {}) => {
+  const query = new URLSearchParams();
+  if (params.page) query.append('page', params.page.toString());
+  if (params.limit) query.append('limit', params.limit.toString());
+  if (params.search) query.append('search', params.search);
+  if (params.startDate) query.append('startDate', params.startDate);
+  if (params.endDate) query.append('endDate', params.endDate);
+  const url = `/order${query.toString() ? `?${query.toString()}` : ''}`;
+  const response = await api<Api.Base<any>>('get')(url);
+  console.log('from cart service', response.data);
+  return response.data;
 }
 
 const updateOrderById = async (id:string,data:any) => {

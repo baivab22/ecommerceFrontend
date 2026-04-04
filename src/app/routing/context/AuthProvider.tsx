@@ -8,7 +8,7 @@ import {
 } from 'react'
 // import {authenticateUser} from 'src/app/pages/login/login.slice'
 import {useDispatch} from 'src/store'
-import {removeCookie, setCookie} from '../../../helpers'
+import {removeCookie, setCookie, getCookie} from '../../../helpers'
 // import {useDispatch} from 'react-redux'
 // import {userAuthAction} from '../../../redux'
 
@@ -71,18 +71,15 @@ export const AuthProvider = memo(({children}: any) => {
 
   useEffect(() => {
     setAuthLoading(true)
-    // dispatch(
-    //   authenticateUser({
-    //     onSuccess: () => {
-    //       loginSuccess('ADMIN')
-    //       setAuthLoading(false)
-    //     },
-    //     onFailure: () => {
-    //       setAuthLoading(false)
-    //     }
-    //   })
-    // )
-    // loginSuccess('ADMIN')
+    // Check for token and userRoles in cookies to persist login across reloads
+    const token = getCookie('token')
+    const userRole = getCookie('userRoles')
+    if (token && userRole) {
+      setAuth({
+        isLoggedin: true,
+        role: userRole
+      })
+    }
     setAuthLoading(false)
   }, [])
 

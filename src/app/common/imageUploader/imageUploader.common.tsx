@@ -37,12 +37,7 @@ const ImageUploader = React.memo(
         if (!!defaultImage && defaultImage.length > 0) {
           const remappedFiles = defaultImage?.map(
             (item: any, index: number) => ({
-              // file: isBanner
-              //   ? import.meta.env.REACT_APP_DEV_URL/$
-
-              //   `http://localehost:8000/${item}`
-              //   : `http://localhost:8000/products/${item}`,
-              // id: isBanner ? item : item._id
+           
 
               file: isBanner
                 ? `${FILE_URL}/${item}`
@@ -110,7 +105,7 @@ const ImageUploader = React.memo(
     console.log(selectedImages, 'selected images hai')
 
     useEffect(() => {
-      console.log(selectedImages, 'seelcted images from upload image component')
+      // console.log(selectedImages, 'seelcted images from upload image component')
 
       return () => {
         // Cleanup logic, e.g., clear setImages

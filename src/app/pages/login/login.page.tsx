@@ -94,6 +94,27 @@ export const LoginPage: React.FC = () => {
     )
   }, [])
 
+  const createAdminLoginResponse = useCallback(
+    (adminMatch: (typeof ADMIN_CREDENTIALS)[number]): LoginResponse => ({
+      message: 'Login successful',
+      success: true,
+      user: {
+        _id: adminMatch.id,
+        email: adminMatch.email,
+        name: adminMatch.name,
+        role: 'ADMIN'
+      },
+      userRoles: 'ADMIN',
+      token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI${adminMatch.id}IiwiZW1haWwiOiIke adminMatch.email}Iiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU4NzM1MTk0LCJleHAiOjE3NTg4MjE1OTR9.OUke0Im6mpImGyi8nH3OoMB-BU2Fj8j8Nsxzr338ZOo`,
+      expiresIn: '24h'
+    }),
+    []
+  )
+
+  const isAdminCredentials = Boolean(
+    checkAdminCredentials(loginData.email.trim(), loginData.password)
+  )
+
   useEffect(() => {
     const loadFacebookSDK = () => {
       if (document.getElementById('facebook-jssdk')) {
@@ -128,7 +149,7 @@ export const LoginPage: React.FC = () => {
     loadFacebookSDK()
   }, [])
 
-  const handleSuccessfulLogin = useCallback((data: LoginResponse) => {
+  const handleSuccessfulLogin = useCallback((data: LoginResponse, redirectPath = '/home') => {
 
     console.log(data,"data value for login hai")
     if (data?.user?._id) {
@@ -146,7 +167,7 @@ export const LoginPage: React.FC = () => {
     const userRole = data?.userRoles || 'USER'
     setCookie('userRoles', userRole)
     handleLogin(data.token, userRole, data)
-    navigate('/home')
+    navigate(redirectPath)
   }, [handleLogin, navigate])
 
   const handleLogins = useCallback(() => {
@@ -168,19 +189,7 @@ export const LoginPage: React.FC = () => {
     const adminMatch = checkAdminCredentials(trimmedEmail, trimmedPassword)
     
     if (adminMatch) {
-      const mockAdminData: LoginResponse = {
-        message: 'Login successful',
-        success: true,
-        user: {
-          _id: adminMatch.id,
-          email: adminMatch.email,
-          name: adminMatch.name,
-          role: 'ADMIN'
-        },
-        userRoles: 'ADMIN',
-        token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI${adminMatch.id}IiwiZW1haWwiOiIke adminMatch.email}Iiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU4NzM1MTk0LCJleHAiOjE3NTg4MjE1OTR9.OUke0Im6mpImGyi8nH3OoMB-BU2Fj8j8Nsxzr338ZOo`,
-        expiresIn: '24h'
-      }
+      const mockAdminData = createAdminLoginResponse(adminMatch)
       
       handleSuccessfulLogin(mockAdminData)
       toast.success(`Welcome ${adminMatch.name}!`)
@@ -219,7 +228,31 @@ export const LoginPage: React.FC = () => {
         }
       })
     )
-  }, [loginData, validateEmail, checkAdminCredentials, handleSuccessfulLogin, dispatch])
+  }, [
+    loginData,
+    validateEmail,
+    checkAdminCredentials,
+    createAdminLoginResponse,
+    handleSuccessfulLogin,
+    dispatch
+  ])
+
+  const handleGoToDashboard = useCallback(() => {
+    const trimmedEmail = loginData.email.trim()
+    const trimmedPassword = loginData.password
+    const adminMatch = checkAdminCredentials(trimmedEmail, trimmedPassword)
+
+    if (!adminMatch) {
+      toast.error('Please enter valid admin credentials first')
+      return
+    }
+
+    setIsLoading(true)
+    const mockAdminData = createAdminLoginResponse(adminMatch)
+    handleSuccessfulLogin(mockAdminData, '/dash-product')
+    toast.success(`Welcome ${adminMatch.name}!`)
+    setIsLoading(false)
+  }, [loginData, checkAdminCredentials, createAdminLoginResponse, handleSuccessfulLogin])
 
   const handleGoogleLoginSuccess = useCallback(async (credentialResponse: any) => {
     try {
@@ -433,6 +466,8 @@ export const LoginPage: React.FC = () => {
         >
           {isLoading ? 'Signing in...' : 'Sign In'}
         </button>
+
+        {/* Go to Dashboard button removed: only show for logged-in admins, not on login page */}
 
         <div className="divider">
           <div className="divider-line" />

@@ -26,21 +26,6 @@ export const SocialLinksPage = () => {
     )
   }, [])
 
-  //   useEffect(() => {
-  //     console.log(categoryData, 'caetgory data called')
-  //     const mappedSubCategory = categoryData?.map((item: any, index: number) => {
-  //       console.log(item, 'caetgory item')
-  //       return {
-  //         id: item.id,
-  //         label: item.name,
-  //         value: item.name,
-  //         subCategory: item.subCategories
-  //       }
-  //     })
-  //     console.log(mappedCategory, 'mapped category from products')
-  //     setCategory(mappedCategory)
-  //   }, [categoryData])
-
   return (
     <div>
       <Box>
@@ -108,22 +93,7 @@ export const SocialLinksPage = () => {
               console.log(item.id, 'item id to delete')
               navigate(`update/${item._id}`)
             }
-            // onDelete: (item: any, onCloseModalHandler) => {
-            //   dispatch(
-            //     deleteSubCategoryAction({
-            //       subCategoryId: item.id,
-            //       onSuccess: (data: any) => {
-            //         onCloseModalHandler()
-            //         toast.success('SubCategory deleted successfully')
-            //         dispatch(
-            //           getSubCategoryListAction({
-            //             onSuccess: () => {}
-            //           })
-            //         )
-            //       }
-            //     })
-            //   )
-            // }
+         
           }}
           pagination={{
             totalCount: Number(socialLinks?.length ?? 1)

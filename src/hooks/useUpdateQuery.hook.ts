@@ -42,7 +42,7 @@ export const useUpdateQuery = () => {
       }
     }
 
-    setSearchParams(updatedSearchParams.toString())
+    setSearchParams(updatedSearchParams)
   }
   return updateQuery
 }

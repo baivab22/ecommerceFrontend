@@ -109,6 +109,21 @@ export const ProductWebDetail = () => {
 
   const dispatch = useDispatch()
 
+  const resolveMediaUrl = (folder: 'products' | 'video', rawValue?: string) => {
+    if (!rawValue) return ''
+    const value = String(rawValue).trim()
+    if (/^https?:\/\//i.test(value)) return encodeURI(value)
+
+    const cleaned = value.replace(/^\/+/, '')
+    const safePath = encodeURI(cleaned)
+    if (cleaned.startsWith(`${folder}/`)) return `${FILE_URL}/${safePath}`
+    if (cleaned.startsWith('uploads/')) {
+      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
+    }
+
+    return `${FILE_URL}/${folder}/${safePath}`
+  }
+
   let {productId} = useParams()
 
   useEffect(() => {
@@ -120,6 +135,7 @@ export const ProductWebDetail = () => {
   const {productDetailData, productDetailLoading}: any = useSelector(
     (state: any) => state.product
   )
+  const safeStockQuantity = Math.max(0, Number(productDetailData?.stockQuantity) || 0)
 
   const [productImageList, setProductImageList] = useState([])
 
@@ -128,11 +144,11 @@ export const ProductWebDetail = () => {
   useEffect(() => {
     const requiredImageList = productDetailData?.images?.map(
       (item: any, index: number) => {
-        return item.coloredImage
+        return typeof item === 'string' ? item : item.coloredImage
       }
     )
 
-    setProductImageList(requiredImageList)
+    setProductImageList((requiredImageList || []).filter(Boolean))
   }, [productDetailData])
 
   const products = productDetailData?.image
@@ -504,21 +520,16 @@ export const ProductWebDetail = () => {
                 <div
                   className="productDetail-detailTop-addToCart"
                   onClick={() => {
-                    if (productDetailData?.stockQuantity === 0) {
+                    if (safeStockQuantity <= 0) {
                       toast.error('Product is out of stock')
                       return
                     }
                     !!auth.isLoggedin
                       ? handleAddToCart(productDetailData,activeColorIndex)
                       : handleLoggedOutAddItemToCart()
-                      
-                      
-                      
-                      
-                 
                   }}
                 >
-                  <p>{productDetailData?.stockQuantity === 0 ? "OUT OF STOCK":"ADD TO CART"}</p>
+                  <p>{safeStockQuantity <= 0 ? "OUT OF STOCK":"ADD TO CART"}</p>
                 </div>
 
                 <HStack
@@ -529,7 +540,7 @@ export const ProductWebDetail = () => {
                 >
                   <Title subheading> In Stock:</Title>
                   <Chip
-                    title={`${productDetailData?.stockQuantity ?? 0} pics`}
+                    title={`${safeStockQuantity} pics`}
                     color="rgb(219 247 241)"
                   ></Chip>
                 </HStack>
@@ -575,15 +586,13 @@ export const ProductWebDetail = () => {
                           onTouchStart={handleTouchStart}
                         >
                           <CustomVideoPlayer
-                            videoUrl={`${FILE_URL}/video/${productDetailData?.video}`}
+                            videoUrl={resolveMediaUrl('video', productDetailData?.video)}
 
                             productDetails={{
 
                             name:productDetailData.name,
                             description:productDetailData?.description,
                           price:productDetailData?.originalPrice}}
-                            
-
                             thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
                           ></CustomVideoPlayer>
                         </div>
@@ -603,6 +612,7 @@ export const ProductWebDetail = () => {
           header="Similar Products"
           isProfilePage={true}
           isForSimilar={true}
+          currentProduct={productDetailData}
         ></ProductSection>
       </div>
     </>

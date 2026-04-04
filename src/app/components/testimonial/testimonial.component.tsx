@@ -6,7 +6,7 @@ import {BASE_URL, FILE_URL} from 'src/config'
 // Testimonial Skeleton Component
 const TestimonialSkeleton = () => {
   const skeletonStyle: React.CSSProperties = {
-    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+    // animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
   }
 
   const headerSkeletonStyle: React.CSSProperties = {

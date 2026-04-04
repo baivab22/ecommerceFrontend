@@ -116,7 +116,7 @@ const media=useMedia();
             onChange={handleSearch}
           ></SearchField>
           }
-      
+      Filter Product By
           <SelectField
             // defaultValue={category?.[0]}
             options={category}
@@ -125,7 +125,7 @@ const media=useMedia();
             // width="320px"
                         width={!media.md?"320px":"unset"}
             onChangeValue={(data) => setSelectedCategory(data)}
-            placeholder={'Filter Product By Category'}
+            placeholder={' Category'}
           />
         </HStack>
 

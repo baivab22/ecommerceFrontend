@@ -12,6 +12,21 @@ export const ZoomSlider = ({data}: {data: any}) => {
   const [loading, setLoading] = useState(true)
   const [imageLoaded, setImageLoaded] = useState<{[key: number]: boolean}>({})
 
+  const resolveProductImageUrl = (rawValue?: string) => {
+    if (!rawValue) return ''
+    const value = String(rawValue).trim()
+    if (/^https?:\/\//i.test(value)) return encodeURI(value)
+
+    const cleaned = value.replace(/^\/+/, '')
+    const safePath = encodeURI(cleaned)
+    if (cleaned.startsWith('products/')) return `${FILE_URL}/${safePath}`
+    if (cleaned.startsWith('uploads/')) {
+      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
+    }
+
+    return `${FILE_URL}/products/${safePath}`
+  }
+
   useEffect(() => {
     if (!data || data.length === 0) {
       setLoading(true)
@@ -19,9 +34,7 @@ export const ZoomSlider = ({data}: {data: any}) => {
     }
 
     setLoading(true)
-    const images = data?.map((item: any, index: number) => {
-      return `${FILE_URL}/products/${item}`
-    })
+    const images = data?.map((item: any) => resolveProductImageUrl(item)).filter(Boolean)
 
     console.log(images, 'images values')
 

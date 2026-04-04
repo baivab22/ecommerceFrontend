@@ -1,1 +1,1 @@
-export const CONTACT_NUMBER = '+977-9841934343'
+export const CONTACT_NUMBER = '+9779861698400'

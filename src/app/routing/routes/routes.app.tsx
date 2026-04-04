@@ -48,6 +48,7 @@ import HotSellingProducts from 'src/app/pages/hotSelling/hotSelling.page'
 import SalesAnalytics from 'src/app/pages/salesAnalytics'
 import QRScanner from 'src/app/pages/qrScanner'
 import EmailMarketingDashboard from 'src/app/pages/emailMarketing'
+import AdminConfigPage from 'src/app/pages/admin/config.page'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
@@ -595,6 +596,26 @@ export const Router: RouteObject[] = [
         <div>denied</div>
       </CompWrapper>
     )
+  },
+  {
+    path: '/admin/config',
+    element: <ProtectedAuth />, // Only allow authenticated users
+    children: [
+      {
+        path: '',
+        element: <AdminConfigPage />
+      }
+    ]
+  },
+  {
+    path: '/dash-config',
+    element: <ProtectedAuth />, // Only allow authenticated users
+    children: [
+      {
+        path: '',
+        element: <AdminConfigPage />
+      }
+    ]
   }
 ]
 

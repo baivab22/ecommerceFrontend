@@ -1,3 +1,8 @@
+@media (max-width: 600px) {
+  .header-alert-news {
+    font-size: 0.75rem !important;
+  }
+}
 // Global Reset
 * {
   margin: 0;
@@ -82,7 +87,7 @@ $space: (
 // Navigation Menu Container
 .navmenuList {
   width: 100%;
-  border-bottom: 1px solid $grey200;
+  // border-bottom removed
 
   .navmenuContainer {
     width: 100%;
@@ -91,6 +96,8 @@ $space: (
     align-items: center;
     margin: auto;
     padding: 0 map-get($space, 4);
+    padding-top:14px;
+    // box-shadow removed (if any)
 
     .menuText {
       font-size: 14px;
@@ -104,7 +111,7 @@ $space: (
   margin: auto;
   width: 100%;
   padding: 0 map-get($space, 4);
-  border-bottom: 1px solid $grey200;
+  // border-bottom: 1px solid $grey200;
 
   .topHeader {
     padding: map-get($space, 3);
@@ -140,9 +147,26 @@ $space: (
 
     &-search {
       width: 50%;
+
+              box-shadow: 0 2px 8px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.08);
       
       @include responsive-for(md) {
         width: 100%;
+      }
+
+      // Add box-shadow to the search input field
+      .inputfield,
+      input[type="text"] {
+        font-size: 14px;
+
+        // transition: box-shadow 0.2s;
+      }
+
+      .inputfield:focus,
+      input[type="text"]:focus {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.10);
+        border-color: transparent !important;
+        background: transparent !important;
       }
     }
 
@@ -174,7 +198,7 @@ $space: (
   display: none;
   // background: $primary-gradient;
   padding: 0;
-  box-shadow: $shadow-sm;
+  // box-shadow: $shadow-sm;
   width: 100%;
 
   @media (min-width: 768px) {

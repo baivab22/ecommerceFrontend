@@ -10,7 +10,7 @@ import {getProductListAction} from 'src/app/pages/products/product.slice'
 // Skeleton Component for Product Card
 const ProductCardSkeleton = () => {
   const skeletonStyle: React.CSSProperties = {
-    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+    // animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
   }
 
   const cardStyle: React.CSSProperties = {
@@ -99,7 +99,7 @@ const ProductSectionHeaderSkeleton = () => {
     borderRadius: '4px',
     width: '192px',
     marginBottom: '24px',
-    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+    // animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
   }
 
   return <div style={headerSkeletonStyle}></div>
@@ -111,11 +111,23 @@ export const ProductSection = ({
   itemOnGrid,
   isHomePage,
   homeCategory,
-  isForSimilar
+  isForSimilar,
+  currentProduct
 }: any) => {
   const media = useMedia()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const getEntityId = (value: any): string => {
+    if (!value) return ''
+    if (typeof value === 'string') return value
+    return String(value.id || value._id || '')
+  }
+
+  const currentProductId = getEntityId(currentProduct)
+  const currentCategoryId = getEntityId(currentProduct?.category)
+  const currentSubCategoryId = getEntityId(currentProduct?.subCategory)
+  const currentNestedSubCategoryId = getEntityId(currentProduct?.nestedSubCategory)
 
   useEffect(() => {
     // Build query based on homeCategory prop
@@ -126,15 +138,23 @@ export const ProductSection = ({
     } else if (homeCategory === 'isNewArrivals') {
       query.isNewArrivals = true
     }
+
+    if (isForSimilar) {
+      query.limit = 100
+
+      if (currentCategoryId) {
+        query.categoryId = currentCategoryId
+      }
+    }
     // For 'allProducts', we don't add any filter to get all products
 
     console.log('api hit with query:', query)
     
     dispatch(getProductListAction({
       onSuccess: () => console.log('Products fetched successfully'),
-      // query
+      query
     }))
-  }, [homeCategory, dispatch])
+  }, [homeCategory, dispatch, isForSimilar, currentCategoryId])
 
   const {data, loading}: any = useSelector((state: any) => state.product)
 
@@ -162,6 +182,45 @@ export const ProductSection = ({
   // Filter and sort products based on homeCategory
   const getFilteredProducts = () => {
     let filtered = [...data]
+
+    if (isForSimilar) {
+      filtered = filtered
+        .filter((item: any) => getEntityId(item) !== currentProductId)
+        .map((item: any) => {
+          const itemCategoryId = getEntityId(item?.category)
+          const itemSubCategoryId = getEntityId(item?.subCategory)
+          const itemNestedSubCategoryId = getEntityId(item?.nestedSubCategory)
+
+          const matchNested = !!currentNestedSubCategoryId && itemNestedSubCategoryId === currentNestedSubCategoryId
+          const matchSub = !!currentSubCategoryId && itemSubCategoryId === currentSubCategoryId
+          const matchCategory = !!currentCategoryId && itemCategoryId === currentCategoryId
+
+          const score = (matchNested ? 3 : 0) + (matchSub ? 2 : 0) + (matchCategory ? 1 : 0)
+
+          return {
+            ...item,
+            __similarityScore: score
+          }
+        })
+        .filter((item: any) => {
+          if (!currentCategoryId && !currentSubCategoryId && !currentNestedSubCategoryId) {
+            return true
+          }
+
+          return item.__similarityScore > 0
+        })
+        .sort((a: any, b: any) => {
+          if (b.__similarityScore !== a.__similarityScore) {
+            return b.__similarityScore - a.__similarityScore
+          }
+
+          const dateA = new Date(a.createdAt || a.created_at || 0).getTime()
+          const dateB = new Date(b.createdAt || b.created_at || 0).getTime()
+          return dateB - dateA
+        })
+
+      return filtered.slice(0, 4)
+    }
     
     if (homeCategory === 'isBestSelling') {
       filtered = filtered.filter((item: any) => item.isBestSelling === true)

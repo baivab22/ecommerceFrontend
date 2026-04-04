@@ -64,6 +64,8 @@ export const ProductListPage = () => {
     })
 
     setCategory(mappedCategory)
+    // Set default selected category to 'All' if not already set
+    setSelectedCategory(mappedCategory ? mappedCategory[0] : '')
   }, [categoryData])
 
   // Fetch products whenever dependencies change
@@ -190,13 +192,14 @@ export const ProductListPage = () => {
               placeholder="Search Your Product"
               value={searchTxt}
               onChange={handleSearch}
+              containerStyle={{flex: 1, minWidth: 120, marginRight: 12}}
             />
           )}
           <SelectField
             options={category}
             value={selectedCategory}
             onChangeValue={(data) => setSelectedCategory(data)}
-            placeholder="Filter Product By Category"
+            placeholder="Category"
           />
         </HStack>
         
@@ -205,6 +208,7 @@ export const ProductListPage = () => {
             placeholder="Search Your Product"
             value={searchTxt}
             onChange={handleSearch}
+            containerStyle={{flex: 1, minWidth: 120, marginRight: 12}}
           />
         )}
         

@@ -101,7 +101,7 @@ const ProductCardSkeleton: React.FC = () => {
         borderRadius: '8px',
         padding: '12px',
         backgroundColor: 'white',
-        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+        // animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       }}
     >
       <div

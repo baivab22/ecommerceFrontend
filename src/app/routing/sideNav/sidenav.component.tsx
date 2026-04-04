@@ -21,9 +21,10 @@ import {
   MdInsights,
   MdLocalShipping,
   MdEmail,
-  MdWhatshot
+  MdWhatshot,
+  MdSettings
 } from 'react-icons/md'
-import SystemTitle from '../../../assets/images/logoss.png'
+import { BASE_URL } from 'src/config'
 
 import {Box, ToolTip} from 'src/app/common'
 import { useMedia } from 'src/hooks'
@@ -117,10 +118,10 @@ const SideNavComponent = React.memo(() => {
                 ...headerStyle
               }}
             >
-              <img src={SystemTitle} alt="TMO" />
+              <img src={BASE_URL + '/logo'} alt="TMO" onError={e => { e.currentTarget.src = '/assets/images/logosss.png'; }} />
             </animated.div>
           </div>
-          <Box style={{height: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 100px)'}} pt={20}>
+          <Box style={{height: 'calc(100vh - 150px)', overflowY: 'auto'}} pt={20}>
             {getNav('Products', '/dash-product', () => (
               <MdInventory size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
@@ -169,9 +170,14 @@ const SideNavComponent = React.memo(() => {
               <MdShare size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
 
-            {getNav('Selling analysis', '/dash-selling-analysis', () => (
+           {getNav('Selling analysis', '/dash-selling-analysis', () => (
               <MdInsights size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            ), isMobile, () => setMobileMenuOpen(false))} 
+
+                     {/* Site Config menu item */}
+            {/* {getNav('Site Config', '/dash-config', () => (
+              <MdSettings size={20} />
+            ), isMobile, () => setMobileMenuOpen(false))} */}
 
             {getNav('Mark shipped', '/dash-mark-shipped', () => (
               <MdLocalShipping size={20} />
@@ -184,6 +190,8 @@ const SideNavComponent = React.memo(() => {
             {getNav('Hot Selling', '/dash-hot-selling', () => (
               <MdWhatshot size={20} />
             ), isMobile, () => setMobileMenuOpen(false))}
+
+   
           </Box>
         </animated.div>
       </div>

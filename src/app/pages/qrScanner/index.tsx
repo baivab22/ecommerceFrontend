@@ -1657,7 +1657,7 @@ const QRScanner = () => {
                           }}>
                             NPR {getTotalAmount(order).toFixed(2)}
                           </div>
-                          {order.orderDetail?.shippingPrice && order.orderDetail.shippingPrice > 0 && (
+                          {/* {order.orderDetail?.shippingPrice && order.orderDetail.shippingPrice > 0 && (
                             <div style={{ 
                               fontSize: '11px', 
                               color: '#64748b',
@@ -1665,7 +1665,7 @@ const QRScanner = () => {
                             }}>
                               + NPR {order.orderDetail.shippingPrice.toFixed(2)} shipping
                             </div>
-                          )}
+                          )} */}
                         </div>
                       </td>
                       <td>
@@ -2000,8 +2000,8 @@ const QRScanner = () => {
   return (
     <PageContainer>
       <div>
-        {/* Header */}
-        <div style={{ 
+   
+        {/* <div style={{ 
           textAlign: 'center', 
           marginBottom: '40px',
           padding: '32px 24px',
@@ -2054,11 +2054,11 @@ const QRScanner = () => {
             <span style={{ opacity: 0.5 }}>•</span>
             <span>💰 NPR {orderStats.totalAmount.toLocaleString()}</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Tab Navigation */}
         <TabContainer>
-          <button
+          {/* <button
             onClick={() => setActiveTab('scanner')}
             style={{
               padding: '16px 32px',
@@ -2080,8 +2080,8 @@ const QRScanner = () => {
           >
             <span style={{ fontSize: '20px' }}>📱</span>
             Scanner Mode
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={() => setActiveTab('analytics')}
             style={{
               padding: '16px 32px',
@@ -2103,7 +2103,7 @@ const QRScanner = () => {
           >
             <span style={{ fontSize: '20px' }}>📈</span>
             Analytics Dashboard
-          </button>
+          </button> */}
         </TabContainer>
 
         {/* Main Content */}

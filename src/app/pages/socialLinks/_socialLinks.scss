@@ -1,0 +1,72 @@
+// Modern, clean, and visually appealing styles for Social Links Page
+.social-links-page {
+  padding: 32px 0;
+  background: #f8fafc;
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #22223b;
+      letter-spacing: 0.02em;
+    }
+    .add-btn {
+      background: linear-gradient(90deg, #4f8cff 0%, #38b6ff 100%);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 10px 24px;
+      box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+      transition: background 0.2s;
+      &:hover {
+        background: linear-gradient(90deg, #38b6ff 0%, #4f8cff 100%);
+      }
+    }
+  }
+
+  .MuiTableContainer-root {
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(34,34,59,0.06);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .MuiTableHead-root .MuiTableCell-head {
+    background: #f1f5f9;
+    color: #22223b;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .MuiTableBody-root .MuiTableCell-body {
+    font-size: 1rem;
+    color: #22223b;
+    padding: 18px 12px;
+  }
+
+  .MuiTableRow-root {
+    transition: background 0.15s;
+    &:hover {
+      background: #e9f5ff;
+    }
+  }
+
+  .subCategoryButton-item {
+    font-size: 1rem;
+    color: #3a3a3a;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    display: inline-block;
+    margin: 0 2px;
+  }
+}

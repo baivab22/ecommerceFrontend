@@ -71,7 +71,7 @@ const CategorySkeleton = () => {
       </div>
       
       <style>
-        {`
+        {/* {`
           @keyframes pulse {
             0%, 100% {
               opacity: 1;
@@ -80,7 +80,7 @@ const CategorySkeleton = () => {
               opacity: 0.5;
             }
           }
-        `}
+        `} */}
       </style>
     </div>
   )

@@ -6,10 +6,13 @@ import {
   FaUserAlt
 } from 'react-icons/fa'
 import { SearchField, VStack, HStack } from 'src/app/common'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { SearchDropdown } from '../search/SearchDropdown'
 import { useDebounceValue, useMedia } from 'src/hooks'
 import { Sidebar } from '../headerDrawer/headerDrawer.component'
 import { useDispatch, useSelector } from 'src/store'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { getProductListAction } from 'src/app/pages/products/product.slice'
+
 import { getCookie, removeCookie } from 'src/helpers'
 import { getCartlistAction } from 'src/app/pages/web/cart/cart.slice'
 import { getCategoryListAction } from 'src/app/pages/category/category.slice'
@@ -19,6 +22,7 @@ import Cookies from 'universal-cookie'
 import { getSocialLinksAction } from 'src/app/pages/socialLinks/socialLinks.slice'
 import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react'
 import './_header.scss'
+import { BASE_URL } from 'src/config'
 
 // Desktop Navigation Skeleton
 const DesktopNavigationSkeleton = () => {
@@ -93,7 +97,7 @@ const TopHeaderSkeleton = () => {
   return (
     <>
       <div className="header-top">
-        <div className="container" style={{ paddingBottom: '0px' }}>
+        <div className="container" style={{ paddingBottom: '10px',paddingTop:'10px',border:'2px solid red' }}>
           <ul className="header-social-container" style={{ display: 'flex', gap: '8px' }}>
             {Array.from({ length: 3 }).map((_, index) => (
               <li key={index}>
@@ -439,15 +443,20 @@ export const TopHeader = () => {
   const { socialLinks, loading: socialLinksLoading }: any = useSelector((state: any) => state.socialLinks)
   
   const [sortVisible, setSortVisible] = useState(false)
+  const [searchDropdownVisible, setSearchDropdownVisible] = useState(false)
+  const searchInputRef = useRef<HTMLDivElement | null>(null)
   const sortRefs = useRef<HTMLDivElement | null>(null)
   const [searchValue, setSearchValue] = useState<string>('')
-  const debouncedSearchvalue = useDebounceValue(searchValue)
+  const debouncedSearchValue = useDebounceValue(searchValue)
+  const { data: allProducts = [] } = useSelector((state: any) => state.product)
+  const [suggestedProducts, setSuggestedProducts] = useState<any[]>([])
+  const isAdminLoggedIn = auth.isLoggedin && String(auth.role).toUpperCase() === 'ADMIN'
 
   useEffect(() => {
     const userId = getCookie('userId')
-
-    console.log("get cart list action finally")
     !!userId && dispatch(getCartlistAction({ userId: userId }))
+    // Fetch all products for dropdown
+    dispatch(getProductListAction({ query: { limit: 20 } }))
   }, [dispatch])
 
   useEffect(() => {
@@ -458,11 +467,80 @@ export const TopHeader = () => {
     )
   }, [dispatch])
 
-  const onSearchHandler = useCallback((searchedData: string) => {
-    if (searchedData.trim()) {
-      navigate(`/products?search=${searchedData}`)
+  // Update suggestions on input change
+  useEffect(() => {
+    if (!debouncedSearchValue.trim()) {
+      setSuggestedProducts([])
+      return
     }
-  }, [navigate])
+    // Show similar products for the current input
+    const similar = allProducts.filter((p: any) =>
+      p.name.trim().toLowerCase().includes(debouncedSearchValue.trim().toLowerCase())
+    )
+    // If there is a product with a name that starts with the search, show it first
+    const startsWith = similar.filter((p: any) =>
+      p.name.trim().toLowerCase().startsWith(debouncedSearchValue.trim().toLowerCase())
+    )
+    // Remove duplicates
+    const unique = Array.from(new Set([...startsWith, ...similar]))
+    setSuggestedProducts(unique)
+  }, [debouncedSearchValue, allProducts])
+
+  // Handle search (text or voice)
+  // Helper: Levenshtein distance
+  function levenshtein(a: string, b: string): number {
+    const an = a ? a.length : 0;
+    const bn = b ? b.length : 0;
+    if (an === 0) return bn;
+    if (bn === 0) return an;
+    const matrix = Array.from({ length: bn + 1 }, (_, i) => [i]);
+    for (let j = 0; j <= an; j++) matrix[0][j] = j;
+    for (let i = 1; i <= bn; i++) {
+      for (let j = 1; j <= an; j++) {
+        if (b[i - 1] === a[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // deletion
+          );
+        }
+      }
+    }
+    return matrix[bn][an];
+  }
+
+  // Fuzzy match: almost exact (distance <= 2 or startsWith)
+  const onSearchHandler = useCallback((searchedData: string) => {
+    if (!searchedData.trim()) return;
+    const lowerSearch = searchedData.trim().toLowerCase();
+    // Find almost exact match (distance <= 2 or startsWith)
+    const almostExact = allProducts.find((p: any) => {
+      const name = p.name.trim().toLowerCase();
+      return (
+        name.startsWith(lowerSearch) ||
+        levenshtein(name, lowerSearch) <= 2
+      );
+    });
+    if (almostExact) {
+      navigate(`/products/${almostExact.id}`);
+      setSearchDropdownVisible(false);
+      return;
+    }
+    // Otherwise, show searched and similar products in dropdown
+    const similar = allProducts.filter((p: any) =>
+      p.name.trim().toLowerCase().includes(lowerSearch)
+    );
+    // If there is a product with a name that starts with the search, show it first
+    const startsWith = similar.filter((p: any) =>
+      p.name.trim().toLowerCase().startsWith(lowerSearch)
+    );
+    // Remove duplicates
+    const unique = Array.from(new Set([...startsWith, ...similar]));
+    setSuggestedProducts(unique);
+    setSearchDropdownVisible(true);
+  }, [allProducts, navigate]);
 
   const handleOutSideClick = (event: any) => {
     const target = document?.getElementById('openModalButtons')
@@ -503,31 +581,35 @@ export const TopHeader = () => {
     return <TopHeaderSkeleton />
   }
 
+  // Handle product click from dropdown
+  const handleProductClick = (product: any) => {
+    navigate(`/products/view/${product.id}`)
+    setSearchDropdownVisible(false)
+  }
+
   return (
     <>
-      <div className="header-top"
-
-      >
-        <div className="container" style={{ paddingBottom: '0px' }}>
+      <div className="header-top">
+        <div className="container" style={{ paddingBottom: '10px',paddingTop:'10px' }}>
           <ul className="header-social-container">
             <li>
-              <a href={socialLinks?.[0]?.socialLinks?.facebook} className="social-link">
-                <FaFacebook />
+              <a href={socialLinks?.[0]?.socialLinks?.facebook} className="social-link" target="_blank" rel="noopener noreferrer">
+                <FaFacebook  style={{ color: '#1877F3' }} size={16}/>
               </a>
             </li>
             <li>
-              <a href={socialLinks?.[0]?.socialLinks?.tiktok} className="social-link">
-                <FaTiktok />
+              <a href={socialLinks?.[0]?.socialLinks?.tiktok} className="social-link" target="_blank" rel="noopener noreferrer">
+                <FaTiktok style={{ color: '#010101' }} size={16} />
               </a>
             </li>
             <li>
-              <a href={socialLinks?.[0]?.socialLinks?.instagram} className="social-link">
-                <FaInstagram />
+              <a href={socialLinks?.[0]?.socialLinks?.instagram} className="social-link" target="_blank" rel="noopener noreferrer">
+                <FaInstagram style={{ color: '#E4405F' }}  size={16} />
               </a>
             </li>
           </ul>
 
-          <div className="header-alert-news">
+          <div className="header-alert-news" style={{fontSize:'14px'}}>
             <p>{socialLinks?.[0]?.offerText}</p>
           </div>
 
@@ -541,21 +623,57 @@ export const TopHeader = () => {
         <div className="topHeader">
           <div className="topHeader-logo" onClick={() => navigate('/home')}>
             <img
-              src="/assets/images/logosss.png"
+              src={BASE_URL + '/logo'}
               alt="logo"
               className="topHeader-logo-image"
+              onError={e => { e.currentTarget.src = '/assets/images/logosss.png'; }}
             />
           </div>
 
           <div></div>
 
-          <div className="topHeader-search">
+          <div className="topHeader-search" style={{ position: 'relative' }} ref={searchInputRef}>
             <SearchField
               placeholder="Search Your Product"
-              onChange={(e) => {
-                onSearchHandler(e.target.value)
+              value={searchValue}
+              onChange={e => {
+                const value = e.target.value;
+                setSearchValue(value);
+                // Immediately update suggestions for both typing and voice
+                if (!value.trim()) {
+                  setSuggestedProducts([]);
+                } else {
+                  const lower = value.trim().toLowerCase();
+                  const similar = allProducts.filter((p) =>
+                    p.name.trim().toLowerCase().includes(lower)
+                  );
+                  const startsWith = similar.filter((p) =>
+                    p.name.trim().toLowerCase().startsWith(lower)
+                  );
+                  const unique = Array.from(new Set([...startsWith, ...similar]));
+                  setSuggestedProducts(unique);
+                }
+                setSearchDropdownVisible(true);
               }}
+              onFocus={() => setSearchDropdownVisible(true)}
+              onBlur={() => {}}
+              style={{ width: '100%' }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') onSearchHandler(searchValue)
+              }}
+              // Voice search: when value changes, suggestions update automatically
             />
+            {searchDropdownVisible && (
+              <div style={{ width: '100%' }}>
+                <SearchDropdown
+                  onClose={() => setSearchDropdownVisible(false)}
+                  products={allProducts}
+                  suggestedProducts={suggestedProducts}
+                  searchValue={searchValue}
+                  onProductClick={handleProductClick}
+                />
+              </div>
+            )}
           </div>
 
           <div className="topHeader-cartProfile">
@@ -607,6 +725,20 @@ export const TopHeader = () => {
                   ref={sortRefs}
                 >
                   <VStack>
+
+                    {isAdminLoggedIn && (
+                      <HStack
+                        align="center"
+                        gap="$3"
+                        className="filterItem"
+                        onClick={() => {
+                          setSortVisible(false)
+                          navigate('/dash-product')
+                        }}
+                      >
+                        <p>Go to Dashboard</p>
+                      </HStack>
+                    )}
 
                     {auth.isLoggedin && (
                     <HStack 

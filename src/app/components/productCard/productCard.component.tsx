@@ -20,6 +20,21 @@ export const ProductCard = ({data}: {data: any}) => {
   const dispatch = useDispatch()
   const [productImages, setProductImages] = useState([])
 
+  const resolveProductImageUrl = (rawValue?: string) => {
+    if (!rawValue) return ''
+    const value = String(rawValue).trim()
+    if (/^https?:\/\//i.test(value)) return encodeURI(value)
+
+    const cleaned = value.replace(/^\/+/, '')
+    const safePath = encodeURI(cleaned)
+    if (cleaned.startsWith('products/')) return `${FILE_URL}/${safePath}`
+    if (cleaned.startsWith('uploads/')) {
+      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
+    }
+
+    return `${FILE_URL}/products/${safePath}`
+  }
+
 
   console.log(data,"data aray")
 
@@ -27,7 +42,9 @@ export const ProductCard = ({data}: {data: any}) => {
 
 
   useEffect(() => {
-    const ProductImages = data?.images?.map((item: any) => item.coloredImage)
+    const ProductImages = (data?.images || [])
+      .map((item: any) => (typeof item === 'string' ? item : item?.coloredImage))
+      .filter(Boolean)
     setProductImages(ProductImages)
   }, [data])
 
@@ -52,9 +69,8 @@ export const ProductCard = ({data}: {data: any}) => {
             <img
               src={
                 productImages.length > 0
-                  ?
-                  
-                  `${FILE_URL}/products/${productImages?.[0]}` : '/assets/images/defaultProduct.jpeg'  }
+                  ? resolveProductImageUrl(productImages?.[0])
+                  : '/assets/images/defaultProduct.jpeg'  }
 
                         alt={data?.name}
             

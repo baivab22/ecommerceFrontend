@@ -1,0 +1,145 @@
+.search-dropdown {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  min-width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+  max-height: 60vh;
+  overflow-y: auto;
+
+
+  @media (max-width: 576px) {
+    transform: translateX(-4%);
+  }
+}
+
+.search-dropdown .search-section-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.search-dropdown .recommended-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.search-dropdown .popular-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.search-dropdown .recommended-item,
+.search-dropdown .popular-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f6f6f6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 0;
+}
+
+.search-dropdown .recommended-item:hover,
+.search-dropdown .popular-item:hover {
+  background: #ececec;
+}
+
+.search-dropdown .recommended-item .icon,
+.search-dropdown .popular-item .image {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.search-dropdown .product-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.search-dropdown .name {
+  font-weight: 500;
+  color: #222;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-dropdown .price {
+  font-size: 0.92rem;
+  color: #1976d2;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .search-dropdown {
+    left: 0;
+    right: 0;
+    width: 100vw;
+    min-width: unset;
+    border-radius: 0 0 16px 16px;
+    padding: 14px 8px;
+    max-height: 80vh;
+    font-size: 15px;
+  }
+
+  .search-dropdown .search-section-title {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .search-dropdown .popular-list {
+    grid-template-columns: 1fr;
+  }
+
+  .search-dropdown .recommended-item,
+  .search-dropdown .popular-item {
+    padding: 10px 8px;
+    gap: 10px;
+  }
+
+  .search-dropdown .recommended-item .icon,
+  .search-dropdown .popular-item .image {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .search-dropdown .name {
+    max-width: 84vw;
+    font-size: 0.97rem;
+  }
+
+  .search-dropdown .price {
+    font-size: 0.9rem;
+  }
+}
