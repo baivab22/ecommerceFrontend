@@ -82,7 +82,7 @@ export const MainCarousel = () => {
               // <div className="image-container" key={index}>
               <img
                 // src={`https://abhushangallery.com/${item}`}
-                src={`${FILE_URL}/${item}`}
+                src={`${FILE_URL}/banners/${item}`}
 
                 alt="image"
                 placeholder="blur"

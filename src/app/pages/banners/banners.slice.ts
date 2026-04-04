@@ -199,6 +199,10 @@ const BannerSlice = createSlice({
     })
     builder.addCase(deleteBannerImageAction.fulfilled, (state, action) => {
       state.deleteBannerLoading = false
+      // Update banner data after deletion - the server response should contain updated banner data
+      if (action.payload && state.bannerData?.[0]) {
+        state.bannerData[0] = action.payload
+      }
     })
     builder.addCase(deleteBannerImageAction.rejected, (state) => {
       state.deleteBannerLoading = false
@@ -209,6 +213,10 @@ const BannerSlice = createSlice({
     })
     builder.addCase(createBannerAction.fulfilled, (state, action) => {
       state.createBannerLoading = false
+      // Update banner data after creation
+      if (action.payload) {
+        state.bannerData = [action.payload]
+      }
     })
     builder.addCase(createBannerAction.rejected, (state) => {
       state.createBannerLoading = false

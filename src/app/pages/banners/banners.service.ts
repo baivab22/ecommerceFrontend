@@ -17,6 +17,7 @@ export const createBanner = async (body: any) => {
 const deleteBannerImages = async (bannerName: string) => {
   console.log(bannerName, 'productId from service')
   const response = await api<any>('delete')(`/banner/${bannerName}`)
+  return response.data
 }
 
 const getSocialLinks = async () => {

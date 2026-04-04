@@ -19,9 +19,10 @@ export const Banners = () => {
 
   useEffect(() => {
     console.log(bannerData, 'bannerData')
-    bannerData &&
-      bannerData.length > 0 &&
-      setBannerImage((prev: any) => [...prev, ...bannerData?.[0]?.bannerImage])
+    if (bannerData && bannerData.length > 0) {
+      // Only set bannerImage if it's empty or when bannerData changes
+      setBannerImage(bannerData?.[0]?.bannerImage || [])
+    }
   }, [bannerData])
   const handleImage = useCallback((event: any) => {
     const selectedFiles = Array.from(event.target.files)
@@ -39,7 +40,7 @@ export const Banners = () => {
         onSuccess: () => {}
       })
     )
-  }, [])
+  }, [dispatch])
 
 
 
@@ -57,6 +58,13 @@ export const Banners = () => {
         bannerData: formData,
         onSuccess: () => {
           toast.success('Banner added Successfully')
+          // Clear local state and refetch banners
+          setBannerImage([])
+          dispatch(
+            getBannerListAction({
+              onSuccess: () => {}
+            })
+          )
         }
       })
     )
@@ -74,8 +82,15 @@ export const Banners = () => {
           dispatch(
             deleteBannerImageAction({
               bannerName: name,
-              onSuccess: (data: any) =>
+              onSuccess: (data: any) => {
                 toast.success('banner image deleted successfully')
+                // Refetch banners after deletion
+                dispatch(
+                  getBannerListAction({
+                    onSuccess: () => {}
+                  })
+                )
+              }
             })
           )
         }}
