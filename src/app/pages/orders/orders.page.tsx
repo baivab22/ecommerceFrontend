@@ -66,6 +66,7 @@ export const OrderListPage = () => {
   const [deliveryPartner, setDeliveryPartner] = useState<string>('')
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null)
+  const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null)
 
 
   // Fetch orders from backend on filter/search/page change
@@ -241,42 +242,47 @@ export const OrderListPage = () => {
     return 'No location data'
   }
 
-  // Function to send invoice via email
-  const sendInvoiceEmail = async (order: any) => {
-    try {
-      
-      const response = await fetch(`${BASE_URL}/send-invoice`, {
-
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId: order._id,
-          customerEmail: order.userId?.email,
-          customerName: order.userId?.name || 'Customer'
-        })
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        toast.success('Invoice sent successfully to customer email!')
-      } else {
-        toast.error('Failed to send invoice: ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error sending invoice email:', error)
-      toast.error('Error sending invoice email. Please try again.')
-    }
-  }
-
-  // WhatsApp message sender with email invoice
+  // Confirm order from admin panel, then optionally open WhatsApp helper.
   const sendWhatsAppMessage = async (order: any) => {
     console.log(order,"order finally")
-    
-    // First send the invoice email
-    await sendInvoiceEmail(order)
+
+    if (!order?._id) {
+      toast.error('Invalid order')
+      return
+    }
+
+    if (confirmingOrderId) {
+      return
+    }
+
+    if (order?.isConfirmed) {
+      toast('This order is already confirmed.')
+      return
+    }
+
+    setConfirmingOrderId(order._id)
+    try {
+      let confirmationUpdated = false
+      await dispatch(
+        updateOrderByIdAction({
+          id: String(order._id),
+          data: {
+            isConfirmed: true,
+            confirmedAt: new Date().toISOString()
+          },
+          onSuccess: () => {
+            confirmationUpdated = true
+          }
+        })
+      )
+
+      if (!confirmationUpdated) {
+        toast.error('Failed to confirm order. Please try again.')
+        return
+      }
+
+      toast.success('Order confirmed. Confirmation email has been sent to customer.')
+      await fetchOrders()
     
     const phoneNumber = order.phoneNumber || '9841934343'
     const customerName = order.userId?.name || order.userId?.email || 'Customer'
@@ -315,8 +321,8 @@ Delivery Type: ${deliveryType}
 Address: ${shippingLocation}${locationInfo}
 Estimated Delivery: ${order.isInsideValley ? "1 day" : "2–5 working days"}
 
-📧 *Invoice Sent:*
-We've sent a detailed invoice to your email address.
+📧 *Confirmation Email Sent:*
+We've sent your confirmation details and invoice image by email.
 
 Thank you for shopping with us! 
 We'll keep you updated on your order status.
@@ -324,8 +330,14 @@ We'll keep you updated on your order status.
 Best regards,
 Aabhushan Gallery Team`
 
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
+    } catch (error) {
+      console.error('Error confirming order:', error)
+      toast.error('Failed to confirm order. Please try again.')
+    } finally {
+      setConfirmingOrderId(null)
+    }
   }
 
   // Function to handle delivery partner update
@@ -1269,14 +1281,33 @@ Aabhushan Gallery Team`
                           />
                         </div>
                         <Button
-                          title="Confirm Order"
+                          title={
+                            confirmingOrderId === item._id
+                              ? 'Confirming...'
+                              : item?.isConfirmed
+                                ? 'Confirmed'
+                                : 'Confirm Order'
+                          }
                           onClick={() => sendWhatsAppMessage(item)}
+                          disabled={confirmingOrderId === item._id || item?.isConfirmed}
                           style={{
                             fontSize: '10px',
-                            padding: '2px 6px',
-                            minHeight: '24px',
-                            backgroundColor: 'rgb(211 37 162 / 85%)',
-                            color: 'white'
+                            padding: '4px 8px',
+                            minHeight: '28px',
+                            borderRadius: '6px',
+                            fontWeight: 700,
+                            letterSpacing: '0.2px',
+                            background: item?.isConfirmed
+                              ? '#10b981'
+                              : confirmingOrderId === item._id
+                                ? '#7c3aed'
+                                : 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
+                            color: 'white',
+                            boxShadow: item?.isConfirmed
+                              ? '0 2px 8px rgba(16,185,129,0.25)'
+                              : '0 2px 8px rgba(124,58,237,0.25)',
+                            cursor: confirmingOrderId === item._id || item?.isConfirmed ? 'not-allowed' : 'pointer',
+                            opacity: confirmingOrderId === item._id || item?.isConfirmed ? 0.9 : 1
                           }}
                         />
                         <button

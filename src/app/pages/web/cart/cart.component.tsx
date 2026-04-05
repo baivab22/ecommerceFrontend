@@ -167,6 +167,7 @@ export const CartPage = () => {
   const datas = useSelector((state: any) => state.cart)
   const media = useMedia()
   const userId = getCookie('userId')
+  const isPlacingOrder = Boolean(datas?.createOrderByUserIdLoading)
 
   const [shippingRate, setShippingRate] = useState(0)
   
@@ -790,6 +791,9 @@ useEffect(() => {
   ])
 
   const processOrder = useCallback(() => {
+    if (isPlacingOrder) {
+      return
+    }
 
     console.log(shouldProceedDirectly,shouldShowQRModal,"checkouttttttt")
     if (!userId) {
@@ -961,12 +965,17 @@ useEffect(() => {
     deliveryTimeMessage,
     deliveryPartnerPrice,
     isBefore12PM,
-    navigate
+    navigate,
+    isPlacingOrder
   ])
 
   console.log(shippingRate,"shippingPrice value")
 
   const handleCheckout = useCallback(() => {
+    if (isPlacingOrder) {
+      return
+    }
+
     if (isHolidayModeActive) {
       toast.error(settings?.message || 'We are currently on holiday. Orders will be processed after we return.');
       return;
@@ -999,7 +1008,8 @@ useEffect(() => {
     shouldProceedDirectly,
     shouldShowQRModal,
     processOrder,
-    generatePaymentReference
+    generatePaymentReference,
+    isPlacingOrder
   ])
 
   const resetForm = useCallback(() => {
@@ -1768,26 +1778,48 @@ const QRPaymentModal = () => {
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
-                    cursor: 'pointer',
+                    cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)'
+                    boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
+                    opacity: isPlacingOrder ? 0.85 : 1
                   }}
+                  disabled={isPlacingOrder}
                   onMouseEnter={(e) => {
+                    if (isPlacingOrder) return
                     e.currentTarget.style.backgroundColor = '#db2777';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     e.currentTarget.style.boxShadow = '0 6px 16px rgba(236, 72, 153, 0.4)';
                   }}
                   onMouseLeave={(e) => {
+                    if (isPlacingOrder) return
                     e.currentTarget.style.backgroundColor = '#ec4899';
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(236, 72, 153, 0.3)';
                   }}
                 >
-                  Complete Payment
+                  {isPlacingOrder ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+                      <span
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          border: '2px solid rgba(255,255,255,0.4)',
+                          borderTopColor: '#fff',
+                          borderRadius: '50%',
+                          display: 'inline-block',
+                          animation: 'cartCheckoutSpin 0.8s linear infinite'
+                        }}
+                      />
+                      Placing Order...
+                    </span>
+                  ) : (
+                    'Complete Payment'
+                  )}
                 </button>
               ) : (
                 <button
                   onClick={() => {
+                    if (isPlacingOrder) return
                     processOrder();
                     setShowQRModal(false);
                   }}
@@ -1800,22 +1832,43 @@ const QRPaymentModal = () => {
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
-                    cursor: 'pointer',
+                    cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    opacity: isPlacingOrder ? 0.85 : 1
                   }}
+                  disabled={isPlacingOrder}
                   onMouseEnter={(e) => {
+                    if (isPlacingOrder) return
                     e.currentTarget.style.backgroundColor = '#059669';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
                   }}
                   onMouseLeave={(e) => {
+                    if (isPlacingOrder) return
                     e.currentTarget.style.backgroundColor = '#10b981';
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
                   }}
                 >
-                  📱 I've Sent the Payment Screenshot
+                  {isPlacingOrder ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+                      <span
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          border: '2px solid rgba(255,255,255,0.4)',
+                          borderTopColor: '#fff',
+                          borderRadius: '50%',
+                          display: 'inline-block',
+                          animation: 'cartCheckoutSpin 0.8s linear infinite'
+                        }}
+                      />
+                      Placing Order...
+                    </span>
+                  ) : (
+                    "📱 I've Sent the Payment Screenshot"
+                  )}
                 </button>
               )}
             </div>
@@ -3130,41 +3183,68 @@ const RedZoneDeliverySection = () => {
 
         <div
           className="cartPage-checkout"
-          onClick={handleCheckout}
+          onClick={() => {
+            if (hasProducts && !isHolidayModeActive && !isPlacingOrder) {
+              handleCheckout()
+            }
+          }}
           style={{
             width: '100%',
             padding: '10px',
             fontSize: '18px',
             fontWeight: '700',
-            backgroundColor: (hasProducts && !isHolidayModeActive) ? '#007bff' : '#ccc',
+            backgroundColor: (hasProducts && !isHolidayModeActive && !isPlacingOrder) ? '#007bff' : '#ccc',
             color: 'white',
             border: 'none',
             borderRadius: '12px',
-            cursor: (hasProducts && !isHolidayModeActive) ? 'pointer' : 'not-allowed',
-            opacity: (hasProducts && !isHolidayModeActive) ? 1 : 0.6,
+            cursor: (hasProducts && !isHolidayModeActive && !isPlacingOrder) ? 'pointer' : 'not-allowed',
+            opacity: (hasProducts && !isHolidayModeActive && !isPlacingOrder) ? 1 : 0.8,
             textAlign: 'center',
             transition: 'all 0.3s ease',
-            boxShadow: (hasProducts && !isHolidayModeActive) ? '0 4px 12px rgba(0, 123, 255, 0.3)' : 'none'
+            boxShadow: (hasProducts && !isHolidayModeActive && !isPlacingOrder) ? '0 4px 12px rgba(0, 123, 255, 0.3)' : 'none'
           }}
           onMouseEnter={(e) => {
-            if (hasProducts && !isHolidayModeActive) {
+            if (hasProducts && !isHolidayModeActive && !isPlacingOrder) {
               e.currentTarget.style.backgroundColor = '#0056b3';
               e.currentTarget.style.transform = 'translateY(-2px)';
               e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 123, 255, 0.4)';
             }
           }}
           onMouseLeave={(e) => {
-            if (hasProducts && !isHolidayModeActive) {
+            if (hasProducts && !isHolidayModeActive && !isPlacingOrder) {
               e.currentTarget.style.backgroundColor = '#007bff';
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.3)';
             }
           }}
         >
-          {isHolidayModeActive ? 'Orders Temporarily Unavailable' : 
+          {isPlacingOrder ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+              <span
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid rgba(255,255,255,0.4)',
+                  borderTopColor: '#fff',
+                  borderRadius: '50%',
+                  display: 'inline-block',
+                  animation: 'cartCheckoutSpin 0.8s linear infinite'
+                }}
+              />
+              Placing your order...
+            </span>
+          ) : isHolidayModeActive ? 'Orders Temporarily Unavailable' : 
            isRedZone && selectedDeliveryPartner === 'third_party' ? 'Place Order with Thu Express' : 
            'Place Order'}
         </div>
+        <style>
+          {`
+            @keyframes cartCheckoutSpin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}
+        </style>
         
         <HolidayModeBanner />
 
