@@ -1,24 +1,75 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, X } from 'lucide-react';
+import { AudioLines, Play, X } from 'lucide-react';
+import {
+  registerVideoCandidate,
+  subscribeToActiveVideo,
+  unregisterVideoCandidate,
+  updateVideoInView,
+  registerVideoElement,
+  setCurrentPlayingVideo,
+  muteAllVideosExcept
+} from 'src/helpers/videoPlayback.helper';
 
 const CustomVideoPlayer = ({
   videoUrl,
   thumbnailUrl,
   isFromUploader,
-  productDetails
+  productDetails,
+  previewWidth,
+  previewHeight,
+  autoPlayWithSound = false,
+  showPlayingIndicator = false
 }: {
   videoUrl: string;
   thumbnailUrl: string;
   isFromUploader?: boolean;
+  previewWidth?: string;
+  previewHeight?: string;
+  autoPlayWithSound?: boolean;
+  showPlayingIndicator?: boolean;
   productDetails?: {
     name: string;
     description: string;
-    price: string;
+    price: string | number;
   };
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [isPreviewMuted, setIsPreviewMuted] = useState(!autoPlayWithSound);
+  const [isPreviewInView, setIsPreviewInView] = useState(false);
+  const [isPreviewActive, setIsPreviewActive] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(true);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const previewVideoRef = useRef<HTMLVideoElement>(null);
+  const previewInstanceIdRef = useRef(`custom-preview-${Math.random().toString(36).slice(2, 9)}`);
+
+  const attemptPreviewPlayback = (shouldMute: boolean) => {
+    if (!previewVideoRef.current) return;
+
+    const previewVideo = previewVideoRef.current;
+    previewVideo.muted = shouldMute;
+    previewVideo.volume = 1;
+
+    const playPromise = previewVideo.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise
+        .then(() => {
+          setIsPreviewMuted(shouldMute);
+        })
+        .catch(() => {
+          // Browser autoplay policies can block unmuted autoplay; gracefully fallback.
+          previewVideo.muted = true;
+          setIsPreviewMuted(true);
+          previewVideo.play().catch(() => undefined);
+        });
+    }
+  };
+
+  const previewStyle = {
+    height: previewHeight || (isFromUploader ? '80px' : '220px'),
+    width: previewWidth || (isFromUploader ? '80px' : '120px')
+  };
 
   // Strip HTML tags from description
   const stripHtmlTags = (html: string): string => {
@@ -33,6 +84,10 @@ const CustomVideoPlayer = ({
     // Ensure video plays when entering fullscreen
     setTimeout(() => {
       if (videoRef.current) {
+        videoRef.current.muted = false;
+        videoRef.current.volume = 1;
+        // Set this video as the currently playing one, muting all others
+        setCurrentPlayingVideo(`fullscreen-video-${videoUrl}`);
         videoRef.current.play().catch(err => console.log('Play error:', err));
       }
     }, 100);
@@ -43,6 +98,7 @@ const CustomVideoPlayer = ({
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0; // Reset to beginning
+      videoRef.current.muted = true;
     }
   };
 
@@ -65,27 +121,161 @@ const CustomVideoPlayer = ({
     };
   }, [isFullScreen]);
 
+  // Register fullscreen video for global audio management
+  useEffect(() => {
+    if (!isFullScreen || !videoRef.current) {
+      return;
+    }
+
+    const videoId = `fullscreen-video-${videoUrl}`;
+    const cleanup = registerVideoElement(videoId, videoRef.current);
+
+    return () => {
+      cleanup();
+    };
+  }, [isFullScreen, videoUrl]);
+
+  useEffect(() => {
+    setIsPreviewMuted(!autoPlayWithSound);
+    setIsPreviewInView(false);
+    setIsPreviewActive(false);
+    setHasUserInteracted(autoPlayWithSound);
+    setIsPreviewPlaying(false);
+    if (previewVideoRef.current) {
+      previewVideoRef.current.muted = !autoPlayWithSound;
+    }
+  }, [autoPlayWithSound, videoUrl]);
+
+  useEffect(() => {
+    if (!autoPlayWithSound || isFullScreen || !previewVideoRef.current) {
+      return;
+    }
+
+    registerVideoCandidate(previewInstanceIdRef.current, previewVideoRef.current);
+    
+    // Register for global audio management
+    const cleanup = registerVideoElement(previewInstanceIdRef.current, previewVideoRef.current);
+
+    return () => {
+      unregisterVideoCandidate(previewInstanceIdRef.current);
+      cleanup();
+    };
+  }, [autoPlayWithSound, isFullScreen, videoUrl]);
+
+  useEffect(() => {
+    if (!autoPlayWithSound || isFullScreen || !previewVideoRef.current) {
+      return;
+    }
+
+    const previewVideo = previewVideoRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const inView = entry.isIntersecting && entry.intersectionRatio >= 0.45;
+        setIsPreviewInView(inView);
+        updateVideoInView(previewInstanceIdRef.current, inView);
+
+        if (!inView) {
+          previewVideo.muted = true;
+          setIsPreviewMuted(true);
+          previewVideo.pause();
+        }
+      },
+      { threshold: [0, 0.45, 1] }
+    );
+
+    observer.observe(previewVideo);
+
+    return () => {
+      observer.disconnect();
+      previewVideo.muted = true;
+      setIsPreviewMuted(true);
+      previewVideo.pause();
+      updateVideoInView(previewInstanceIdRef.current, false);
+    };
+  }, [autoPlayWithSound, isFullScreen, videoUrl]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToActiveVideo((activeVideoId: string) => {
+      setIsPreviewActive(activeVideoId === previewInstanceIdRef.current);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!autoPlayWithSound || isFullScreen || !previewVideoRef.current) {
+      return;
+    }
+
+    const previewVideo = previewVideoRef.current;
+
+    if (!isPreviewInView || !isPreviewActive) {
+      previewVideoRef.current.muted = true;
+      setIsPreviewMuted(true);
+      previewVideo.pause();
+      return;
+    }
+
+    const shouldMute = !hasUserInteracted;
+    attemptPreviewPlayback(shouldMute);
+  }, [autoPlayWithSound, isFullScreen, isPreviewInView, isPreviewActive, hasUserInteracted, videoUrl]);
+
+  useEffect(() => {
+    if (!autoPlayWithSound || isFullScreen || !isPreviewInView || !isPreviewActive) return;
+
+    const handleFirstInteraction = () => {
+      setHasUserInteracted(true);
+      window.removeEventListener('click', handleFirstInteraction, true);
+      window.removeEventListener('touchstart', handleFirstInteraction, true);
+      window.removeEventListener('keydown', handleFirstInteraction, true);
+    };
+
+    window.addEventListener('click', handleFirstInteraction, true);
+    window.addEventListener('touchstart', handleFirstInteraction, true);
+    window.addEventListener('keydown', handleFirstInteraction, true);
+
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction, true);
+      window.removeEventListener('touchstart', handleFirstInteraction, true);
+      window.removeEventListener('keydown', handleFirstInteraction, true);
+    };
+  }, [autoPlayWithSound, isFullScreen, isPreviewInView, isPreviewActive, videoUrl]);
+
   const cleanDescription = stripHtmlTags(productDetails?.description || '');
 
   return (
     <>
       <div className="custom-video-player">
         {!isFullScreen ? (
-          <div className="thumbnail">
+          <div
+            className="thumbnail"
+            onClick={toggleFullScreen}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleFullScreen();
+              }
+            }}
+          >
             <div
               className="videos"
-              style={{
-                height: isFromUploader ? '80px' : '220px',
-                width: isFromUploader ? '80px' : '120px'
-              }}
+              style={previewStyle}
             >
               {!videoFailed ? (
                 <video 
+                  ref={previewVideoRef}
                   src={videoUrl} 
-                  muted 
+                  muted={isPreviewMuted}
                   autoPlay 
                   loop 
                   playsInline 
+                  onPlay={() => setIsPreviewPlaying(true)}
+                  onPause={() => setIsPreviewPlaying(false)}
+                  onEnded={() => setIsPreviewPlaying(false)}
                   onError={() => setVideoFailed(true)}
                 />
               ) : (
@@ -103,9 +293,15 @@ const CustomVideoPlayer = ({
               )}
             </div>
 
-            <div className="play-button" onClick={toggleFullScreen}>
-              <Play size={30} color="white" fill="white" />
-            </div>
+            {showPlayingIndicator && autoPlayWithSound && isPreviewPlaying ? (
+              <div className="play-button playing-indicator" aria-hidden="true">
+                <AudioLines size={26} color="white" />
+              </div>
+            ) : (
+              <div className="play-button" aria-hidden="true">
+                <Play size={30} color="white" fill="white" />
+              </div>
+            )}
           </div>
         ) : (
           <div className="fullscreen-container">

@@ -1,122 +1,219 @@
 .productDetail-container {
-  // height: auto;
   width: 100%;
-  padding: 2vw;
-  // height: 85dvh;
-  @include responsive-for(md) {
-    height: unset;
-    padding: 2vw 3vw;
-  }
+  padding: clamp(16px, 2vw, 32px);
 
   .productDetail {
     height: 100%;
-
     color: map-get($text, primary);
 
     .productsWrapper {
-      display: flex;
-
-      @include responsive-for(md) {
-        flex-direction: column;
-      }
+      display: grid;
+      grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
+      gap: clamp(20px, 3vw, 36px);
+      align-items: start;
     }
 
-    &-left {
-      .left {
-        @include responsive-for(md) {
-          flex-direction: column;
-          gap: map-get($space, 3);
+    &-media {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      width: 100%;
+
+      &-gallery,
+      &-videoFallback,
+      &-tiktok,
+      &-empty {
+        width: 100%;
+      }
+
+      &-videoFallback {
+        display: flex;
+        justify-content: center;
+      }
+
+      &-videoFallback-player {
+        width: min(100%, 560px);
+
+        .custom-video-player {
+          width: 100%;
         }
       }
-      @include responsive-for(md) {
-        // width: 100% !important;
+
+      &-tiktok {
+        background: #0f1117;
+        border-radius: 28px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      &-tiktokHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      &-tiktokBadge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(254, 44, 85, 0.12);
+        color: #fe2c55;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      &-tiktokLink {
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      &-tiktokLink:hover {
+        text-decoration: underline;
+      }
+
+      &-tiktokFrame {
+        position: relative;
+        aspect-ratio: 9 / 16;
+        border-radius: 22px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      &-tiktokFrame iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: #000;
+      }
+
+      &-empty {
+        border-radius: 28px;
+        overflow: hidden;
+        background: #f6f6f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 420px;
+      }
+
+      &-empty img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
     }
 
     &-detailBottom-description-content {
       color: map-get($text, gray);
-      // border: 2px solid red;
       font-size: 16px !important;
     }
 
     &-detailTop {
-      width: 40%;
+      width: 100%;
+      padding: clamp(18px, 2.5vw, 28px);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.94) 100%);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
 
-      @include responsive-for(md) {
-        width: 100% !important;
-      }
 
-      .priceContainer {
-        @include responsive-for(md) {
-          // flex-direction: column;
-        }
-      }
 
       &-color {
         &-item {
-          height: 20px;
-          width: 20px;
+          height: 22px;
+          width: 22px;
           border-radius: 50%;
           cursor: pointer;
         }
       }
-      &-addToCart {
-        padding: map-get($space, 4);
-        width: max-content;
-        text-align: center;
-        border-radius: 8px;
-        cursor: pointer;
 
+      &-addToCart {
+        padding: map-get($space, 4) map-get($space, 5);
+        width: 100%;
+        max-width: 340px;
+        text-align: center;
+        border-radius: 14px;
+        cursor: pointer;
         background-color: map-get($text, secondary);
         color: white;
         font-size: map-get($fontSizes, 4);
         font-weight: map-get($fontWeights, bold);
+        letter-spacing: 0.02em;
       }
+
       &-name {
-        // text-transform: uppercase;
         color: map-get($text, primary);
-        font-size: map-get($fontSizes, 5) !important;
-        line-height: 1.2;
+        font-size: 20px !important;
+        line-height: 1.1;
       }
 
       &-description {
-        // max-height: 120px;
-
         display: -webkit-box;
         -webkit-line-clamp: 10;
         -webkit-box-orient: vertical;
-        // overflow: hidden;
-        // text-overflow: ellipsis;
+        color: map-get($text, gray);
+        line-height: 1.65;
+        max-height: 30vh;
+        overflow: hidden;
+      }
+
+      &-descriptionWrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+      }
+
+      &-descriptionSeeMore {
+        align-self: flex-start;
+        border: none;
+        background: transparent;
+        color: #65676b;
+        padding: 0;
+        margin-top: -2px;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.25;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        &:focus-visible {
+          outline: 2px solid rgba(101, 103, 107, 0.35);
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+      }
+
+      .priceContainer {
+        align-items: baseline;
+        gap: 12px;
       }
 
       .originalPrice {
-        font-size: map-get($fontSizes, 6) !important;
+        font-size: clamp(20px, 2vw, 28px) !important;
         font-weight: 700;
         color: map-get($text, secondary);
       }
 
       .discountedPrice {
-        font-size: map-get($fontSizes, 6) !important;
+        font-size: clamp(15px, 1.4vw, 20px) !important;
         font-weight: 700;
         text-decoration: line-through;
-        // font-size: map-get($fontSizes, 6) !important;
-      }
-      width: 50%;
-      padding: map-get($space, 4) map-get($space, 3);
-      &-topMost {
-        color: map-get($text, 'secondary');
-
-        @include responsive-for(sm) {
-          flex-direction: column;
-          row-gap: map-get($space, 3);
-        }
-      }
-      &-electronics {
-        &-catagory {
-          font-size: map-get($fontSizes, 3);
-          font-weight: map-get($fontWeights, bold);
-          color: map-get($base, 'primary');
-        }
+        color: rgba(51, 65, 85, 0.62);
       }
     }
 
@@ -127,12 +224,105 @@
       &-description {
         &-content {
           font-size: map-get($fontSizes, 3);
-          color: $graylite;
           color: #a9acc6;
           line-height: 1.3;
           text-align: justify;
         }
       }
     }
+  }
+
+  @include responsive-for(md) {
+    padding: 16px;
+
+    .productDetail {
+      .productsWrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      &-media {
+        position: static;
+        order: -1;
+
+        &-videoFallback-player {
+          width: 100%;
+        }
+      }
+
+      &-detailTop {
+        padding: 18px;
+        border-radius: 20px;
+
+        &-description {
+          max-height: 50vh;
+        }
+
+        &-addToCart {
+          max-width: none;
+        }
+      }
+    }
+  }
+
+  @include responsive-for(sm) {
+    .productDetail {
+      &-detailTop {
+        padding: 16px;
+
+        .priceContainer {
+          gap: 10px !important;
+        }
+
+        &-name {
+          font-size: 20px !important;
+        }
+
+        &-description {
+          max-height: 25vh;
+        }
+
+        &-addToCart {
+          width: 100%;
+        }
+      }
+
+      &-media {
+        &-tiktok {
+          padding: 10px;
+          border-radius: 22px;
+        }
+
+        &-tiktokFrame {
+          border-radius: 18px;
+        }
+
+        &-empty {
+          min-height: 300px;
+          border-radius: 22px;
+        }
+      }
+    }
+  }
+}
+
+.productDetail-descriptionModalPaper {
+  max-height: 90vh;
+}
+
+.productDetail-descriptionModalContent {
+  padding: 24px !important;
+}
+
+.productDetail-descriptionModalBody {
+  color: map-get($text, primary);
+  line-height: 1.7;
+  word-break: break-word;
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
   }
 }

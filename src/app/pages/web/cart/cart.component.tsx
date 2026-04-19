@@ -751,8 +751,26 @@ useEffect(() => {
     return `ORD-${timestamp}-${randomPart}`
   }, [])
 
+  const normalizeCheckoutPhone = useCallback((value: string) => {
+    const digits = String(value || '').replace(/\D/g, '')
+    if (!digits) return ''
+    if (digits.startsWith('977') && digits.length >= 13) {
+      return digits.slice(-10)
+    }
+    if (digits.length > 10) {
+      return digits.slice(-10)
+    }
+    return digits
+  }, [])
+
+  const isValidCheckoutPhone = useCallback((value: string) => {
+    // Prefer standard Nepal mobile numbers, allow 7-10 digit local fallback.
+    return /^9\d{9}$/.test(value) || /^\d{7,10}$/.test(value)
+  }, [])
+
   const validateForm = useCallback(() => {
     const errors: string[] = []
+    const normalizedPhone = normalizeCheckoutPhone(phoneNumber)
 
     if (!hasProducts) errors.push('No products in cart')
     if (!selectedValleyOption) errors.push('Please select location type')
@@ -769,8 +787,8 @@ useEffect(() => {
     
     if (!phoneNumber.trim()) {
       errors.push('Please enter phone number')
-    } else if (!/^[0-9+\-\s()]+$/.test(phoneNumber.trim())) {
-      errors.push('Please enter a valid phone number')
+    } else if (!isValidCheckoutPhone(normalizedPhone)) {
+      errors.push('Please enter a valid phone number (Nepal mobile like 98XXXXXXXX)')
     }
     
     if (!selectedPaymentMethod) errors.push('Please select payment method')
@@ -787,7 +805,9 @@ useEffect(() => {
     locationCoordinates,
     shippingLocation,
     phoneNumber,
-    selectedPaymentMethod
+    selectedPaymentMethod,
+    normalizeCheckoutPhone,
+    isValidCheckoutPhone,
   ])
 
   const processOrder = useCallback(() => {
@@ -798,6 +818,12 @@ useEffect(() => {
     console.log(shouldProceedDirectly,shouldShowQRModal,"checkouttttttt")
     if (!userId) {
       toast.error('Please login to continue')
+      return
+    }
+
+    const normalizedPhone = normalizeCheckoutPhone(phoneNumber)
+    if (!isValidCheckoutPhone(normalizedPhone)) {
+      toast.error('Please provide a valid phone number before placing order')
       return
     }
 
@@ -850,7 +876,7 @@ useEffect(() => {
           shippingLocation: isOutsideValley === false ? shippingLocation : `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}, ${shippingLocation}`,
           paymentMethod: selectedPaymentMethod,
           deliveryType: selectedDeliveryTypeOption?.value,
-          phoneNumber: phoneNumber.trim(),
+          phoneNumber: normalizedPhone,
           orderNote: orderNote.trim(),
           shippingPrice: shippingRate,
           giftBoxCharge: giftBoxCharge,
@@ -949,6 +975,8 @@ useEffect(() => {
     selectedPaymentMethod,
     selectedDeliveryTypeOption,
     phoneNumber,
+    normalizeCheckoutPhone,
+    isValidCheckoutPhone,
     orderNote,
     shippingRate,
     giftBoxCharge,

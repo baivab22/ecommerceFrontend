@@ -118,11 +118,15 @@ $space: (
 
     @include responsive-for(md) {
       padding: map-get($space, 3) map-get($space, 2);
+      padding-top:0;
+      // border: 2px solid red;
     }
 
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+
 
     &-logo {
       height: 40px;
@@ -142,6 +146,11 @@ $space: (
         width: 100%;
         display: block;
         object-fit: contain;
+
+          @include responsive-for(md) {
+            height: 100%;
+        width: 79%;
+      }
       }
     }
 
@@ -179,7 +188,8 @@ $space: (
       @include responsive-for(md) {
         position: absolute;
         right: 0;
-        top: 34px;
+        top: 0px;
+
       }
 
       &-cart {

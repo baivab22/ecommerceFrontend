@@ -67,6 +67,11 @@ export const OrderListPage = () => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null)
   const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null)
+  const [editingNcmOrderId, setEditingNcmOrderId] = useState<string | null>(null)
+  const [ncmDestinationBranch, setNcmDestinationBranch] = useState<string>('')
+  const [ncmBranches, setNcmBranches] = useState<string[]>([])
+  const [isLoadingNcmBranches, setIsLoadingNcmBranches] = useState<boolean>(false)
+  const [updatingNcmBranchOrderId, setUpdatingNcmBranchOrderId] = useState<string | null>(null)
 
 
   // Fetch orders from backend on filter/search/page change
@@ -110,6 +115,8 @@ export const OrderListPage = () => {
 
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [modalOrder, setModalOrder] = useState<any>(null)
+  const [modalTracking, setModalTracking] = useState<any>(null)
+  const [modalTrackingLoading, setModalTrackingLoading] = useState<boolean>(false)
 
   const orderPdf = useMemo(() => {
     if (!!activeOrderDetails) {
@@ -231,6 +238,29 @@ export const OrderListPage = () => {
     }
   }
 
+  const toSafeList = (value: any): any[] => {
+    if (Array.isArray(value)) return value
+    if (value && typeof value === 'object') return Object.values(value)
+    return []
+  }
+
+  const takeFirst = (value: any, count: number): any[] => {
+    const list = toSafeList(value)
+    const max = Math.max(0, Number(count || 0))
+    const result: any[] = []
+    for (let i = 0; i < list.length && i < max; i += 1) {
+      result.push(list[i])
+    }
+    return result
+  }
+
+  const formatDateTime = (value: any) => {
+    if (!value) return '-'
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return String(value)
+    return parsed.toLocaleString()
+  }
+
   // Helper function to get location display name
   const getLocationDisplayName = (order: any) => {
     if (order.locationAddress) {
@@ -263,6 +293,7 @@ export const OrderListPage = () => {
     setConfirmingOrderId(order._id)
     try {
       let confirmationUpdated = false
+      let ncmMeta: any = null
       await dispatch(
         updateOrderByIdAction({
           id: String(order._id),
@@ -270,8 +301,9 @@ export const OrderListPage = () => {
             isConfirmed: true,
             confirmedAt: new Date().toISOString()
           },
-          onSuccess: () => {
+          onSuccess: (response: AxiosResponse) => {
             confirmationUpdated = true
+            ncmMeta = response?.data?.ncm || null
           }
         })
       )
@@ -281,7 +313,18 @@ export const OrderListPage = () => {
         return
       }
 
-      toast.success('Order confirmed. Confirmation email has been sent to customer.')
+      if (ncmMeta?.success) {
+        const pickupText = ncmMeta?.skipped
+          ? `NCM pickup already existed (#${ncmMeta?.ncmOrderId || 'N/A'})`
+          : `NCM pickup created (#${ncmMeta?.ncmOrderId || 'N/A'})`
+        toast.success(`Order confirmed. ${pickupText}. Confirmation email has been sent to customer.`)
+      } else {
+        toast.success('Order confirmed. Confirmation email has been sent to customer.')
+        if (ncmMeta?.error) {
+          const shortError = String(ncmMeta.error).slice(0, 160)
+          toast.error(`NCM pickup sync failed: ${shortError}`)
+        }
+      }
       await fetchOrders()
     
     const phoneNumber = order.phoneNumber || '9841934343'
@@ -426,6 +469,69 @@ Aabhushan Gallery Team`
       toast.error(error?.message || 'Failed to delete order')
     } finally {
       setDeletingOrderId(null)
+    }
+  }
+
+  const fetchNcmBranches = useCallback(async () => {
+    if (ncmBranches.length > 0 || isLoadingNcmBranches) {
+      return
+    }
+
+    setIsLoadingNcmBranches(true)
+    try {
+      const response = await fetch(`${BASE_URL}/order/ncm/assigned-branches`)
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to fetch NCM branches')
+      }
+
+      const branches = Array.isArray(data?.branches)
+        ? data.branches.map((item: any) => String(item).trim()).filter(Boolean)
+        : []
+
+      setNcmBranches(branches)
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to fetch NCM branches')
+    } finally {
+      setIsLoadingNcmBranches(false)
+    }
+  }, [ncmBranches, isLoadingNcmBranches])
+
+  const startEditingNcmBranch = async (order: any) => {
+    setEditingNcmOrderId(order._id)
+    setNcmDestinationBranch(order?.ncmDestinationBranch || '')
+    await fetchNcmBranches()
+  }
+
+  const cancelEditingNcmBranch = () => {
+    setEditingNcmOrderId(null)
+    setNcmDestinationBranch('')
+  }
+
+  const handleNcmBranchUpdate = async (orderId: string) => {
+    if (!orderId) return
+
+    setUpdatingNcmBranchOrderId(orderId)
+    try {
+      await dispatch(
+        updateOrderByIdAction({
+          id: String(orderId),
+          data: {
+            ncmDestinationBranch: ncmDestinationBranch ? ncmDestinationBranch.trim().toUpperCase() : '',
+          },
+          onSuccess: () => {
+            toast.success('NCM destination branch updated')
+            setEditingNcmOrderId(null)
+            setNcmDestinationBranch('')
+          },
+        })
+      )
+
+      await fetchOrders()
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update NCM destination branch')
+    } finally {
+      setUpdatingNcmBranchOrderId(null)
     }
   }
 
@@ -575,15 +681,42 @@ Aabhushan Gallery Team`
     setEndDate(newValue)
   }, [])
 
+  const fetchOrderTracking = useCallback(async (orderId: string) => {
+    setModalTrackingLoading(true)
+    try {
+      const response = await fetch(`${BASE_URL}/order/${orderId}/tracking`)
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || 'Failed to fetch tracking details')
+      }
+      setModalTracking(json)
+    } catch (_error) {
+      setModalTracking(null)
+    } finally {
+      setModalTrackingLoading(false)
+    }
+  }, [])
+
   const openOrderModal = useCallback((order: any) => {
     setModalOrder(order)
     setShowOrderModal(true)
-  }, [])
+    fetchOrderTracking(order._id)
+  }, [fetchOrderTracking])
 
   const closeOrderModal = useCallback(() => {
     setShowOrderModal(false)
     setModalOrder(null)
+    setModalTracking(null)
+    setModalTrackingLoading(false)
   }, [])
+
+  useEffect(() => {
+    if (!showOrderModal || !modalOrder?._id) return
+    const trackerPoll = setInterval(() => {
+      fetchOrderTracking(modalOrder._id)
+    }, 30 * 1000)
+    return () => clearInterval(trackerPoll)
+  }, [showOrderModal, modalOrder?._id, fetchOrderTracking])
 
 
 
@@ -1145,6 +1278,28 @@ Aabhushan Gallery Team`
                   }
                 },
                 {
+                  field: 'ncmLastStatus',
+                  name: 'Delivery Status',
+                  colStyle: { width: '170px', minWidth: '170px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (_status, item) => {
+                    const statusText = item?.ncmLastStatus || (item?.isConfirmed ? 'Confirmed' : 'Pending Confirmation')
+                    return (
+                      <div style={{
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        display: 'inline-block',
+                        backgroundColor: '#eef2ff',
+                        color: '#3730a3',
+                        border: '1px solid #c7d2fe',
+                      }}>
+                        {statusText}
+                      </div>
+                    )
+                  }
+                },
+                {
                   field: 'deliveryPartner',
                   name: 'Delivery Partner',
                   colStyle: { width: '160px', minWidth: '160px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
@@ -1230,6 +1385,103 @@ Aabhushan Gallery Team`
                             border: '1px solid #1976d2',
                             backgroundColor: 'white',
                             color: '#1976d2',
+                            fontSize: '10px',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          <EditIcon fontSize="10px" />
+                        </button>
+                      </div>
+                    )
+                  }
+                },
+                {
+                  field: 'ncmDestinationBranch',
+                  name: 'NCM Destination Branch',
+                  colStyle: { width: '210px', minWidth: '210px', position: 'sticky', top: 0, backgroundColor: '#f5f5f5', zIndex: 10 },
+                  render: (ncmBranch, item) => {
+                    const isEditingNcmBranch = editingNcmOrderId === item._id
+
+                    if (isEditingNcmBranch) {
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <select
+                            value={ncmDestinationBranch}
+                            onChange={(e) => setNcmDestinationBranch(e.target.value)}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              border: '1px solid #1976d2',
+                              fontSize: '12px',
+                              outline: 'none',
+                              width: '100%'
+                            }}
+                            disabled={isLoadingNcmBranches}
+                          >
+                            <option value="">Use Global Default</option>
+                            {ncmBranches.map((branch) => (
+                              <option key={branch} value={branch}>{branch}</option>
+                            ))}
+                          </select>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button
+                              onClick={() => handleNcmBranchUpdate(item._id)}
+                              disabled={updatingNcmBranchOrderId === item._id || isLoadingNcmBranches}
+                              style={{
+                                padding: '2px 8px',
+                                borderRadius: '3px',
+                                border: 'none',
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                fontSize: '10px',
+                                cursor: 'pointer',
+                                flex: 1
+                              }}
+                            >
+                              {updatingNcmBranchOrderId === item._id ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              onClick={cancelEditingNcmBranch}
+                              style={{
+                                padding: '2px 8px',
+                                borderRadius: '3px',
+                                border: '1px solid #ccc',
+                                backgroundColor: 'white',
+                                fontSize: '10px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          backgroundColor: ncmBranch ? '#e8f5e9' : '#f5f5f5',
+                          color: ncmBranch ? '#2e7d32' : '#666',
+                          fontWeight: ncmBranch ? 'bold' : 'normal',
+                          border: `1px solid ${ncmBranch ? '#2e7d32' : '#ddd'}`,
+                          minWidth: '120px',
+                          textAlign: 'center'
+                        }}>
+                          {ncmBranch || 'Global Default'}
+                        </div>
+                        <button
+                          onClick={() => startEditingNcmBranch(item)}
+                          style={{
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            border: '1px solid #2e7d32',
+                            backgroundColor: 'white',
+                            color: '#2e7d32',
                             fontSize: '10px',
                             cursor: 'pointer',
                             whiteSpace: 'nowrap'
@@ -1459,6 +1711,68 @@ Aabhushan Gallery Team`
                 </div>
               </div>
 
+              {/* NCM Tracking Section */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: 8, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>NCM Tracking</div>
+
+                {modalTrackingLoading ? (
+                  <div style={{ fontSize: '13px', color: '#666' }}>Loading live tracking...</div>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Pickup Created</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600 }}>{formatDateTime(modalTracking?.ncm?.summary?.pickupCreatedAt || modalOrder?.ncmPickupCreatedAt)}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Pickup Completed</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: modalTracking?.ncm?.summary?.pickupCompleted ? '#2e7d32' : '#f57c00' }}>
+                          {modalTracking?.ncm?.summary?.pickupCompleted ? 'Yes' : 'No'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase', marginBottom: 4 }}>Delivered</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: modalTracking?.ncm?.summary?.delivered ? '#2e7d32' : '#f57c00' }}>
+                          {modalTracking?.ncm?.summary?.delivered ? 'Yes' : 'No'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '12px', fontWeight: 700, marginBottom: 8 }}>Latest Delivery Status Timeline</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                      {takeFirst(modalTracking?.ncm?.statuses, 10).map((statusItem: any, index: number) => (
+                        <div key={index} style={{ border: '1px solid #eee', borderRadius: 8, padding: 8, background: '#fafafa' }}>
+                          <div style={{ fontSize: '13px', fontWeight: 600 }}>{statusItem?.status || '-'}</div>
+                          <div style={{ fontSize: '11px', color: '#777' }}>{statusItem?.added_time || '-'}</div>
+                          {!!statusItem?.location && (
+                            <div style={{ fontSize: '11px', color: '#888' }}>Location: {statusItem.location}</div>
+                          )}
+                        </div>
+                      ))}
+                      {toSafeList(modalTracking?.ncm?.statuses).length === 0 && (
+                        <div style={{ fontSize: '12px', color: '#888' }}>No status updates available yet.</div>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: '12px', fontWeight: 700, marginBottom: 8 }}>Latest Comments</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {takeFirst(modalTracking?.ncm?.comments, 8).map((commentItem: any, index: number) => (
+                        <div key={index} style={{ border: '1px solid #eee', borderRadius: 8, padding: 8, background: '#fafafa' }}>
+                          <div style={{ fontSize: '12px', color: '#222' }}>{commentItem?.comments || '-'}</div>
+                          <div style={{ fontSize: '11px', color: '#777' }}>
+                            {commentItem?.addedBy || '-'} • {commentItem?.added_time || '-'}
+                          </div>
+                        </div>
+                      ))}
+                      {toSafeList(modalTracking?.ncm?.comments).length === 0 && (
+                        <div style={{ fontSize: '12px', color: '#888' }}>No comments available yet.</div>
+                      )}
+                    </div>
+
+                  </>
+                )}
+              </div>
+
               {/* Products Section */}
               <div style={{ background: 'white', padding: '16px', borderRadius: 8, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: 12, color: '#333' }}>Products ({(modalOrder.products || []).length})</div>
@@ -1562,13 +1876,7 @@ Aabhushan Gallery Team`
                     <span style={{ color: '#666' }}>Shipping</span>
                     <span style={{ fontWeight: 600 }}>{getNprPrice(modalOrder.shippingPrice || 0)}</span>
                   </div>
-                    {/* Gift Charge (if included) */}
-                    {modalOrder.includeGiftBox && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                        <span style={{ color: '#666' }}>Gift Charge</span>
-                        <span style={{ fontWeight: 600 }}>{getNprPrice(400)}</span>
-                      </div>
-                    )}
+             
                   {modalOrder.giftBoxCharge > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                       <span style={{ color: '#666' }}>Gift Box</span>

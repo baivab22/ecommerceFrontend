@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import './searchDropdown.scss';
 import { FILE_URL } from 'src/config/api.config';
 
@@ -17,9 +17,16 @@ interface SearchDropdownProps {
   suggestedProducts?: Product[];
   searchValue?: string;
   onProductClick?: (product: Product) => void;
+  isLoading?: boolean;
 }
 
-export const SearchDropdown = ({ onClose, products = [], suggestedProducts = [], searchValue = '', onProductClick }: SearchDropdownProps) => {
+export const SearchDropdown = ({ 
+  onClose, 
+  suggestedProducts = [], 
+  searchValue = '', 
+  onProductClick,
+  isLoading = false 
+}: SearchDropdownProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,8 +39,8 @@ export const SearchDropdown = ({ onClose, products = [], suggestedProducts = [],
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  // Helper: Levenshtein distance
-  function levenshtein(a: string, b: string): number {
+  // Levenshtein distance for fuzzy matching
+  const calculateLevenshtein = (a: string, b: string): number => {
     const an = a ? a.length : 0;
     const bn = b ? b.length : 0;
     if (an === 0) return bn;
@@ -46,113 +53,138 @@ export const SearchDropdown = ({ onClose, products = [], suggestedProducts = [],
           matrix[i][j] = matrix[i - 1][j - 1];
         } else {
           matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1, // substitution
-            matrix[i][j - 1] + 1,     // insertion
-            matrix[i - 1][j] + 1      // deletion
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
           );
         }
       }
     }
     return matrix[bn][an];
-  }
+  };
 
-  // If there is a searched product, show it at the top (almost exact match)
-  let searchedProduct: Product | undefined = undefined;
-  // Helper: normalize string for robust matching (lowercase, remove whitespace, remove special chars, normalize unicode)
-  function normalizeString(str: string): string {
+  // Normalize string for consistent matching
+  const normalizeString = (str: string): string => {
     return str
       .toLowerCase()
+      .trim()
       .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '') // remove accents/diacritics
-      .replace(/[^\p{L}\p{N}]/gu, '') // remove all non-letter/number chars
-      .replace(/\s+/g, ''); // remove whitespace
-  }
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[^\p{L}\p{N}]/gu, '')
+      .replace(/\s+/g, '');
+  };
 
-  if (searchValue && suggestedProducts.length > 0) {
+  // Find best matched product
+  const searchedProduct = useMemo(() => {
+    if (!searchValue.trim() || suggestedProducts.length === 0) return undefined;
     const normalizedSearch = normalizeString(searchValue);
-    searchedProduct = suggestedProducts.find(
-      (p) => {
-        const normalizedName = normalizeString(p.name);
-        return (
-          normalizedName.startsWith(normalizedSearch) ||
-          levenshtein(normalizedName, normalizedSearch) <= 2
-        );
-      }
-    );
-  }
-  // Remove the searched product from the similar list if present
-  const similarProducts = searchedProduct
-    ? suggestedProducts.filter((p) => p.id !== searchedProduct!.id)
-    : suggestedProducts;
+    return suggestedProducts.find((p) => {
+      const normalizedName = normalizeString(p.name);
+      return (
+        normalizedName.startsWith(normalizedSearch) ||
+        calculateLevenshtein(normalizedName, normalizedSearch) <= 2
+      );
+    });
+  }, [searchValue, suggestedProducts]);
+
+  // Filter similar products (exclude the best match)
+  const similarProducts = useMemo(() => {
+    return searchedProduct
+      ? suggestedProducts.filter((p) => p.id !== searchedProduct.id)
+      : [];
+  }, [searchedProduct, suggestedProducts]);
+
+  // Primary search results should always show at the top.
+  const searchResults = useMemo(() => {
+    return searchedProduct ? [searchedProduct] : suggestedProducts;
+  }, [searchedProduct, suggestedProducts]);
+
+  const formatPrice = (price?: number) => {
+    if (!price) return '';
+    return `रू. ${price.toFixed(2)}`;
+  };
+
+  // Render product item helper
+  const renderProductItem = (item: Product, className: string) => (
+    <div
+      key={item.id}
+      className={className}
+      onClick={() => {
+        onProductClick?.(item);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onProductClick?.(item);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${item.name} - ${formatPrice(item.discountedPrice || item.originalPrice || 0)}`}
+    >
+      <span className="icon">
+        {item.images && item.images[0]?.coloredImage ? (
+          <img
+            src={`${FILE_URL}/products/${item.images[0].coloredImage}`}
+            alt={item.name}
+            style={{ width: 36, height: 36, borderRadius: '50%' }}
+            loading="lazy"
+          />
+        ) : (
+          <span className="placeholder-icon">{item.name[0]?.toUpperCase() || '?'}</span>
+        )}
+      </span>
+      <span className="product-details">
+        <span className="name">{item.name}</span>
+        {(item.discountedPrice || item.originalPrice) && (
+          <span className="price">
+            {formatPrice(item.discountedPrice || item.originalPrice)}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+
+  // Loading skeleton
+  const LoadingSkeleton = () => (
+    <div className="search-feedback-state" style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ fontSize: '14px', color: '#999' }}>Searching...</div>
+    </div>
+  );
+
+  // Empty state
+  const EmptyState = () => (
+    <div className="search-feedback-state" style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ fontSize: '14px', color: '#999' }}>
+        No products found
+      </div>
+    </div>
+  );
 
   return (
-    <div className="search-dropdown" ref={ref}>
-      {searchedProduct && (
-        <div>
-          <div className="search-section-title">Searched Product</div>
+    <div className="search-dropdown" ref={ref} role="listbox">
+      {isLoading && <LoadingSkeleton />}
+
+      {!isLoading && searchValue.trim() && suggestedProducts.length === 0 && <EmptyState />}
+
+      {!isLoading && searchResults.length > 0 && (
+        <div className="search-section">
+          <div className="search-section-title">Search Results</div>
           <div className="recommended-list">
-            <div className="recommended-item" key={searchedProduct.id} onClick={() => onProductClick?.(searchedProduct!)}>
-              <span className="icon">
-                {searchedProduct.images && searchedProduct.images[0]?.coloredImage ? (
-                  <img src={`${FILE_URL}/products/${searchedProduct.images[0].coloredImage}`} alt={searchedProduct.name} style={{ width: 36, height: 36, borderRadius: '50%' }} />
-                ) : (
-                  searchedProduct.name[0]
-                )}
-              </span>
-              <span className="product-details">
-                <span className="name">{searchedProduct.name}</span>
-                {searchedProduct.discountedPrice && (
-                  <span className="price">${searchedProduct.discountedPrice}</span>
-                )}
-              </span>
-            </div>
+            {searchResults.map((item) => renderProductItem(item, 'recommended-item'))}
           </div>
         </div>
       )}
-      {similarProducts.length > 0 && (
-        <div>
-          <div className="search-section-title">Similar Products</div>
+
+      {!isLoading && similarProducts.length > 0 && (
+        <div className="search-section">
+          <div className="search-section-title">Similar Results</div>
           <div className="recommended-list">
-            {similarProducts.map((item) => (
-              <div className="recommended-item" key={item.id} onClick={() => onProductClick?.(item)}>
-                <span className="icon">
-                  {item.images && item.images[0]?.coloredImage ? (
-                    <img src={`${FILE_URL}/products/${item.images[0].coloredImage}`} alt={item.name} style={{ width: 36, height: 36, borderRadius: '50%' }} />
-                  ) : (
-                    item.name[0]
-                  )}
-                </span>
-                <span className="product-details">
-                  <span className="name">{item.name}</span>
-                  {item.discountedPrice && (
-                    <span className="price">${item.discountedPrice}</span>
-                  )}
-                </span>
-              </div>
-            ))}
+            {similarProducts.map((item) =>
+              renderProductItem(item, 'recommended-item')
+            )}
           </div>
         </div>
       )}
-      <div>
-        <div className="search-section-title">Popular Products</div>
-        <div className="popular-list">
-          {products.map((item) => (
-            <div className="popular-item" key={item.id} onClick={() => onProductClick?.(item)}>
-              {item.images && item.images[0]?.coloredImage ? (
-                <img className="image" src={`${FILE_URL}/products/${item.images[0].coloredImage}`} alt={item.name} />
-              ) : (
-                <div className="image" style={{ background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.name[0]}</div>
-              )}
-              <span className="product-details">
-                <span className="name">{item.name}</span>
-                {item.discountedPrice && (
-                  <span className="price">${item.discountedPrice}</span>
-                )}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

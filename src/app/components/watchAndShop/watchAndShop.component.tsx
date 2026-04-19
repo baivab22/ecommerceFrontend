@@ -9,6 +9,7 @@ import { Play, X } from 'lucide-react'
 import { BASE_URL, FILE_URL } from 'src/config'
 import { HStack, VStack } from 'src/app/common'
 import { getNprPrice } from 'src/helpers/nprPrice.helper'
+import { registerVideoElement, setCurrentPlayingVideo } from 'src/helpers/videoPlayback.helper'
 import './_watchAndShop.scss'
 
 export const WatchAndShopSection = ({ data }: { data: any }) => {
@@ -174,10 +175,15 @@ export const FullscreenVideoModal = ({
   swiperRef
 }: any) => {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const fullscreenVideoId = `watch-shop-fullscreen-${currentIndex}`
 
   useEffect(() => {
     setTimeout(() => {
       if (videoRef.current) {
+        videoRef.current.muted = false
+        videoRef.current.volume = 1
+        // Set this video as the currently playing one, muting all others
+        setCurrentPlayingVideo(fullscreenVideoId)
         videoRef.current.play().catch(err => console.log('Play error:', err))
       }
     }, 100)
@@ -195,7 +201,20 @@ export const FullscreenVideoModal = ({
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = 'unset'
     }
-  }, [onClose])
+  }, [onClose, fullscreenVideoId])
+
+  // Register fullscreen video for global audio management
+  useEffect(() => {
+    if (!videoRef.current) {
+      return;
+    }
+
+    const cleanup = registerVideoElement(fullscreenVideoId, videoRef.current)
+
+    return () => {
+      cleanup()
+    }
+  }, [fullscreenVideoId, videoUrl])
 
   const handlePrevVideo = () => {
     const newIndex = currentIndex === 0 ? allData.length - 1 : currentIndex - 1
@@ -238,6 +257,7 @@ export const FullscreenVideoModal = ({
           className="fullscreenVideoWatch"
           controls
           autoPlay
+          muted={false}
           playsInline
           controlsList="nodownload"
         />

@@ -124,7 +124,7 @@ const SocialChatButtons = ({
 
   const buttonBaseStyle = {
     position: 'fixed',
-    zIndex: 9999,
+    zIndex: 9999999999,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

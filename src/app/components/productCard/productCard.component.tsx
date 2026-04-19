@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {FaCartArrowDown} from 'react-icons/fa'
 import {Chip, HStack, VStack} from 'src/app/common'
 import ReactStarsRating from 'react-awesome-stars-rating'
@@ -9,16 +9,22 @@ import {createCartByUserIdAction} from 'src/app/pages/web/cart/cart.slice'
 import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
-import {FiEye, FiShoppingCart} from 'react-icons/fi'
+import {FiEye, FiPlay, FiShoppingCart} from 'react-icons/fi'
 import {FILE_URL} from 'src/config'
 import { fetchHolidayModeAction, selectHolidayMode } from 'src/app/pages/holidayMode/holidayMode.slice'
+import {registerVideoElement} from 'src/helpers/videoPlayback.helper'
 
 export const ProductCard = ({data}: {data: any}) => {
   const [activeImage, setActiveImage] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
+  const [isVideoMuted, setIsVideoMuted] = useState(true)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [productImages, setProductImages] = useState([])
+  const productVideoRef = useRef<HTMLVideoElement | null>(null)
+  const videoInstanceIdRef = useRef(
+    `product-card-${data?.id || 'unknown'}-${Math.random().toString(36).slice(2, 9)}`
+  )
 
   const resolveProductImageUrl = (rawValue?: string) => {
     if (!rawValue) return ''
@@ -35,8 +41,23 @@ export const ProductCard = ({data}: {data: any}) => {
     return `${FILE_URL}/products/${safePath}`
   }
 
+  const resolveProductVideoUrl = (rawValue?: string) => {
+    if (!rawValue) return ''
+    const value = String(rawValue).trim()
+    if (/^https?:\/\//i.test(value)) return encodeURI(value)
 
-  console.log(data,"data aray")
+    const cleaned = value.replace(/^\/+/, '')
+    const safePath = encodeURI(cleaned)
+    if (cleaned.startsWith('video/')) return `${FILE_URL}/${safePath}`
+    if (cleaned.startsWith('uploads/')) {
+      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
+    }
+
+    return `${FILE_URL}/video/${safePath}`
+  }
+
+
+  const productVideoUrl = resolveProductVideoUrl(data?.video)
 
 
 
@@ -47,6 +68,63 @@ export const ProductCard = ({data}: {data: any}) => {
       .filter(Boolean)
     setProductImages(ProductImages)
   }, [data])
+
+  useEffect(() => {
+    const video = productVideoRef.current
+    const hasInlineVideo = Boolean(productVideoUrl) && productImages.length === 0
+
+    if (!video || !hasInlineVideo) return
+    const cleanup = registerVideoElement(videoInstanceIdRef.current, video)
+
+    return () => {
+      cleanup()
+    }
+  }, [productVideoUrl, productImages.length])
+
+  useEffect(() => {
+    const video = productVideoRef.current
+    const hasInlineVideo = Boolean(productVideoUrl) && productImages.length === 0
+
+    if (!video || !hasInlineVideo) return
+    setIsVideoMuted(true)
+    video.muted = true
+
+    const ensurePlayback = () => {
+      const playPromise = video.play()
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => undefined)
+      }
+    }
+
+    ensurePlayback()
+    video.addEventListener('loadedmetadata', ensurePlayback)
+
+    return () => {
+      video.removeEventListener('loadedmetadata', ensurePlayback)
+      video.muted = true
+      setIsVideoMuted(true)
+      video.pause()
+    }
+  }, [])
+
+  const handleVideoPlayClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+
+    const video = productVideoRef.current
+    if (!video) return
+
+    video.muted = false
+    video.volume = 1
+    setIsVideoMuted(false)
+
+    const playPromise = video.play()
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        video.muted = true
+        setIsVideoMuted(true)
+      })
+    }
+  }
 
   const discountPercentage = data?.originalPrice 
     ? Math.round(((data.originalPrice - data.discountedPrice) / data.originalPrice) * 100)
@@ -65,22 +143,48 @@ export const ProductCard = ({data}: {data: any}) => {
     >
       <VStack className="productCard" gap="$3">
         <div className="productCard-image-wrapper">
-          <div className="productCard-image">
-            <img
-              src={
-                productImages.length > 0
-                  ? resolveProductImageUrl(productImages?.[0])
-                  : '/assets/images/defaultProduct.jpeg'  }
-
-                        alt={data?.name}
-            
-          
-            />
+          <div
+            className={`productCard-image ${productImages.length === 0 && productVideoUrl ? 'productCard-image--video' : ''}`}
+          >
+            {productImages.length > 0 ? (
+              <img
+                src={resolveProductImageUrl(productImages?.[0])}
+                alt={data?.name}
+              />
+            ) : productVideoUrl ? (
+              <>
+                <video
+                  ref={productVideoRef}
+                  className="productCard-video productCard-video-relative"
+                  autoPlay
+                  muted={isVideoMuted}
+                  loop
+                  playsInline
+                  controls={false}
+                >
+                  <source src={productVideoUrl} type="video/mp4" />
+                </video>
+                <button
+                  type="button"
+                  className={`productCard-video-play ${isVideoMuted ? 'visible' : ''}`}
+                  onClick={handleVideoPlayClick}
+                  aria-label={isVideoMuted ? 'Play video with sound' : 'Mute video'}
+                >
+                  <FiPlay size={18} />
+                  <span>Play with sound</span>
+                </button>
+              </>
+            ) : (
+              <img
+                src="/assets/images/defaultProduct.jpeg"
+                alt={data?.name}
+              />
+            )}
             
             {/* Discount Badge */}
             {discountPercentage > 0 && (
               <div className="productCard-discount-badge">
-                -{discountPercentage}%
+                {discountPercentage}%
               </div>
             )}
 
@@ -130,15 +234,7 @@ export const ProductCard = ({data}: {data: any}) => {
             <h3 className="productCard-title">{data?.name}</h3>
           </div>
 
-          {/* <div className="productCard-rating">
-            <ReactStarsRating
-              size={14}
-              value={4.5}
-              primaryColor="hsl(29, 90%, 65%)"
-              isEdit={false}
-            />
-            <span className="productCard-review-count">(125)</span>
-          </div> */}
+     
 
           <HStack align="center" gap="$2" className="productCard-price-wrapper">
             <div className="productCard-price-current">

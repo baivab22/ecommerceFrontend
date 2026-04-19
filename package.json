@@ -57,6 +57,7 @@
     "react-slick": "^0.29.0",
     "react-ui-animate": "^2.0.0",
     "react-use-measure": "^2.1.1",
+    "react-zoom-slider": "^0.1.0",
     "react-zxing": "^2.1.0",
     "recharts": "^3.5.0",
     "sass": "^1.56.2",

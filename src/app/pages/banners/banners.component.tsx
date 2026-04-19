@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, InputField, VStack} from 'src/app/common'
+import {Button, VStack} from 'src/app/common'
 import ImageUploader from 'src/app/common/imageUploader/imageUploader.common'
 import {
   createBannerAction,
@@ -10,7 +10,8 @@ import {useDispatch, useSelector} from 'src/store'
 import toast from 'react-hot-toast'
 
 export const Banners = () => {
-  const [bannerImage, setBannerImage] = useState<any>([])
+  const [desktopBannerImage, setDesktopBannerImage] = useState<any>([])
+  const [mobileBannerImage, setMobileBannerImage] = useState<any>([])
   const dispatch = useDispatch()
 
   const {createBannerLoading, bannerData}: any = useSelector(
@@ -18,21 +19,24 @@ export const Banners = () => {
   )
 
   useEffect(() => {
-    console.log(bannerData, 'bannerData')
     if (bannerData && bannerData.length > 0) {
-      // Only set bannerImage if it's empty or when bannerData changes
-      setBannerImage(bannerData?.[0]?.bannerImage || [])
+      const firstBanner = bannerData?.[0] || {}
+      setDesktopBannerImage(firstBanner?.desktopBannerImage || firstBanner?.bannerImage || [])
+      setMobileBannerImage(firstBanner?.mobileBannerImage || firstBanner?.bannerImage || [])
+    } else {
+      setDesktopBannerImage([])
+      setMobileBannerImage([])
     }
   }, [bannerData])
-  const handleImage = useCallback((event: any) => {
+  const handleDesktopImage = useCallback((event: any) => {
     const selectedFiles = Array.from(event.target.files)
-    console.log(selectedFiles, 'seelctedFiles+++++++++++++')
-    setBannerImage((prev: any) => [...prev, ...selectedFiles])
+    setDesktopBannerImage((prev: any) => [...prev, ...selectedFiles])
   }, [])
 
-  console.log(bannerData,"banner data hai")
-
-  // useEffect(() => {}, [bannerData])
+  const handleMobileImage = useCallback((event: any) => {
+    const selectedFiles = Array.from(event.target.files)
+    setMobileBannerImage((prev: any) => [...prev, ...selectedFiles])
+  }, [])
 
   useEffect(() => {
     dispatch(
@@ -48,9 +52,13 @@ export const Banners = () => {
 
   const addBannerHandler = () => {
     const formData = new FormData()
-    console.log(bannerImage, 'bannerImage from component')
-    bannerImage.forEach((file: any, index: string) => {
-      formData.append('bannerImage', file)
+
+    desktopBannerImage.forEach((file: File) => {
+      formData.append('desktopBannerImage', file)
+    })
+
+    mobileBannerImage.forEach((file: File) => {
+      formData.append('mobileBannerImage', file)
     })
 
     dispatch(
@@ -59,7 +67,8 @@ export const Banners = () => {
         onSuccess: () => {
           toast.success('Banner added Successfully')
           // Clear local state and refetch banners
-          setBannerImage([])
+          setDesktopBannerImage([])
+          setMobileBannerImage([])
           dispatch(
             getBannerListAction({
               onSuccess: () => {}
@@ -71,14 +80,13 @@ export const Banners = () => {
   }
   return (
     <VStack gap="$5">
+      <VStack gap="$3">
+        <h3>Desktop Banner</h3>
       <ImageUploader
-        defaultImage={bannerData?.[0]?.bannerImage}
-        onImageChange={handleImage}
-        // value={bannerImage}
-        uniqueKeys="bannersupload"
+        defaultImage={desktopBannerImage}
+        onImageChange={handleDesktopImage}
+        uniqueKeys="desktopbannersupload"
         actionHandler={(name: any) => {
-
-          console.log("action handler data")
           dispatch(
             deleteBannerImageAction({
               bannerName: name,
@@ -96,6 +104,32 @@ export const Banners = () => {
         }}
         isBanner={true}
       ></ImageUploader>
+      </VStack>
+
+      <VStack gap="$3">
+        <h3>Mobile Banner</h3>
+        <ImageUploader
+          defaultImage={mobileBannerImage}
+          onImageChange={handleMobileImage}
+          uniqueKeys="mobilebannersupload"
+          actionHandler={(name: any) => {
+            dispatch(
+              deleteBannerImageAction({
+                bannerName: name,
+                onSuccess: () => {
+                  toast.success('banner image deleted successfully')
+                  dispatch(
+                    getBannerListAction({
+                      onSuccess: () => {}
+                    })
+                  )
+                }
+              })
+            )
+          }}
+          isBanner={true}
+        ></ImageUploader>
+      </VStack>
 
       <Button
         title="Add Banner"

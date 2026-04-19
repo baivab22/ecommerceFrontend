@@ -97,7 +97,7 @@ const TopHeaderSkeleton = () => {
   return (
     <>
       <div className="header-top">
-        <div className="container" style={{ paddingBottom: '10px',paddingTop:'10px',border:'2px solid red' }}>
+        <div className="container" style={{ paddingTop:'10px',border:'2px solid red' }}>
           <ul className="header-social-container" style={{ display: 'flex', gap: '8px' }}>
             {Array.from({ length: 3 }).map((_, index) => (
               <li key={index}>
@@ -447,16 +447,17 @@ export const TopHeader = () => {
   const searchInputRef = useRef<HTMLDivElement | null>(null)
   const sortRefs = useRef<HTMLDivElement | null>(null)
   const [searchValue, setSearchValue] = useState<string>('')
-  const debouncedSearchValue = useDebounceValue(searchValue)
+  const debouncedSearchValue = useDebounceValue(searchValue, 300) // Optimized debounce
   const { data: allProducts = [] } = useSelector((state: any) => state.product)
   const [suggestedProducts, setSuggestedProducts] = useState<any[]>([])
+  const [isSearchLoading, setIsSearchLoading] = useState(false)
   const isAdminLoggedIn = auth.isLoggedin && String(auth.role).toUpperCase() === 'ADMIN'
 
   useEffect(() => {
     const userId = getCookie('userId')
     !!userId && dispatch(getCartlistAction({ userId: userId }))
     // Fetch all products for dropdown
-    dispatch(getProductListAction({ query: { limit: 20 } }))
+    dispatch(getProductListAction({ query: { limit: 100 } }))
   }, [dispatch])
 
   useEffect(() => {
@@ -471,22 +472,26 @@ export const TopHeader = () => {
   useEffect(() => {
     if (!debouncedSearchValue.trim()) {
       setSuggestedProducts([])
+      setIsSearchLoading(false)
       return
     }
-    // Show similar products for the current input
+
+    setIsSearchLoading(true)
+    
+    // Filter products based on search value
+    const lower = debouncedSearchValue.trim().toLowerCase()
     const similar = allProducts.filter((p: any) =>
-      p.name.trim().toLowerCase().includes(debouncedSearchValue.trim().toLowerCase())
+      p.name.trim().toLowerCase().includes(lower)
     )
-    // If there is a product with a name that starts with the search, show it first
     const startsWith = similar.filter((p: any) =>
-      p.name.trim().toLowerCase().startsWith(debouncedSearchValue.trim().toLowerCase())
+      p.name.trim().toLowerCase().startsWith(lower)
     )
-    // Remove duplicates
     const unique = Array.from(new Set([...startsWith, ...similar]))
+    
     setSuggestedProducts(unique)
+    setIsSearchLoading(false)
   }, [debouncedSearchValue, allProducts])
 
-  // Handle search (text or voice)
   // Helper: Levenshtein distance
   function levenshtein(a: string, b: string): number {
     const an = a ? a.length : 0;
@@ -501,9 +506,9 @@ export const TopHeader = () => {
           matrix[i][j] = matrix[i - 1][j - 1];
         } else {
           matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1, // substitution
-            matrix[i][j - 1] + 1,     // insertion
-            matrix[i - 1][j] + 1      // deletion
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
           );
         }
       }
@@ -511,10 +516,12 @@ export const TopHeader = () => {
     return matrix[bn][an];
   }
 
-  // Fuzzy match: almost exact (distance <= 2 or startsWith)
+  // Search handler for Enter key
   const onSearchHandler = useCallback((searchedData: string) => {
     if (!searchedData.trim()) return;
+    
     const lowerSearch = searchedData.trim().toLowerCase();
+    
     // Find almost exact match (distance <= 2 or startsWith)
     const almostExact = allProducts.find((p: any) => {
       const name = p.name.trim().toLowerCase();
@@ -523,23 +530,18 @@ export const TopHeader = () => {
         levenshtein(name, lowerSearch) <= 2
       );
     });
+    
     if (almostExact) {
-      navigate(`/products/${almostExact.id}`);
+      navigate(`/products/view/${almostExact.id}`);
       setSearchDropdownVisible(false);
+      setSearchValue('');
       return;
     }
-    // Otherwise, show searched and similar products in dropdown
-    const similar = allProducts.filter((p: any) =>
-      p.name.trim().toLowerCase().includes(lowerSearch)
-    );
-    // If there is a product with a name that starts with the search, show it first
-    const startsWith = similar.filter((p: any) =>
-      p.name.trim().toLowerCase().startsWith(lowerSearch)
-    );
-    // Remove duplicates
-    const unique = Array.from(new Set([...startsWith, ...similar]));
-    setSuggestedProducts(unique);
-    setSearchDropdownVisible(true);
+    
+    // Navigate to search results page
+    navigate(`/products?search=${encodeURIComponent(searchedData.trim())}`);
+    setSearchDropdownVisible(false);
+    setSearchValue('');
   }, [allProducts, navigate]);
 
   const handleOutSideClick = (event: any) => {
@@ -585,6 +587,7 @@ export const TopHeader = () => {
   const handleProductClick = (product: any) => {
     navigate(`/products/view/${product.id}`)
     setSearchDropdownVisible(false)
+    setSearchValue('') // Clear search input
   }
 
   return (
@@ -639,29 +642,30 @@ export const TopHeader = () => {
               onChange={e => {
                 const value = e.target.value;
                 setSearchValue(value);
-                // Immediately update suggestions for both typing and voice
+                // Show/hide dropdown based on input
                 if (!value.trim()) {
                   setSuggestedProducts([]);
+                  setSearchDropdownVisible(false);
                 } else {
-                  const lower = value.trim().toLowerCase();
-                  const similar = allProducts.filter((p) =>
-                    p.name.trim().toLowerCase().includes(lower)
-                  );
-                  const startsWith = similar.filter((p) =>
-                    p.name.trim().toLowerCase().startsWith(lower)
-                  );
-                  const unique = Array.from(new Set([...startsWith, ...similar]));
-                  setSuggestedProducts(unique);
+                  setSearchDropdownVisible(true);
                 }
-                setSearchDropdownVisible(true);
               }}
-              onFocus={() => setSearchDropdownVisible(true)}
-              onBlur={() => {}}
+              onFocus={() => {
+                if (searchValue.trim()) {
+                  setSearchDropdownVisible(true);
+                }
+              }}
+              onBlur={() => {
+                // Slight delay to allow click on dropdown items
+                setTimeout(() => setSearchDropdownVisible(false), 200);
+              }}
               style={{ width: '100%' }}
               onKeyDown={e => {
-                if (e.key === 'Enter') onSearchHandler(searchValue)
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onSearchHandler(searchValue);
+                }
               }}
-              // Voice search: when value changes, suggestions update automatically
             />
             {searchDropdownVisible && (
               <div style={{ width: '100%' }}>
@@ -671,6 +675,7 @@ export const TopHeader = () => {
                   suggestedProducts={suggestedProducts}
                   searchValue={searchValue}
                   onProductClick={handleProductClick}
+                  isLoading={isSearchLoading}
                 />
               </div>
             )}

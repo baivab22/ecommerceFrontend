@@ -4,37 +4,49 @@ import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 // import Image from 'next/image'
 
-// import banner1 from 'src/public/assets/image/banner1.webp'
-// import banner2 from 'src/public/assets/image/banner2.webp'
-// import banner3 from 'src/public/assets/image/banner3.webp'
-
-import banner3 from 'src/assets/images/banner1.webp'
-import banner1 from 'src/assets/images/banner2.webp'
-import banner2 from 'src/assets/images/banner3.webp'
-
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import {useDispatch, useSelector} from 'src/store'
-import {useCallback, useEffect, useState} from 'react'
+import {useEffect, useMemo} from 'react'
 import {getBannerListAction} from 'src/app/pages/banners/banners.slice'
 import {FILE_URL} from 'src/config'
 
 export const MainCarousel = () => {
   const dispatch = useDispatch()
   const {bannerData}: any = useSelector((state: any) => state.banner)
-  const [bannerList, setBannerList] = useState<any>([])
 
-  useEffect(() => {
-    console.log(bannerData, 'bannerData hai ta')
-    const datas = bannerData?.[0]?.bannerImage?.map(
-      (item: any, index: number) => {
-        return item
-      }
+  const bannerSlides = useMemo(() => {
+    const bannerRecord = bannerData?.[0] || {}
+    const desktopImages =
+      (Array.isArray(bannerRecord?.desktopBannerImage) &&
+        bannerRecord.desktopBannerImage.length > 0 &&
+        bannerRecord.desktopBannerImage) ||
+      (Array.isArray(bannerRecord?.bannerImage) && bannerRecord.bannerImage) ||
+      []
+    const mobileImages =
+      (Array.isArray(bannerRecord?.mobileBannerImage) && bannerRecord.mobileBannerImage) ||
+      []
+
+    const effectiveDesktopImages =
+      desktopImages.length > 0 ? desktopImages : mobileImages
+    const effectiveMobileImages =
+      mobileImages.length > 0 ? mobileImages : desktopImages
+
+    const slideCount = Math.max(
+      effectiveDesktopImages.length,
+      effectiveMobileImages.length
     )
 
-    console.log(datas, 'datas req hai ta')
-
-    setBannerList(datas)
+    return Array.from({length: slideCount}, (_, index) => ({
+      desktop:
+        effectiveDesktopImages[index] ||
+        effectiveDesktopImages[0] ||
+        '',
+      mobile:
+        effectiveMobileImages[index] ||
+        effectiveMobileImages[0] ||
+        ''
+    }))
   }, [bannerData])
 
   // const remappedBannerImage = useCallback(() => {
@@ -59,8 +71,6 @@ export const MainCarousel = () => {
     autoplay: true
   }
 
-  const backgroundImage = [banner1, banner2, banner3]
-
   useEffect(() => {
     dispatch(
       getBannerListAction({
@@ -76,22 +86,16 @@ export const MainCarousel = () => {
   return (
     <div className="carouselContainers">
       <Slider className="slider" adaptiveHeight {...settings}>
-        {bannerList?.length > 0 &&
-          bannerList?.map((item: any, index: number) => {
+        {bannerSlides?.length > 0 &&
+          bannerSlides?.map((item: any, index: number) => {
             return (
-              // <div className="image-container" key={index}>
-              <img
-                // src={`https://abhushangallery.com/${item}`}
-                src={`${FILE_URL}/banners/${item}`}
-
-                alt="image"
-                placeholder="blur"
-                // blurDataURL={item}
-                // objectFit="cover"
-                // objectPosition={'top center'}
-                // layout="fill"
-              ></img>
-              // </div>
+              <picture key={`${item.desktop}-${item.mobile}-${index}`}>
+                <source media="(max-width: 768px)" srcSet={`${FILE_URL}/banners/${item.mobile}`} />
+                <img
+                  src={`${FILE_URL}/banners/${item.desktop}`}
+                  alt="banner"
+                />
+              </picture>
             )
           })}
       </Slider>
