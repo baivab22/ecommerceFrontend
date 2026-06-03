@@ -52,6 +52,7 @@
     flex-direction: column;
     row-gap: map-get($space, 3);
     width: 100%;
+    padding:0px !important;
   }
 
   &-left {

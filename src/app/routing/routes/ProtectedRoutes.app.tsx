@@ -1,6 +1,6 @@
-import {useLocation, Navigate, Outlet, matchPath} from 'react-router-dom'
+import { useLocation, Navigate, Outlet, matchPath } from 'src/next-router-compat'
 import {useMemo} from 'react'
-import {useAuth} from '../hooks'
+import useAuth from '../hooks/useAuth'
 import {USER_ROLES} from '../roles'
 import {CompWrapper} from 'src/app/common'
 
@@ -39,7 +39,7 @@ export const useCanAccessRoute = (url?: string) => {
   }, [auth.role])
 
   const canAccess = testRoutes.filter((path: any) => {
-    return matchPath({path: path}, url ?? location.pathname)
+    return matchPath(path, url ?? location.pathname)
   })
   
   return canAccess

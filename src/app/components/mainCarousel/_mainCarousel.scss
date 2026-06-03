@@ -3,7 +3,8 @@
   width: 100vw;
 
   @include responsive-for(md) {
-    height: 40vh;
+    // height: 40vh;
+
   }
 
   // border: 2px solid red;
@@ -19,7 +20,7 @@
       height: 70vh !important;
 
       @include responsive-for(md) {
-        height: 40vh !important;
+        height: 65vh !important;
       }
     }
   }
@@ -28,7 +29,9 @@
     height: 70vh !important;
 
     @include responsive-for(md) {
-      height: 40vh;
+      // height: 40vh;
+
+      // border: 2px solid red;
     }
 
     .image-container {

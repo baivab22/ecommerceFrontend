@@ -14,7 +14,7 @@ const getBannerListAction = createAsyncThunk(
   ) => {
     try {
       const response = await BannerService.getBannerList()
-      onSuccess(response)
+      onSuccess && onSuccess(response)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get Banner!')

@@ -4,6 +4,7 @@ import {Card, HStack, VStack} from 'src/app/common'
 import Theme from 'src/theme'
 import moment from 'moment'
 import {getImageUrl} from 'src/helpers/getImageUrl.helper'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 const PreTitle = styled.div`
   font-size: ${Theme.fontSizes.$3};
@@ -118,12 +119,15 @@ export const ArticleDetail = ({detail}: ArticleDetailProps) => {
 
         {detail?.description_details?.thumbnail && (
           <ImgContainer>
-            <img
+            <OptimizedImage
               alt="article image"
               src={getImageUrl(
                 `commonDescription`,
                 detail?.description_details?.thumbnail as string
               )}
+              width={960}
+              height={540}
+              style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
             />
           </ImgContainer>
         )}

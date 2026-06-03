@@ -18,6 +18,10 @@ instance.interceptors.request.use(async (request) => {
   if (token && request.headers) {
     request.headers.Authorization = `Bearer ${token}`
   }
+  // Let the browser set multipart boundary for FormData uploads
+  if (request.data instanceof FormData && request.headers) {
+    delete request.headers['Content-Type']
+  }
   return request
 })
 

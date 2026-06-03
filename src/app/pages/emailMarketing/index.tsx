@@ -329,9 +329,13 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 export default function EmailMarketingDashboard() {
   const [activeTab, setActiveTab] = useState('compose');
   const [loading, setLoading] = useState(false);
-  const [statistics, setStatistics] = useState(null);
-  const [campaignHistory, setCampaignHistory] = useState([]);
-  const [notification, setNotification] = useState(null);
+  const [statistics, setStatistics] = useState<any>(null);
+  const [campaignHistory, setCampaignHistory] = useState<any[]>([]);
+  const [notification, setNotification] = useState<{
+    type: string
+    message: string
+    details: any
+  } | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
   // Form state
@@ -345,7 +349,7 @@ export default function EmailMarketingDashboard() {
   });
 
   // Validation state
-  const [validationResults, setValidationResults] = useState(null);
+  const [validationResults, setValidationResults] = useState<any>(null);
 
   useEffect(() => {
     if (activeTab === 'statistics') {

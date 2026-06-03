@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {FaChevronLeft, FaChevronRight, FaQuoteRight} from 'react-icons/fa'
 import {Text, Title} from 'src/app/common'
 import {BASE_URL, FILE_URL} from 'src/config'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 // Testimonial Skeleton Component
 const TestimonialSkeleton = () => {
@@ -160,10 +161,13 @@ export const TestimonailSection = ({reviews, loading}: {reviews: any[]; loading?
       <div className="jobsSectionContainer-header">WHAT OUR CUSTOMER SAYS</div>
       <article className="review">
         <div className="img-container">
-          <img
+          <OptimizedImage
             src={`${FILE_URL}/testimonial/${image?.[0]}`}
             className="person-img"
             alt="Customer testimonial"
+            width={120}
+            height={120}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
           />
           <span className="quote-icon">
             <FaQuoteRight />

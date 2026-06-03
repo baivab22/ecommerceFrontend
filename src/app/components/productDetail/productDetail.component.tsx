@@ -36,7 +36,7 @@ export const ProductDetail = ({productDetails}: Comp.ProductDetailProps) => {
 
             <div
               className="productDetail-detailBottom-description-content"
-              dangerouslySetInnerHTML={{__html: productDetails.description}}
+              dangerouslySetInnerHTML={{__html: productDetails.description ?? ''}}
             />
           </VStack>
           {productDetails.website && (

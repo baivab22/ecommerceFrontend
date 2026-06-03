@@ -3,10 +3,11 @@ import React, {useEffect, useRef, useState} from 'react'
 import {Chip, HStack, Title, VStack} from 'src/app/common'
 import {useDispatch, useSelector} from 'src/store'
 import {getProductDetailByIdAction} from 'src/app/pages/products/product.slice'
-import {useNavigate, useParams} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {Dialog, DialogContent, Skeleton} from '@mui/material'
 import {ProductSection, ZoomSlider} from 'src/app/components'
 import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
+import OptimizedImage from 'src/app/common/OptimizedImage/OptimizedImage.component'
 import {
   createCartByUserIdAction,
   getCartlistAction,
@@ -16,14 +17,14 @@ import toast from 'react-hot-toast'
 import {getCookie} from 'src/helpers'
 import {useMedia} from 'src/hooks'
 import {useAuth} from 'src/app/routing'
-import {FILE_URL} from 'src/config'
+import {resolveProductImageUrl, resolveProductVideoUrl} from 'src/helpers/mediaUrl.helper'
 // import ZoomSlider from 'src/app/components/zoomSlider/zoomSlider.component'
 
 export const ProductWebDetail = () => {
   const media = useMedia()
   // const {auth} = useAuth()
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
 
 
     const [position, setPosition] = useState({x: media.md ? 1175 : 0, y: 450})
@@ -97,27 +98,15 @@ export const ProductWebDetail = () => {
     }
   }, [isDragging, offset])
 
-  const resolveMediaUrl = (folder: 'products' | 'video', rawValue?: string) => {
-    if (!rawValue) return ''
-    const value = String(rawValue).trim()
-    if (/^https?:\/\//i.test(value)) return encodeURI(value)
-
-    const cleaned = value.replace(/^\/+/, '')
-    const safePath = encodeURI(cleaned)
-    if (cleaned.startsWith(`${folder}/`)) return `${FILE_URL}/${safePath}`
-    if (cleaned.startsWith('uploads/')) {
-      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
-    }
-
-    return `${FILE_URL}/${folder}/${safePath}`
-  }
-
-  const {productId} = useParams()
+  const { productId } = router.query
+  const productIdString = Array.isArray(productId) ? productId[0] : productId
 
   useEffect(() => {
+    if (!productIdString) return
+
     window.scrollTo({top: 0, behavior: 'smooth'})
-    dispatch(getProductDetailByIdAction({productId: productId as string}))
-  }, [productId, dispatch])
+    dispatch(getProductDetailByIdAction({productId: productIdString}))
+  }, [productIdString, dispatch])
 
   const {productDetailData, productDetailLoading}: any = useSelector(
     (state: any) => state.product
@@ -143,27 +132,31 @@ export const ProductWebDetail = () => {
     productDetailData?.discountedPrice ?? productDetailData?.originalPrice
   const productVideoSource = productDetailData?.video
   const hasProductVideo = Boolean(productVideoSource)
-  const productVideoUrl = resolveMediaUrl('video', productVideoSource)
+  const productVideoUrl = resolveProductVideoUrl(productVideoSource)
   const previewHeight = media.md ? 'min(82vh, 860px)' : 'min(72vh, 620px)'
   const productDescriptionRef = useRef<HTMLDivElement | null>(null)
   const [isDescriptionOverflowing, setIsDescriptionOverflowing] = useState(false)
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false)
 
+  const ALL_COLOR_INDEX = -1
   const [productImageList, setProductImageList] = useState<string[]>([])
   const hasProductImages = productImageList.length > 0
-  const [activeColorIndex, setActiveColorIndex] = useState(0)
+  const [activeColorIndex, setActiveColorIndex] = useState<number>(ALL_COLOR_INDEX)
 
-  useEffect(() => {
-    const requiredImageList = productDetailData?.images?.map((item: any) => {
-      return typeof item === 'string' ? item : item.coloredImage
+  const getAllVariantImages = (data: any) =>
+    data?.images?.flatMap((item: any) => {
+      if (typeof item === 'string') return [item]
+      if (Array.isArray(item.coloredImages) && item.coloredImages.length > 0)
+        return item.coloredImages
+      if (typeof item.coloredImage === 'string') return [item.coloredImage]
+      return []
     })
 
-    setProductImageList((requiredImageList || []).filter(Boolean))
-  }, [productDetailData])
-
   useEffect(() => {
-    setActiveColorIndex(0)
-  }, [productId])
+    const requiredImageList = getAllVariantImages(productDetailData)
+    setProductImageList((requiredImageList || []).filter(Boolean))
+    setActiveColorIndex(ALL_COLOR_INDEX)
+  }, [productDetailData, productId])
 
   useEffect(() => {
     const descriptionElement = productDescriptionRef.current
@@ -189,12 +182,33 @@ export const ProductWebDetail = () => {
   }, [productDetailData?.description, media.md])
 
   const handleColorClicked = (id: string, index: number) => {
-    const requiredImageList = productDetailData?.images?.find((item: any) => {
-      return item._id === id
+    if (index === ALL_COLOR_INDEX) {
+      const requiredImageList = getAllVariantImages(productDetailData)
+      setActiveColorIndex(ALL_COLOR_INDEX)
+      setProductImageList((requiredImageList || []).filter(Boolean))
+      return
+    }
+
+    const selectedVariant = productDetailData?.images?.find((item: any) => {
+      return item._id === id || item.id === id || String(item._id) === String(id)
     })
 
+    const selectedImages = selectedVariant
+      ? Array.isArray(selectedVariant.coloredImages)
+        ? selectedVariant.coloredImages
+        : selectedVariant.coloredImage
+        ? [selectedVariant.coloredImage]
+        : []
+      : []
+
     setActiveColorIndex(index)
-    setProductImageList([requiredImageList?.coloredImage].filter(Boolean))
+    setProductImageList(selectedImages.filter(Boolean))
+  }
+
+  const handleCarouselImageSelect = (index: number) => {
+    if (productDetailData?.images?.[index]) {
+      setActiveColorIndex(index)
+    }
   }
 
   const datas = useSelector((state: any) => state.cart)
@@ -202,13 +216,25 @@ export const ProductWebDetail = () => {
   const handleAddToCart = (data: any, colorIndex: number) => {
     const userId = getCookie('userId')
     const roles = getCookie('userRoles')
+    const currentCartProduct = datas?.cartData?.[0]?.products?.find(
+      (item: any) => item?.productId?.id === data?.id
+    )
+    const currentQuantityInCart = Number(currentCartProduct?.quantity || 0)
+    const canAddMore = currentQuantityInCart < safeStockQuantity
 
     if (userId && !!roles) {
-      const isAlreadyExist = datas?.cartData?.[0]?.products?.some((item: any) => {
-        return item?.productId?.id === data?.id
-      })
+      const isAlreadyExist = Boolean(currentCartProduct)
+
+      if (!canAddMore) {
+        toast.error(`Only ${safeStockQuantity} items available in stock`)
+        return
+      }
 
       if (!isAlreadyExist) {
+        const selectedColorName =
+          colorIndex === ALL_COLOR_INDEX
+            ? productDetailData?.images?.[0]?.colorName
+            : productDetailData?.images?.[colorIndex]?.colorName
         const cartData = {
           userId,
           products: [
@@ -216,10 +242,7 @@ export const ProductWebDetail = () => {
               productId: data?.id,
               quantity: 1,
               price: data?.discountedPrice,
-              colorName:
-                productDetailData?.images?.[colorIndex]?.colorName ||
-                productDetailData?.images?.[0]?.colorName ||
-                'Default'
+              colorName: selectedColorName || 'Default'
             }
           ]
         }
@@ -232,46 +255,60 @@ export const ProductWebDetail = () => {
               toast.success('Product added to cart Successfully!')
               const currentUserId = getCookie('userId')
               currentUserId && dispatch(getCartlistAction({userId: currentUserId}))
+            },
+            onFailure: (error: any) => {
+              const errorMessage =
+                error?.message || error || 'Failed to add product to cart'
+              toast.error(String(errorMessage))
             }
           })
         )
       } else {
-        const isAlreadyExistData = datas?.cartData?.[0]?.products?.find(
-          (item: any) => item?.productId?.id === data?.id
-        )
+        const nextQuantity = currentQuantityInCart + 1
+
+        if (nextQuantity > safeStockQuantity) {
+          toast.error(`Only ${safeStockQuantity} items available in stock`)
+          return
+        }
 
         dispatch(
           updatedCartByProductIdAction({
             data: {
               userId,
-              productId: isAlreadyExistData?.productId?.id,
-              quantity: isAlreadyExistData?.quantity + 1,
+              productId: currentCartProduct?.productId?.id,
+              quantity: nextQuantity,
               price: Number(
-                isAlreadyExistData?.productId?.discountedPrice *
-                  (isAlreadyExistData?.quantity + 1)
+                currentCartProduct?.productId?.discountedPrice * nextQuantity
               ),
               colorName:
-                productDetailData?.images?.[colorIndex]?.colorName ||
-                isAlreadyExistData?.colorName ||
-                productDetailData?.images?.[0]?.colorName ||
-                'Default'
+                colorIndex === ALL_COLOR_INDEX
+                  ? productDetailData?.images?.[0]?.colorName
+                  : productDetailData?.images?.[colorIndex]?.colorName ||
+                    currentCartProduct?.colorName ||
+                    productDetailData?.images?.[0]?.colorName ||
+                    'Default'
             },
             onSuccess: () => {
               toast.success('Product on cart updated successfully')
               userId && dispatch(getCartlistAction({userId}))
+            },
+            onFailure: (error: any) => {
+              const errorMessage =
+                error?.message || error || 'Failed to update cart'
+              toast.error(String(errorMessage))
             }
           })
         )
       }
     } else {
       toast.error('Please login first to add products')
-      navigate('/login')
+      router.push('/login')
     }
   }
 
   const handleLoggedOutAddItemToCart = () => {
     toast.error('Please login first to add products')
-    navigate('/login')
+    router.push('/login')
   }
 
   const ProductDetailSkeleton = () => (
@@ -382,13 +419,19 @@ export const ProductWebDetail = () => {
                   </div>
                 ) : hasProductImages ? (
                   <div className="productDetail-media-gallery">
-                    <ZoomSlider data={productImageList} />
+                    <ZoomSlider
+                      data={productImageList}
+                      onImageSelect={handleCarouselImageSelect}
+                    />
                   </div>
                 ) : (
                   <div className="productDetail-media-empty">
-                    <img
+                    <OptimizedImage
                       src="/assets/images/defaultProduct.jpeg"
                       alt={productDetailData?.name || 'Product'}
+                      width={600}
+                      height={450}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                     />
                   </div>
                 )}
@@ -432,30 +475,90 @@ export const ProductWebDetail = () => {
 
                 <VStack className="productDetail-detailTop-color">
                   <p>Color</p>
-                  <HStack gap="$3">
-                    {productDetailData?.images?.map((item: any, index: number) => {
-                      return (
-                        <div
-                          key={index}
+                  <HStack gap="$3" align="center">
+                    <button
+                      type="button"
+                      onClick={() => handleColorClicked('all', ALL_COLOR_INDEX)}
+                      style={{
+                        border:
+                          activeColorIndex === ALL_COLOR_INDEX
+                            ? '2px solid hsl(353, 100%, 78%)'
+                            : '1px solid #ddd',
+                        borderRadius: '999px',
+                        // padding: '0.5rem 0.75rem',
+                        background: activeColorIndex === ALL_COLOR_INDEX ? '#fff6f8' : '#fff',
+                        color: '#333',
+                        cursor: 'pointer',
+                        fontSize: '0.86rem',
+                        fontWeight: activeColorIndex === ALL_COLOR_INDEX ? 700 : 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          overflow: 'hidden',
+                          // display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: '1px solid #ddd',
+                          background: '#fff'
+                        }}
+                      >
+                          <OptimizedImage
+                            src="/assets/images/wholecolor.jpg"
+                            alt="All color variants"
+                            width={36}
+                            height={36}
                           style={{
-                            border:
-                              activeColorIndex === index
-                                ? '2px solid hsl(353, 100%, 78%)'
-                                : 'none',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                        />
+                      </span>
+                      {/* <span>All color variants</span> */}
+                    </button>
+
+                    {productDetailData?.images?.map((item: any, index: number) => {
+                      const colorValue = item.colorName || '#ccc'
+                      const isSelected = activeColorIndex === index
+
+                      return (
+                        <button
+                          key={item._id || index}
+                          type="button"
+                          onClick={() => handleColorClicked(item._id, index)}
+                          title={item.colorName || `Color ${index + 1}`}
+                          style={{
+                            border: isSelected ? '2px solid hsl(353, 100%, 78%)' : '1px solid #ddd',
+                            borderRadius: '999px',
+                            padding: '4px',
+                            background: 'transparent',
+                            cursor: 'pointer',
                             display: 'flex',
-                            justifyContent: 'center',
                             alignItems: 'center',
-                            borderRadius: '50%',
-                            boxSizing: 'border-box',
-                            padding: '3px'
+                            justifyContent: 'center',
+                            transition: 'transform 150ms ease',
+                            transform: isSelected ? 'scale(1.08)' : 'scale(1)'
                           }}
                         >
-                          <div
-                            style={{background: item.colorName}}
-                            className="productDetail-detailTop-color-item"
-                            onClick={() => handleColorClicked(item._id, index)}
-                          ></div>
-                        </div>
+                          <span
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              background: colorValue,
+                              boxShadow: '0 0 0 1px rgba(0,0,0,0.08)',
+                              display: 'inline-block'
+                            }}
+                          />
+                        </button>
                       )
                     })}
                   </HStack>
@@ -469,7 +572,7 @@ export const ProductWebDetail = () => {
                       return
                     }
 
-                    !!auth.isLoggedin
+                    !!auth?.isLoggedin
                       ? handleAddToCart(productDetailData, activeColorIndex)
                       : handleLoggedOutAddItemToCart()
                   }}
@@ -520,21 +623,24 @@ export const ProductWebDetail = () => {
                             WebkitUserSelect: 'none',
                             MozUserSelect: 'none',
                             msUserSelect: 'none',
-                            zIndex: 1000
+                            zIndex: 1000,
+                            pointerEvents: 'none'
                           }}
                           onMouseDown={handleMouseDown}
                           onTouchStart={handleTouchStart}
                         >
-                          <CustomVideoPlayer
-                            videoUrl={resolveMediaUrl('video', productDetailData?.video)}
+                          <div style={{ pointerEvents: 'auto' }}>
+                            <CustomVideoPlayer
+                              videoUrl={resolveProductVideoUrl(productDetailData?.video)}
 
-                            productDetails={{
+                              productDetails={{
 
-                            name:productDetailData.name,
-                            description:productDetailData?.description,
-                          price:productDetailData?.originalPrice}}
-                            thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
-                          ></CustomVideoPlayer>
+                              name:productDetailData.name,
+                              description:productDetailData?.description,
+                            price:productDetailData?.originalPrice}}
+                              thumbnailUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfcz8nhghqfpLH6iYrPyz6_U9fqSdujGVmrezxtryOpI0cxnLFzwSHklg5csZgs8K1QMU&usqp=CAU"
+                            ></CustomVideoPlayer>
+                          </div>
                         </div>
                       )}
                     </HStack>
@@ -590,3 +696,5 @@ export const ProductWebDetail = () => {
     </>
   )
 }
+
+

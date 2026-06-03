@@ -1,6 +1,6 @@
 import {useState, useImperativeHandle, forwardRef, useEffect} from 'react'
 
-import {BsThreeDotsVertical} from 'react-icons/all'
+import {BsThreeDotsVertical} from 'react-icons/bs'
 import {Box, Dropdown, Menu} from '..'
 
 export const Tab = forwardRef(

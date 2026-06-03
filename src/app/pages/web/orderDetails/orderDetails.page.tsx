@@ -2,12 +2,13 @@ import React, {useEffect, useState} from 'react'
 import {useMedia, useParams} from 'src/hooks'
 import {useDispatch} from 'src/store'
 import {getOrderDetailByIdAction} from '../../products/product.slice'
-import {useLocation} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {useSelector} from 'react-redux'
 import {ActivityIndicator, Chip, HStack, Title, VStack} from 'src/app/common'
 import {CarouselSlider, ZoomSlider} from 'src/app/components'
 import ReactStarsRating from 'react-awesome-stars-rating'
 import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 import {BASE_URL, FILE_URL} from 'src/config'
 import {createCartByUserIdAction, getCartlistAction} from '../cart/cart.slice'
 import toast from 'react-hot-toast'
@@ -18,8 +19,10 @@ import {getNprPrice} from 'src/helpers/nprPrice.helper'
 export const OrderDetailsPage = () => {
   const dispatch = useDispatch()
 
-  const location = useLocation()
-  const searchParams = new URLSearchParams(location.search)
+  const router = useRouter()
+  const asPath = router.asPath || ''
+  const queryString = asPath.split('?')[1] || ''
+  const searchParams = new URLSearchParams(queryString)
 
   const orderId = searchParams.get('orderId')
   const isForOrder = searchParams.get('isForOrder')
@@ -41,7 +44,7 @@ export const OrderDetailsPage = () => {
 
   const products = productDetailData?.image
 
-  const [productImageList, setProductImageList] = useState([])
+  const [productImageList, setProductImageList] = useState<any[]>([])
 
   useEffect(() => {
     const requiredImageList = productDetailData?.images?.map(
@@ -59,6 +62,12 @@ export const OrderDetailsPage = () => {
     const userId = getCookie('userId')
 
     const roles = getCookie('userRoles')
+    const stockQuantity = Math.max(0, Number(data?.stockQuantity) || 0)
+
+    if (stockQuantity <= 0) {
+      toast.error('Product is out of stock')
+      return
+    }
 
     if (!!userId && !!roles) {
       const cartData = {
@@ -80,6 +89,9 @@ export const OrderDetailsPage = () => {
             toast.success('Product added to cart Successfully!')
             const userId = getCookie('userId')
             userId && dispatch(getCartlistAction({userId: userId}))
+            },
+            onFailure: (error: any) => {
+              toast.error(String(error?.message || error || 'Failed to add product to cart'))
           }
         })
       )
@@ -341,10 +353,16 @@ export const OrderDetailsPage = () => {
                   {getNprPrice(total || 0)}
                 </p>
 
-                <img
-                  src="src/assets/images/bankqr.png"
-                  alt="image"
+                <OptimizedImage
+                  src="/assets/images/bankqr.png"
+                  alt="Payment QR Code"
+                  width={280}
+                  height={280}
+                  objectFit="contain"
                   className="qrImage"
+                  onError={() => {
+                    /* graceful fallback handled by OptimizedImage */
+                  }}
                 />
               </div>
             </div>

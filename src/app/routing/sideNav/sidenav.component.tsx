@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import {useAuth} from '../hooks'
+import NextLink from 'next/link'
+import {useRouter} from 'next/router'
+import useAuth from '../hooks/useAuth'
 import {useSpring, animated} from '@react-spring/web'
-import {NavLink} from 'react-router-dom'
 import {useCanAccessRoute} from '../routes/ProtectedRoutes.app'
 import {
   MdInventory,
@@ -25,9 +26,12 @@ import {
   MdSettings
 } from 'react-icons/md'
 import { BASE_URL } from 'src/config'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 import {Box, ToolTip} from 'src/app/common'
 import { useMedia } from 'src/hooks'
+
+
 
 export const SideNav = React.memo(() => {
   const {auth} = useAuth()
@@ -77,12 +81,13 @@ const SideNavComponent = React.memo(() => {
   }
 
   const media = useMedia()
+    const router = useRouter()
 
   return auth.isLoggedin ? (
     <>
       {/* Mobile Menu Toggle Button */}
       {isMobile && (
-        <button  
+        <button
           className="mobile-menu-toggles"
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
@@ -115,81 +120,93 @@ const SideNavComponent = React.memo(() => {
             <animated.div
               className="sidenav-header-logo1"
               style={{
-                ...headerStyle
+                ...headerStyle,
+                cursor: 'pointer',
               }}
+              onClick={() => router.push('/home')}
             >
-              <img src={BASE_URL + '/logo'} alt="TMO" onError={e => { e.currentTarget.src = '/assets/images/logosss.png'; }} />
+              <div style={{ position: 'relative', width: '120px', height: '100px' }}>
+                <OptimizedImage
+                src='/assets/images/logosss.png'
+                  alt="TMO"
+                  fill
+                  objectFit="contain"
+                  onError={() => {
+                    /* fallback managed by OptimizedImage */
+                  }}
+                />
+              </div>
             </animated.div>
           </div>
           <Box style={{height: 'calc(100vh - 150px)', overflowY: 'auto'}} pt={20}>
-            {getNav('Products', '/dash-product', () => (
-              <MdInventory size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Products' url='/dash-product' icon={() => (
+<MdInventory size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Category', '/dash-category', () => (
-              <MdCategory size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Category' url='/dash-category' icon={() => (
+<MdCategory size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('SubCategory', '/dash-subCategory', () => (
-              <MdAccountTree size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='SubCategory' url='/dash-subCategory' icon={() => (
+<MdAccountTree size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Nested SubCategory', '/dash-subCategorynested', () => (
-              <MdLayers size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Nested SubCategory' url='/dash-subCategorynested' icon={() => (
+<MdLayers size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('New Arrivals', '/dash-new-arrivals', () => (
-              <MdNewReleases size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='New Arrivals' url='/dash-new-arrivals' icon={() => (
+<MdNewReleases size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Best Sellings', '/dash-best-selling', () => (
-              <MdTrendingUp size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Best Sellings' url='/dash-best-selling' icon={() => (
+<MdTrendingUp size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Banners', '/dash-banners', () => (
-              <MdViewCarousel size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Banners' url='/dash-banners' icon={() => (
+<MdViewCarousel size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Testimonial', '/dash-testimonial', () => (
-              <MdRateReview size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Testimonial' url='/dash-testimonial' icon={() => (
+<MdRateReview size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Shop By Budget', '/dash-shopByBudget', () => (
-              <MdAttachMoney size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Shop By Budget' url='/dash-shopByBudget' icon={() => (
+<MdAttachMoney size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Order List', '/dash-orders', () => (
-              <MdShoppingCart size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Order List' url='/dash-orders' icon={() => (
+<MdShoppingCart size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Holiday Mode', '/dash-holiday-mode', () => (
-              <MdEventBusy size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Holiday Mode' url='/dash-holiday-mode' icon={() => (
+<MdEventBusy size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
           
-            {getNav('Social Links', '/dash-social-links', () => (
-              <MdShare size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Social Links' url='/dash-social-links' icon={() => (
+<MdShare size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-           {getNav('Selling analysis', '/dash-selling-analysis', () => (
-              <MdInsights size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))} 
+           <SideNavItem route='Selling analysis' url='/dash-selling-analysis' icon={() => (
+<MdInsights size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} /> 
 
                      {/* Site Config menu item */}
-            {/* {getNav('Site Config', '/dash-config', () => (
-              <MdSettings size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))} */}
+            {/* <SideNavItem route='Site Config' url='/dash-config' icon={() => (
+<MdSettings size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} /> */}
 
-            {getNav('Mark shipped', '/dash-mark-shipped', () => (
-              <MdLocalShipping size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Mark shipped' url='/dash-mark-shipped' icon={() => (
+<MdLocalShipping size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Email Marketing', '/dash-emailMarketing', () => (
-              <MdEmail size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Email Marketing' url='/dash-emailMarketing' icon={() => (
+<MdEmail size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
-            {getNav('Hot Selling', '/dash-hot-selling', () => (
-              <MdWhatshot size={20} />
-            ), isMobile, () => setMobileMenuOpen(false))}
+            <SideNavItem route='Hot Selling' url='/dash-hot-selling' icon={() => (
+<MdWhatshot size={20} />
+)} isMobile={isMobile} closeMenu={() => setMobileMenuOpen(false)} />
 
    
           </Box>
@@ -199,27 +216,41 @@ const SideNavComponent = React.memo(() => {
   ) : null
 })
 
-const getNav = (route: string, url: string, icon: () => React.ReactNode, isMobile: boolean, closeMenu: () => void) => {
-  console.log(route, 'route value')
+const SideNavItem = ({
+  route,
+  url,
+  icon,
+  isMobile,
+  closeMenu
+}: {
+  route: string
+  url: string
+  icon: () => React.ReactNode
+  isMobile: boolean
+  closeMenu: () => void
+}) => {
   if (!route) return null
+
   const canAccess = useCanAccessRoute(url)
   const {sidenavExpand} = useAuth()
+  const router = useRouter()
+  const isActive = router.asPath === url || router.asPath.startsWith(url + '/')
   const props = useSpring({opacity: (sidenavExpand || isMobile) ? 1 : 0})
+  const linkClassName = isActive
+    ? 'sidenav-title-container active '
+    : 'sidenav-title-container'
+
+  if (canAccess.length === 0) {
+    return null
+  }
 
   return (
-    canAccess.length > 0 && (
-      <div className={`sidenav${(sidenavExpand || isMobile) ? '' : '-small'}`}>
-        <NavLink
-          to={url}
+    <div className={`sidenav${(sidenavExpand || isMobile) ? '' : '-small'}`}>
+      <NextLink href={url} legacyBehavior>
+        <a
           onClick={isMobile ? closeMenu : undefined}
-          style={({isActive}) => ({
-            textDecoration: 'none'
-          })}
-          className={({isActive}) =>
-            isActive
-              ? 'sidenav-title-container active '
-              : 'sidenav-title-container'
-          }
+          style={{ textDecoration: 'none' }}
+          className={linkClassName}
         >
           <div className="sidenav-title">
             <ToolTip text={route}>
@@ -238,8 +269,8 @@ const getNav = (route: string, url: string, icon: () => React.ReactNode, isMobil
               </animated.div>
             )}
           </div>
-        </NavLink>
-      </div>
-    )
+        </a>
+      </NextLink>
+    </div>
   )
 }

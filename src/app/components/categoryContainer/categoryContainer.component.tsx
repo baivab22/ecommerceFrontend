@@ -1,4 +1,16 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
+import { useRouter } from 'next/router'
+import {Swiper, SwiperSlide} from 'swiper/react'
+import {Pagination, Navigation} from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+import {useMedia, useQuery} from 'src/hooks'
+import {IoIosArrowBack, IoIosArrowForward} from 'react-icons/io'
+import {WatchAndShopCard} from '../watchAndShop/watchAndShop.component'
+import {IoClose} from 'react-icons/io5'
+import {BASE_URL, FILE_URL} from 'src/config'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 
 const CategorryContainers = ({
   imgSrc,
@@ -9,19 +21,25 @@ const CategorryContainers = ({
   name: string
   linkValue: string
 }) => {
-  const navigate = useNavigate()
+  const router = useRouter()
   return (
     <div
       className="CategoryContainer"
       onClick={() => {
-        navigate(linkValue)
+        router.push(linkValue)
       }}
     >
       <div className="categoryCont">
         <div className="categoryImageContainer">
           <div className="categoryImage">
             <div className="categoryImage-image">
-              <img src={imgSrc}></img>
+              <OptimizedImage
+                src={imgSrc}
+                alt={`${name} category`}
+                width={300}
+                height={300}
+                style={{ width: '100%', height: 'auto' }}
+              />
             </div>
           </div>
         </div>
@@ -85,20 +103,6 @@ const CategorySkeleton = () => {
     </div>
   )
 }
-
-import {useState, useEffect} from 'react'
-
-import {Swiper, SwiperSlide} from 'swiper/react'
-import {Pagination, Navigation} from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/pagination'
-import 'swiper/css/navigation'
-import {useMedia, useQuery} from 'src/hooks'
-import {IoIosArrowBack, IoIosArrowForward} from 'react-icons/io'
-import {WatchAndShopCard} from '../watchAndShop/watchAndShop.component'
-import {IoClose} from 'react-icons/io5'
-import {BASE_URL, FILE_URL} from 'src/config'
-import {useNavigate} from 'react-router-dom'
 
 export const CategoryContainer = ({data, loading}: {data: any; loading?: boolean}) => {
   const query = useQuery()

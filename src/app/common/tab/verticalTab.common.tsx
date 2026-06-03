@@ -1,5 +1,6 @@
 import {useState, useImperativeHandle, forwardRef, useEffect} from 'react'
-import * as Icon from 'react-icons/all'
+import {FaChild} from 'react-icons/fa'
+import {RiBankFill} from 'react-icons/ri'
 
 import {colors} from 'src/modules'
 
@@ -44,7 +45,6 @@ export const VerticalTab = forwardRef(
                         }
                       : () => {
                           setActiveIndex(index)
-
                           setMoreActiveName('')
                         }
                   }
@@ -55,7 +55,7 @@ export const VerticalTab = forwardRef(
                 >
                   {title}
                   {!!isFinanced && (
-                    <Icon.RiBankFill
+                    <RiBankFill
                       style={{
                         marginLeft: 5,
                         position: 'absolute',
@@ -65,7 +65,7 @@ export const VerticalTab = forwardRef(
                     />
                   )}
                   {!!isMinor && (
-                    <Icon.FaChild
+                    <FaChild
                       style={{
                         marginLeft: 5,
                         position: 'absolute',

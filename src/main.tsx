@@ -8,11 +8,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import {
   BrowserRouter,
   HashRouter,
-  RouteObject,
   RouterProvider,
   useLocation,
   useRoutes
-} from 'react-router-dom'
+} from 'src/next-router-compat'
 import {AuthProvider, useAuth, USER_ROLES} from './app/routing'
 import {Router, router} from './app/routing/routes'
 import {SideNav} from './app/routing/sideNav/sidenav.component'
@@ -45,7 +44,7 @@ const ScrollToTop = () => {
 }
 
 const App = () => {
-  let routes: RouteObject[] = [
+  let routes: any[] = [
     {
       path: '/'
       // element: <Header />
@@ -57,6 +56,8 @@ const App = () => {
   const [containsDash, setContainsDash] = useState(false)
   const location = useLocation()
   const roles = getCookie('userRoles')
+  
+  console.log(window.location.href,"window location href  ");
 
   useEffect(() => {
     const checkForDash = () => {
@@ -130,6 +131,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <GoogleOAuthProvider clientId="58815171868-hlpv60089h5p8286562i2bde9htijb74.apps.googleusercontent.com">
     <Provider store={store}>
       <App />
+   
     </Provider>
     </GoogleOAuthProvider>
   </HashRouter>

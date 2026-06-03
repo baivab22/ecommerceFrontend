@@ -1,7 +1,7 @@
 // import {BusinessDetailPage, Sample} from 'src/app/pages'
 import {ProtectedAuth, PublicAuth, UnrestrictedAuth} from './ProtectedRoutes.app'
 import {CompWrapper} from 'src/app/common'
-import {RouteObject, createBrowserRouter} from 'react-router-dom'
+import { createBrowserRouter } from 'src/next-router-compat'
 import {ROLES} from '../roles'
 import {ProductListPage} from 'src/app/pages/products'
 import ProductDetailsPage from 'src/app/pages/products/view/[productId]/productId.page'
@@ -43,6 +43,7 @@ import PrivacyPolicy from 'src/app/pages/privacyPolicy'
 import TermsAndConditions from 'src/app/pages/termsAndCondition.tsx'
 import ReturnPolicy from 'src/app/pages/returnPolicy'
 import ShippingPolicy from 'src/app/pages/shippingPolicy'
+import UserDataDeletionInstructions from 'src/app/pages/userDataDeletionInstructions'
 import HolidayModePage from 'src/app/pages/holidayMode/holidayMode.page'
 import HotSellingProducts from 'src/app/pages/hotSelling/hotSelling.page'
 import SalesAnalytics from 'src/app/pages/salesAnalytics'
@@ -52,7 +53,7 @@ import AdminConfigPage from 'src/app/pages/admin/config.page'
 
 // import LoginPage from 'src/app/pages/login/login.page'
 
-export const Router: RouteObject[] = [
+export const Router: any[] = [
   {
     path: '/product',
 
@@ -115,6 +116,10 @@ export const Router: RouteObject[] = [
 
     element: <PrivacyPolicy />
   },
+    {
+      path: '/user-data-deletion-instructions',
+      element: <UserDataDeletionInstructions />
+    },
     {
     path: '/terms-and-conditions',
     // element: <PublicAuth />,

@@ -3,14 +3,14 @@ import {useDispatch} from 'src/store'
 // import {delteProductAction, getProductListAction} from './product.slice'
 import {useSelector} from 'react-redux'
 import {Box, Button, HStack, SelectField, Table} from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {toast} from 'react-hot-toast'
 import {
   deleteSubCategoryAction,
   getSubCategoryListAction
 } from '../subCategory/subCategory.slice'
 export const SubCategoryListPage = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   const [category, setCategory] = useState<any>()
@@ -56,7 +56,7 @@ export const SubCategoryListPage = () => {
         <HStack justify="space-between" style={{margin: '20px 0'}}>
           <Button
             title="Add SubCategory"
-            onClick={() => navigate('add')}
+            onClick={() => router.push('/dash-subCategory/add')}
           ></Button>
         </HStack>
 
@@ -87,7 +87,7 @@ export const SubCategoryListPage = () => {
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
-              navigate(`update/${item.id}`)
+              router.push(`/dash-subCategory/update/${item.id}`)
             },
             onDelete: (item: any, onCloseModalHandler) => {
               dispatch(

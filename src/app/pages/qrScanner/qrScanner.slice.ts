@@ -30,7 +30,7 @@ const initialState: ScanState = {
 // Mark a QR scan
 export const markOrderScanAction = createAsyncThunk<
   ScanResponse,
-  { productorderIds: [string] },
+  { productorderIds: string[] },
   { rejectValue: string }
 >('scan/markOrderScan', async ({ productorderIds }, { rejectWithValue }) => {
   try {

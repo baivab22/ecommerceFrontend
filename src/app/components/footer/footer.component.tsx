@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { Mail, MessageSquare, Bell, Facebook, Instagram, Twitter, MapPin, Phone, Clock } from 'lucide-react'
 import { FaTiktok } from 'react-icons/fa'
 // import './Footer.scss'
 
 export const Footer = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <footer className="footer">
@@ -20,7 +20,7 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/shipping-policy')}
+                  onClick={() => router.push('/shipping-policy')}
                 >
                   Shipping Policy
                 </button>
@@ -28,7 +28,7 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/terms-and-conditions')}
+                  onClick={() => router.push('/terms-and-conditions')}
                 >
                   Terms & Conditions
                 </button>
@@ -39,7 +39,7 @@ export const Footer = () => {
                   onClick={() => {
                     
                     console.log("return policy clicked")
-                    navigate('/return-policy')}}
+                    router.push('/return-policy')}}
                 >
                   Return Policy
                 </button>
@@ -47,9 +47,17 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/privacy-policy')}
+                  onClick={() => router.push('/privacy-policy')}
                 >
                   Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button
+                  className="footer__link"
+                  onClick={() => router.push('/user-data-deletion-instructions')}
+                >
+                  Data Deletion Instructions
                 </button>
               </li>
             </ul>
@@ -64,7 +72,7 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/contact-us')}
+                  onClick={() => router.push('/contact-us')}
                 >
                   <Phone className="footer__icon" />
                   Contact Us
@@ -73,7 +81,7 @@ export const Footer = () => {
               <li>
                 <button 
                   className="footer__link"
-                  onClick={() => navigate('/styling-guide')}
+                  onClick={() => router.push('/styling-guide')}
                 >
                   Styling Guide
                 </button>

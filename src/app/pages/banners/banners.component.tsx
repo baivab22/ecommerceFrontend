@@ -21,8 +21,15 @@ export const Banners = () => {
   useEffect(() => {
     if (bannerData && bannerData.length > 0) {
       const firstBanner = bannerData?.[0] || {}
-      setDesktopBannerImage(firstBanner?.desktopBannerImage || firstBanner?.bannerImage || [])
-      setMobileBannerImage(firstBanner?.mobileBannerImage || firstBanner?.bannerImage || [])
+      const normalize = (value: any) =>
+        Array.isArray(value) ? value : value ? [value] : []
+
+      setDesktopBannerImage(
+        normalize(firstBanner?.desktopBannerImage || firstBanner?.bannerImage)
+      )
+      setMobileBannerImage(
+        normalize(firstBanner?.mobileBannerImage || firstBanner?.bannerImage)
+      )
     } else {
       setDesktopBannerImage([])
       setMobileBannerImage([])
@@ -37,6 +44,10 @@ export const Banners = () => {
     const selectedFiles = Array.from(event.target.files)
     setMobileBannerImage((prev: any) => [...prev, ...selectedFiles])
   }, [])
+
+
+  console.log(desktopBannerImage, 'desktop banner image');
+
 
   useEffect(() => {
     dispatch(
@@ -83,7 +94,7 @@ export const Banners = () => {
       <VStack gap="$3">
         <h3>Desktop Banner</h3>
       <ImageUploader
-        defaultImage={desktopBannerImage}
+        defaultImages={desktopBannerImage}
         onImageChange={handleDesktopImage}
         uniqueKeys="desktopbannersupload"
         actionHandler={(name: any) => {
@@ -109,7 +120,7 @@ export const Banners = () => {
       <VStack gap="$3">
         <h3>Mobile Banner</h3>
         <ImageUploader
-          defaultImage={mobileBannerImage}
+          defaultImages={mobileBannerImage}
           onImageChange={handleMobileImage}
           uniqueKeys="mobilebannersupload"
           actionHandler={(name: any) => {

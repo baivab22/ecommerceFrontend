@@ -14,6 +14,7 @@ import {
 } from 'react-icons/ai'
 import {BiFullscreen} from 'react-icons/bi'
 
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 import {Modal} from 'src/app/common'
 import {useMedia} from 'src/hooks'
 
@@ -123,13 +124,16 @@ export const CarouselSlider = ({children}: any) => {
       >
         <div className="fullScreenImageContainer">
           <div className="fullScreenImage">
-            <img
+            <OptimizedImage
               src={
                 current === 0
                   ? children?.[children?.length - 1]?.props.src
                   : children[current - 1]?.props.src
               }
               alt="modal image"
+              width={900}
+              height={900}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               className="image"
             />
           </div>

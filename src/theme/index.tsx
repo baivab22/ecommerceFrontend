@@ -155,7 +155,7 @@ export const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         ::-webkit-scrollbar {
           width: 7px;
-          height: 2px;
+  
         }
         ::-webkit-scrollbar-track {
           background-color: #f1f1f1;
@@ -165,6 +165,7 @@ export const GlobalStyle = createGlobalStyle`
         ::-webkit-scrollbar-thumb {
           background-color:rgb(179, 179, 179);
           border-radius:${Theme.radius.$default};
+            
         }
     }
 

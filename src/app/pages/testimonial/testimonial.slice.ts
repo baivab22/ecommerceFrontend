@@ -14,7 +14,7 @@ const getTestimonialListAction = createAsyncThunk(
   ) => {
     try {
       const response = await testimonialService.getTestimonialList()
-      onSuccess(response)
+      onSuccess && onSuccess(response)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get Testimonial!')

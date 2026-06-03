@@ -11,6 +11,7 @@ import {BASE_URL, FILE_URL} from 'src/config'
 import {getCookie} from 'src/helpers'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import {useDispatch} from 'src/store'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 
 
 interface CartProduct {
@@ -127,8 +128,12 @@ export const CartCard = ({
       <div className="cartCard">
         <HStack className="cartCard-left" gap="$3">
           <HStack className="cartCard-left-image">
-            <img
+            <OptimizedImage
               src={`${FILE_URL}/products/${data?.productId?.images[0]?.coloredImage}`}
+              alt={data?.productId?.name || 'Cart product image'}
+              width={86}
+              height={86}
+              style={{ width: '86px', height: '86px', objectFit: 'cover', borderRadius: '8px' }}
             />
           </HStack>
           <VStack className="cartCard-left-detail">

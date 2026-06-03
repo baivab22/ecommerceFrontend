@@ -8,7 +8,7 @@ import {
   getSubCategoryDetailByIdActionNested
 } from '../subCategory.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 export const AddSubCategoryPageNested = () => {
   const {
@@ -17,7 +17,7 @@ export const AddSubCategoryPageNested = () => {
     subCategoryDetailLoading,
     subCategoryDetailDataNested
   }: any = useSelector((state: any) => state.subCategoryNested)
-  const navigate = useNavigate()
+  const router = useRouter()
   const id: any = useParams()
   console.log(id, 'id value final')
 
@@ -29,17 +29,26 @@ export const AddSubCategoryPageNested = () => {
 
   useEffect(() => {
     console.log(id.subCategoryIdnested, 'subCategorydI')
-    dispatch(
-      getSubCategoryDetailByIdActionNested({
-        subCategoryId: id.subCategoryIdnested as string
-      })
-    )
+    // Only fetch detail if we're in edit mode (has subCategoryIdnested)
+    if (id.subCategoryIdnested) {
+      dispatch(
+        getSubCategoryDetailByIdActionNested({
+          subCategoryId: id.subCategoryIdnested as string
+        })
+      )
+    } else {
+      // If in add mode, clear the data
+      setData({name: ''})
+    }
   }, [id.subCategoryIdnested])
 
   useEffect(() => {
     console.log(subCategoryDetailDataNested, 'subCategoryDetailData')
-    setData((prev: any) => ({...prev, name: subCategoryDetailDataNested?.name}))
-  }, [subCategoryDetailDataNested])
+    // Only set data if we're actually editing and have detail data
+    if (id.subCategoryIdnested && subCategoryDetailDataNested) {
+      setData((prev: any) => ({...prev, name: subCategoryDetailDataNested?.name}))
+    }
+  }, [subCategoryDetailDataNested, id.subCategoryIdnested])
 
   const addSubCategoryHandler = () => {
     !id?.subCategoryIdnested
@@ -47,7 +56,7 @@ export const AddSubCategoryPageNested = () => {
           createSubCategoryActionNested({
             subCategoryBody: {name: data.name},
             onSuccess: (data: any) => {
-              navigate('/dash-subCategorynested')
+              router.push('/dash-subCategorynested')
               toast.success('Sub Category Created')
             }
           })
@@ -58,20 +67,19 @@ export const AddSubCategoryPageNested = () => {
             subCategoryId: id.subCategoryIdnested as string,
             onSuccess: (data: any) => {
               toast.success('subCategory Updated Successfully')
-              navigate('/dash-subCategorynested')
+              router.push('/dash-subCategorynested')
             }
           })
         )
   }
-
   return (
     <VStack gap="$3" style={{padding:'12px 20px'}}>
       <VStack gap="$2">
-        <Label required labelName="Sub Category Name"></Label>
+        <Label required labelName="Nested Sub Category Name"></Label>
 
         <InputField
           type="text"
-          placeholder="Enter SubCategory Name"
+          placeholder="Enter Nested SubCategory Name"
           onChange={(e: any) =>
             setData((prev: any) => ({
               ...prev,
@@ -84,7 +92,7 @@ export const AddSubCategoryPageNested = () => {
 
       <Button
         title={
-          id.subCategoryIdnested ? 'Update SubCategory' : 'Add SubCategory'
+          id.subCategoryIdnested ? 'Update Nested SubCategory' : 'Add Nested Subcategory'
         }
         onClick={addSubCategoryHandler}
         loading={

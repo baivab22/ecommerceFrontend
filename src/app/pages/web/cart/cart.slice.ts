@@ -370,11 +370,13 @@ const createCartByUserIdAction = createAsyncThunk(
     {
       userId,
       data,
-      onSuccess
+      onSuccess,
+      onFailure
     }: {
       userId: any
       data: any
       onSuccess?: (data: any) => void
+      onFailure?: (error: any) => void
     },
     thunkAPI
   ) => {
@@ -384,6 +386,7 @@ const createCartByUserIdAction = createAsyncThunk(
       onSuccess && onSuccess(response)
       return response
     } catch (error) {
+      onFailure && onFailure(error)
       return thunkAPI.rejectWithValue('Cannot create Cart!')
     }
   })

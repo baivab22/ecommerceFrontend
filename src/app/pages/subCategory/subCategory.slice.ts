@@ -14,7 +14,7 @@ const getSubCategoryListAction = createAsyncThunk(
   ) => {
     try {
       const response = await subCategoryService.getSubCategoriesList()
-      onSuccess(response)
+      onSuccess && onSuccess(response)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get SubCategory!')

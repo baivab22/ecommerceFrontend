@@ -8,7 +8,7 @@ import {
   getSubCategoryDetailByIdAction
 } from '../subCategory.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {
   getSubCategoryDetailByIdActionNested,
   getSubCategoryListActionNested
@@ -16,7 +16,7 @@ import {
 
 export const AddSubCategoryPage = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
   const subCategoryId = useParams('subCategoryId')
 
   const {
@@ -86,32 +86,40 @@ console.log(subCategoryDataNested,"subCategoryDataNested in main" )
 
   /** 🔹 Hydrate form name */
   useEffect(() => {
-    if (subCategoryDetailData) {
+    // Only set data if we're actually editing
+    if (subCategoryId && subCategoryDetailData) {
       setData((prev: any) => ({...prev, name: subCategoryDetailData.name}))
+    } else {
+      // Clear data if in add mode
+      setData({name: ''})
     }
-  }, [subCategoryDetailData])
+  }, [subCategoryDetailData, subCategoryId])
 
   /** 🔹 Preselect subcategories by ID from detail */
   useEffect(() => {
-
-    console.log(      subCategoryDetailData?.subCategories ,
-      subCategoryDetailData?.subCategories?.length > 0 ,
-      subCategoryOptions?.length > 0, 'check here')
+    console.log(
+      subCategoryDetailData?.subCategories,
+      subCategoryDetailData?.subCategories?.length > 0,
+      subCategoryOptions?.length > 0,
+      'check here'
+    )
+    // Only preselect if we're in edit mode
     if (
+      subCategoryId &&
       subCategoryDetailData?.subCategories &&
       subCategoryDetailData.subCategories.length > 0 &&
       subCategoryOptions.length > 0
     ) {
- const preSelected = subCategoryOptions.filter(opt =>
-  subCategoryDetailData.subCategories.includes(opt.id)
-)
-
-
-console.log(preSelected, 'preSelected')
-
+      const preSelected = subCategoryOptions.filter((opt) =>
+        subCategoryDetailData.subCategories.includes(opt.id)
+      )
+      console.log(preSelected, 'preSelected')
       setSelectedSubCategories(preSelected)
+    } else if (!subCategoryId) {
+      // Clear selections if in add mode
+      setSelectedSubCategories([])
     }
-  }, [subCategoryDetailData, subCategoryOptions])
+  }, [subCategoryDetailData, subCategoryOptions, subCategoryId])
 
   /** 🔹 Submit */
   const handleSubmit = () => {
@@ -127,7 +135,7 @@ console.log(preSelected, 'preSelected')
           subCategoryId,
           onSuccess: () => {
             toast.success('SubCategory updated successfully')
-            navigate('/dash-subCategory')
+            router.push('/dash-subCategory')
           }
         })
       )
@@ -137,7 +145,7 @@ console.log(preSelected, 'preSelected')
           subCategoryBody: body,
           onSuccess: () => {
             toast.success('SubCategory created successfully')
-            navigate('/dash-subCategory')
+            router.push('/dash-subCategory')
           }
         })
       )

@@ -9,22 +9,20 @@ import {
 
 import {useDispatch, useSelector} from 'src/store'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
+import {useRouter} from 'next/router'
 export const AddShopByBudget = () => {
   const [shopByBudget, setShopByBudget] = useState<any>('')
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const {createShopByBudgetLoading, shopByBudgetData}: any = useSelector(
     (state: any) => state.shopByBudget
   )
 
   useEffect(() => {
-    // console.log(bannerData, 'bannerData')
-    shopByBudgetData &&
-      shopByBudgetData.length > 0 &&
-      setShopByBudget(shopByBudgetData)
-  }, [shopByBudgetData])
+    // Clear form when component mounts to ensure fresh state for add mode
+    setShopByBudget('')
+  }, [])
   const handleImage = useCallback((event: any) => {
     setShopByBudget((prev: any) => [...prev, event.target.value])
   }, [])
@@ -43,7 +41,7 @@ export const AddShopByBudget = () => {
         shopByBudgetData: {name: shopByBudget},
         onSuccess: () => {
           toast.success('ShopBy Budget added Successfully')
-          navigate('/dash-shopByBudget')
+          router.push('/dash-shopByBudget')
         }
       })
     )

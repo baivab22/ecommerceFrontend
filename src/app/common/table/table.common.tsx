@@ -592,7 +592,7 @@ import {Loader} from 'src/app/components'
 import {ActionButton, StyledTableRow, StyledTableCell} from './table.style'
 
 import {getParsedQuery} from 'src/helpers'
-import {useLocation, useNavigate} from 'react-router-dom'
+import {useRouter} from 'next/router'
 import {useQuery} from 'src/hooks'
 
 export const Table = <T, K extends Extract<keyof T, string>>({
@@ -624,9 +624,9 @@ export const Table = <T, K extends Extract<keyof T, string>>({
   onPageChange?: (page: number) => void
   pageFe?: boolean
 }) => {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const router = useRouter()
   const query = useQuery()
+  const locationPathname = router.asPath.split('?')[0] || '/'
   const actionsRef = useRef(actions)
 
   const hasActions = useMemo(() => {
@@ -664,10 +664,10 @@ export const Table = <T, K extends Extract<keyof T, string>>({
     (event: React.ChangeEvent<unknown>, newPageNumber: number) => {
       const queryy = {...query}
       queryy.page = newPageNumber
-      navigate(location.pathname + `${getParsedQuery(queryy)}`)
+      router.push(locationPathname + `${getParsedQuery(queryy)}`)
       onPageChange?.(newPageNumber)
     },
-    [query, location.pathname, navigate, onPageChange]
+    [query, locationPathname, router, onPageChange]
   )
 
   return (

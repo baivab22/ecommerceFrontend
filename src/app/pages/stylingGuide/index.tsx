@@ -1,8 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router'
 
 export const StylingGuide = () => {
-  const navigate = useNavigate();
+  const router = useRouter()
 
   const stylingTips = [
     {
@@ -222,7 +222,7 @@ export const StylingGuide = () => {
             cursor: 'pointer',
             boxShadow: '0 4px 15px rgba(244, 143, 177, 0.3)'
           }}
-          onClick={() => navigate('/products')}
+          onClick={() => router.push('/products')}
         >
           Explore Our Collection
         </button>

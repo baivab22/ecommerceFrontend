@@ -128,15 +128,15 @@ interface SocialLinksState {
     offerText: string
   }[]
 
-  individdualSocialLinks: {
+  individdualSocialLinks?: {
     socialLinks: {
-      instagram: String
-      tiktok: String
-      facebook: String
+      instagram: string
+      tiktok: string
+      facebook: string
     }
     specialSlogan: string
     offerText: string
-  }
+  } | null
   isGetLoading: boolean
   isCreateLoading: boolean
   isUpdateLoading: boolean

@@ -85,6 +85,8 @@ $xlg: 1200px; // FOR EXTRA LARGE DEVICES == xlg
   &::-webkit-scrollbar-thumb {
     background: $foregroundColor;
     border-radius: 10px;
+   
+
   }
   &::-webkit-scrollbar-thumb:hover {
     background: $hoverColor;

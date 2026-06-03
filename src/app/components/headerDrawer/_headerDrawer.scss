@@ -29,10 +29,10 @@ $fade-duration: 0.3s;
   top: 0;
   z-index: 999999999999;
   color: black;
+      padding: 10px !important;
 
   @media (min-width: 768px) {
     display: none;
-
   }
 }
 
@@ -135,6 +135,7 @@ body:has(.fullscreen-container) .mobile-nav {
   &::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 3px;
+    
 
     &:hover {
       background: #555;

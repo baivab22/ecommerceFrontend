@@ -1,8 +1,10 @@
-import {useLocation} from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 export function usePage() {
-  const location = useLocation()
-  const obj = new URLSearchParams(location.search)
+  const router = useRouter()
+  const asPath = router.asPath || ''
+  const query = asPath.split('?')[1] || ''
+  const obj = new URLSearchParams(query)
   const page = obj.get('page')
 
   return Number(page || 1)

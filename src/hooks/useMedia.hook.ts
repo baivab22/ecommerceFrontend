@@ -22,9 +22,15 @@ export const useMedia = (): UseMediaReturn => {
 
 // MARK: - useGenericMedia
 const useGenericMedia = (query: string) => {
-  const [match, setMatch] = useState(() => window.matchMedia(query).matches)
+  const [match, setMatch] = useState(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia(query).matches
+    }
+    return false // Default for SSR
+  })
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
     let mounted = true
     const mq = window.matchMedia(query)
     setMatch(mq.matches)

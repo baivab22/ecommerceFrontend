@@ -1,13 +1,11 @@
-import {
-  Params,
-  useLocation,
-  useParams as useParamFromDom
-} from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 export function useQuery(queryStr: string | null = null) {
-  const location = useLocation()
+  const router = useRouter()
+  const asPath = router.asPath || ''
+  const search = asPath.split('?')[1] || ''
 
-  const queryParams = new URLSearchParams(queryStr ?? location.search)
+  const queryParams = new URLSearchParams(queryStr ?? (search ? `?${search}` : ''))
 
   const resultObject = {} as any
   for (const [key, value] of queryParams.entries()) {
@@ -17,11 +15,9 @@ export function useQuery(queryStr: string | null = null) {
   return resultObject
 }
 
-export function useParams(
-  param?: string
-): string | Readonly<Params<string>> | undefined {
-  const params = useParamFromDom()
-  console.log(params[param], 'from hook')
+export function useParams(param?: string): any {
+  const router = useRouter()
+  const params = router.query || {}
 
   return param ? params[param] : params
 }

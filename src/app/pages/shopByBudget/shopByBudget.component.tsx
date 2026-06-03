@@ -3,7 +3,7 @@ import {useDispatch} from 'src/store'
 // import {delteProductAction, getProductListAction} from './product.slice'
 import {useSelector} from 'react-redux'
 import {Box, Button, HStack, SelectField, Table} from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import {useRouter} from 'next/router'
 import {toast} from 'react-hot-toast'
 import {
   deleteCategoryAction,
@@ -14,7 +14,7 @@ import {
   getShopByBudgetListAction
 } from './shopByBudget.slice'
 export const ShopByBudget = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   const [category, setCategory] = useState<any>()
@@ -44,7 +44,7 @@ export const ShopByBudget = () => {
         >
           <Button
             title="Add Shop By Budget"
-            onClick={() => navigate('add')}
+            onClick={() => router.push('/dash-shopByBudget/add')}
           ></Button>
         </HStack>
 

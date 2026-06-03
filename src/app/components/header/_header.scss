@@ -1,6 +1,8 @@
 @media (max-width: 600px) {
   .header-alert-news {
-    font-size: 0.75rem !important;
+    font-size: 0.875rem !important;
+
+
   }
 }
 // Global Reset
@@ -114,6 +116,7 @@ $space: (
   // border-bottom: 1px solid $grey200;
 
   .topHeader {
+    position: relative;
     padding: map-get($space, 3);
 
     @include responsive-for(md) {
@@ -168,12 +171,20 @@ $space: (
       input[type="text"] {
         font-size: 14px;
 
+
+        
+
         // transition: box-shadow 0.2s;
+      }
+
+
+      .inputfield:hover {
+    border: none !important;
       }
 
       .inputfield:focus,
       input[type="text"]:focus {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.10);
+        // box-shadow: 0 4px 16px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.10);
         border-color: transparent !important;
         background: transparent !important;
       }
@@ -291,6 +302,12 @@ $space: (
     min-width: 220px;
   }
 
+  // Last top-level menu item should open left when it would overflow.
+  .desktop-menu-item:last-child > & {
+    left: auto;
+    right: 0;
+  }
+
   // Add padding area to prevent dropdown from closing
   &::before {
     content: '';
@@ -373,6 +390,12 @@ $space: (
     width: 8px;
     background: transparent;
   }
+}
+
+// Nested submenu should open left for the last item in any submenu list.
+.desktop-submenu-item:last-child > .nested-submenu-wrapper {
+  left: auto;
+  right: 100%;
 }
 
 // Mobile Navigation Styles

@@ -8,6 +8,7 @@ import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import { Play, X } from 'lucide-react'
 import { BASE_URL, FILE_URL } from 'src/config'
 import { HStack, VStack } from 'src/app/common'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 import { getNprPrice } from 'src/helpers/nprPrice.helper'
 import { registerVideoElement, setCurrentPlayingVideo } from 'src/helpers/videoPlayback.helper'
 import './_watchAndShop.scss'
@@ -143,13 +144,15 @@ export const WatchAndShopCard = ({
         {/* Product Details Card */}
         <HStack className="productDetailCardWatch">
           <div className="productImageWatch">
-            <img
+            <OptimizedImage
               src={`${BASE_URL}/products/${data?.images?.[0]?.coloredImage}`}
-              onError={(event) => {
-                event.currentTarget.src =
-                  'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg'
+              alt={data?.name || 'Product image'}
+              width={400}
+              height={400}
+              objectFit="contain"
+              onError={() => {
+                /* keep fallback behavior handled by OptimizedImage */
               }}
-              alt={data?.name}
             />
           </div>
 

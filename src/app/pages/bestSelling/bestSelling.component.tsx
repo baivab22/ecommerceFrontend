@@ -14,12 +14,13 @@ import {
   SelectField,
   Table
 } from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {toast} from 'react-hot-toast'
 import {getCategoryListAction} from '../category/category.slice'
 import {useDebounceValue, useMedia} from 'src/hooks'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 export const BestSellingPage = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
   const [searchTxt, setSearchTxt] = useState('')
   const [bestSellingProducts, setBestSellingProducts] = useState([])
@@ -108,7 +109,7 @@ const media=useMedia();
     <div>
       <Box>
         <HStack justify="space-between" gap={'$4'} style={{margin: '20px 0'}}>
-          <Button title="Add Product" onClick={() => navigate('add')}></Button>
+          {/* <Button title="Add Product" onClick={() => navigate('add')}></Button> */}
 
           {
                 !media.md  &&    <SearchField
@@ -167,10 +168,13 @@ const media=useMedia();
               render: (datas) => (
                 <div>
                   {
-                    <img
+                    <OptimizedImage
                       src={datas?.[0]?.url}
+                      alt="Product image"
+                      width={100}
+                      height={70}
                       style={{height: '70px', width: '100px'}}
-                    ></img>
+                    />
                   }
                 </div>
               )
@@ -179,11 +183,11 @@ const media=useMedia();
           data={bestSellingProducts && bestSellingProducts}
           actions={{
             onView: (item: any) => {
-              navigate(`view/${item.id}`)
+              router.push(`/dash-best-selling/view/${item.id}`)
             },
 
             onEdit: (item: any) => {
-              navigate(`update/${item.id}`)
+              router.push(`/dash-best-selling/update/${item.id}`)
             },
             onDelete: (item: any, onCloseModalHandler) => {
               //   console.log(item.id, 'item to be deleted')

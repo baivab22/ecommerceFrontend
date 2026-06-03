@@ -27,9 +27,9 @@ const assets: Assets = {
 type AssetsKeys = keyof typeof assets
 
 export const getImageUrl = (assetsType: AssetsKeys, imageSrc: string) => {
-  return `${
-    import.meta.env.MODE === 'development'
-      ? import.meta.env.REACT_APP_DEV_URL.replace('/api', '')
-      : import.meta.env.REACT_APP_PROD_URL.replace('/api', '')
-  }${assets[assetsType]}/${imageSrc}`
+  const base = (process.env.NODE_ENV === 'development'
+    ? process.env.NEXT_PUBLIC_DEV_URL || process.env.REACT_APP_DEV_URL || 'http://localhost:8000/api'
+    : process.env.NEXT_PUBLIC_PROD_URL || process.env.REACT_APP_PROD_URL || '/api') || ''
+
+  return `${base.replace('/api', '')}${assets[assetsType]}/${imageSrc}`
 }

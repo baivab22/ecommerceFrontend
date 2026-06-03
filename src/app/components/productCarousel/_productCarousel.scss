@@ -15,8 +15,9 @@
       position: absolute;
       top: 35%;
       display: none;
-      left: 0%;
+      left: 2%;
       z-index: 20;
+      border: 1px solid red;
       transform: translateX(-50%);
       box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
       cursor: pointer;
@@ -50,7 +51,7 @@
       width: 25px;
       position: absolute;
       top: 35%;
-      right: 0%;
+      right: 2%;
       z-index: 20;
       transform: translateX(50%);
       background-color: white;

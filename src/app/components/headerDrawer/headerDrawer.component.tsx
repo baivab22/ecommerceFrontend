@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Menu, X, ChevronRight } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'src/store'
 import { getCategoryListAction } from 'src/app/pages/category/category.slice'
 import './_headerDrawer.scss'
@@ -99,7 +99,7 @@ const MobileHeaderSkeleton = () => {
 const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
   const { categoryData, loading }: any = useSelector((state: any) => state.category)
   const [openMobileMenus, setOpenMobileMenus] = useState<Record<string, boolean>>({})
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -120,22 +120,22 @@ const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
   }
 
   const handleAllProductsClick = () => {
-    navigate('/products')
+    router.push('/products')
     onClose?.()
   }
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
+    router.push(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
     onClose?.()
   }
 
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
-    navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
+    router.push(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
     onClose?.()
   }
 
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
-    navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
+    router.push(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
     onClose?.()
   }
 
@@ -241,7 +241,7 @@ const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 
 export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children, loading = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -281,7 +281,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ handleClose, children, loading
           <div 
             className="mobile-logo"
             onClick={() => {
-              navigate('/home')
+              router.push('/home')
               closeMobileMenu()
             }}
           >

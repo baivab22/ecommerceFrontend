@@ -332,14 +332,12 @@
 
 
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 const ReturnPolicy = () => {
-  // Use useLocation from react-router-dom for robust SPA routing (supports hash and browser history modes)
-  const location = useLocation();
-  // For hash-based routing, location.pathname may be '/' and location.hash will contain the route
-  // e.g., location.hash === '#/shipping-policy'
-  const path = location.pathname === '/' && location.hash ? location.hash.replace(/^#/, '') : location.pathname;
+  const router = useRouter();
+  const asPath = router.asPath || '';
+  const path = asPath.startsWith('/#/') ? asPath.slice(2).split('?')[0] : asPath.split('?')[0];
   const isShipping = path === '/shipping-policy';
   // Debug log
   console.log('ReturnPolicy - path:', path, 'isShipping:', isShipping);

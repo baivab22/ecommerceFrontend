@@ -36,9 +36,7 @@ export const CheckBox = ({
             type="checkbox"
             checked={check}
             onChange={(e) => {
-
-
-
+e.stopPropagation();
               console.log('Checkbox changed value hai:',e.target.checked)
               handleCheckboxChange(e.target.checked, e, name)
             }}
@@ -50,7 +48,7 @@ export const CheckBox = ({
               margin: 0,
               opacity: 0,
               padding: 0,
-              background: '3px solid red',
+              // background: '3px solid red',
               display: 'none',
               zIndex: 1,
               borderRadius: '3px',

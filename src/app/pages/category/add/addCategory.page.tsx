@@ -26,14 +26,23 @@ import {
   updateCategoryAction
 } from '../category.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
+import OptimizedImage from '../../../common/OptimizedImage/OptimizedImage.component'
 
 // Image Uploader Component
-const ImageUploader = ({onImageSelect, initialImage = null, error = null}) => {
+const ImageUploader = ({
+  onImageSelect,
+  initialImage = null,
+  error = null,
+}: {
+  onImageSelect: (file: any) => void
+  initialImage?: any
+  error?: string | null
+}) => {
   const [dragActive, setDragActive] = useState(false)
   const [selectedImage, setSelectedImage] = useState(initialImage)
-  const [previewUrl, setPreviewUrl] = useState(null)
-  const fileInputRef = useRef(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     if (initialImage) {
@@ -110,7 +119,7 @@ const ImageUploader = ({onImageSelect, initialImage = null, error = null}) => {
 
       {previewUrl ? (
         <div className="image-preview">
-          <img src={previewUrl} alt="Preview" className="preview-image" />
+          <OptimizedImage src={previewUrl} alt="Preview" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
           <div className="image-overlay">
             <button
               type="button"
@@ -143,8 +152,7 @@ const ImageUploader = ({onImageSelect, initialImage = null, error = null}) => {
         >
           <AiOutlineCloudUpload size={48} className="upload-icon" />
           <p className="upload-text">
-            <span className="upload-main-text">Click to upload</span> or drag
-            and drop
+            <span className="upload-main-text">Click to upload</span> or drag and drop
           </p>
           <p className="upload-sub-text">SVG, PNG, JPG or GIF (max. 5MB)</p>
         </div>
@@ -157,19 +165,19 @@ const ImageUploader = ({onImageSelect, initialImage = null, error = null}) => {
 
 export const AddCategoryPage = () => {
   const categoryId = useParams('categoryId')
-  const navigate = useNavigate()
+  const router = useRouter()
   const [data, setData] = useState<any>({
     name: '',
     subCategories: [],
     image: null
   })
-  const [imageError, setImageError] = useState(null)
+  const [imageError, setImageError] = useState<string | null>(null)
   const dispatch = useDispatch()
-  const [subCategories, setSubCategories] = useState([])
+  const [subCategories, setSubCategories] = useState<any[]>([])
   const [eachSubCat, setEachSubCat] = useState('')
-  const [subCategoryOption, setSubCategoryOption] = useState()
-  const [selectedSubCategoryOption, setSelectedSubCategoryOption] = useState([])
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState([])
+  const [subCategoryOption, setSubCategoryOption] = useState<any[]>([])
+  const [selectedSubCategoryOption, setSelectedSubCategoryOption] = useState<any[]>([])
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<any[]>([])
 
   const {
     categoryData,
@@ -240,42 +248,42 @@ export const AddCategoryPage = () => {
     })
 
 
-if(categoryId ){
-    dispatch(
-      updateCategoryAction({
-        categoryBody: formData, 
-        categoryId:categoryId as any,// Use FormData instead of plain object
-        onSuccess: () => {
-          toast.success(
-            categoryId
-              ? 'Category Updated Successfully'
-              : 'Category Created Successfully'
-          )
-          navigate('/dash-category')
-        },
-        onError: (error) => {
-          toast.error(error?.message || 'Something went wrong')
-        }
-      })
-    )
-}else{
-    dispatch(
-      createCategoryAction({
-        categoryBody: formData, // Use FormData instead of plain object
-        onSuccess: () => {
-          toast.success(
-            categoryId
-              ? 'Category Updated Successfully'
-              : 'Category Created Successfully'
-          )
-          navigate('/dash-category')
-        },
-        onError: (error) => {
-          toast.error(error?.message || 'Something went wrong')
-        }
-      })
-    )
-}
+    if (categoryId) {
+      dispatch(
+        updateCategoryAction({
+          categoryBody: formData,
+          categoryId: categoryId as any, // Use FormData instead of plain object
+          onSuccess: () => {
+            toast.success(
+              categoryId
+                ? 'Category Updated Successfully'
+                : 'Category Created Successfully'
+            )
+            router.push('/dash-category')
+          },
+          onError: (error) => {
+            toast.error(error?.message || 'Something went wrong')
+          }
+        })
+      )
+    } else {
+      dispatch(
+        createCategoryAction({
+          categoryBody: formData, // Use FormData instead of plain object
+          onSuccess: () => {
+            toast.success(
+              categoryId
+                ? 'Category Updated Successfully'
+                : 'Category Created Successfully'
+            )
+            router.push('/dash-category')
+          },
+          onError: (error) => {
+            toast.error(error?.message || 'Something went wrong')
+          }
+        })
+      )
+    }
 
 
 
@@ -286,9 +294,21 @@ if(categoryId ){
 
   useEffect(() => {
     dispatch(getSubCategoryAction({}))
-    categoryId &&
+    if (categoryId) {
       dispatch(getCategoryDetailByIdAction({categoryId: categoryId as string}))
-  }, [])
+    } else {
+      // Clear form data when in add mode
+      setData({
+        name: '',
+        subCategories: [],
+        image: null
+      })
+      setSubCategories([])
+      setSelectedSubCategoryOption([])
+      setSelectedSubCategoryId([])
+      setEachSubCat('')
+    }
+  }, [categoryId, dispatch])
 
   const remappedSubCategoryAction = useCallback(() => {
     const modifiedSubCategoryList = subCategoryData?.map(
@@ -326,8 +346,20 @@ if(categoryId ){
 
       console.log(remappedCategoryDetail, 'remappedcategory detail')
       setSelectedSubCategoryOption(remappedCategoryDetail || [])
+    } else if (!categoryId) {
+      // Clear form when in add mode
+      setData({
+        name: '',
+        subCategories: [],
+        image: null
+      })
+      setSubCategories([])
+      setSelectedSubCategoryOption([])
+      setSelectedSubCategoryId([])
+      setEachSubCat('')
+      setImageError(null)
     }
-  }, [subCategoryData, categoryDetailData, categoryId])
+  }, [subCategoryData, categoryDetailData, categoryId, remappedSubCategoryAction])
 
   useEffect(() => {
     console.log(subCategoryOption, 'subCategory option')
@@ -381,7 +413,7 @@ if(categoryId ){
           <VStack gap="$2">
             <Label required labelName="SubCategories"></Label>
             <SelectField
-              options={subCategoryOption && subCategoryOption}
+              options={subCategoryOption ?? []}
               value={selectedSubCategoryOption}
               isSearchable={true}
               isMulti={true}
@@ -404,11 +436,10 @@ if(categoryId ){
         .image-uploader {
           width: 100%;
         }
-
         .upload-area {
           border: 2px dashed #d1d5db;
           border-radius: 12px;
-          // padding: 2rem;
+          padding: 2rem;
           text-align: center;
           cursor: pointer;
           transition: all 0.3s ease;

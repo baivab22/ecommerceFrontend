@@ -3,7 +3,7 @@ import {useDispatch} from 'src/store'
 // import {delteProductAction, getProductListAction} from './product.slice'
 import {useSelector} from 'react-redux'
 import {Box, Button, HStack, SelectField, Table} from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import {useRouter} from 'next/router'
 import {toast} from 'react-hot-toast'
 import {
   deleteCategoryAction,
@@ -14,8 +14,9 @@ import {
   getTestimonialListAction
 } from './testimonial.slice'
 import {FILE_URL} from 'src/config'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 export const Testimonial = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   const [category, setCategory] = useState<any>()
@@ -61,7 +62,7 @@ export const Testimonial = () => {
         <HStack justify="space-between" style={{margin: '20px 0'}}>
           <Button
             title="Add Testimonial"
-            onClick={() => navigate('add')}
+            onClick={() => router.push('/dash-testimonial/add')}
           ></Button>
         </HStack>
 
@@ -80,16 +81,13 @@ export const Testimonial = () => {
               name: 'Images',
               render: (datas) => (
                 <div>
-                  <img
-                    //@ts-ignore
-                    // src={datas?[0]?.coloredImage[0]}
-
-                    // src=`http://localhost:8000/products${datas.}`
-
+                  <OptimizedImage
                     src={`${FILE_URL}/testimonial/${datas}`}
-                    // src=`https://localhost:8000/products/${datas?[0].coloredImage[0]}`
+                    alt="Testimonial image"
+                    width={100}
+                    height={70}
                     style={{height: '70px', width: '100px'}}
-                  ></img>
+                  />
                 </div>
               )
             }
@@ -108,17 +106,16 @@ export const Testimonial = () => {
           ]}
           data={testimonialData}
           actions={{
-            onView: (item: any) => {
-              navigate(`view/${item.id}`)
-            },
+            // onView: (item: any) => {
+            //   navigate(`view/${item.id}`)
+            // },
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
-              navigate(`update/${item._id}`)
+              router.push(`/dash-testimonial/update/${item._id}`)
             },
             onDelete: (item: any, onCloseModalHandler) => {
-              console.log(item.id, 'item to be deleted')
-
+              console.log(item._id, 'item id to delete')
               dispatch(
                 deleteTestimonialAction({
                   testimonialId: item._id,

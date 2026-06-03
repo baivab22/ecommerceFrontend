@@ -4,7 +4,7 @@ import './_resetPassword.scss'
 import {useDispatch} from 'src/store'
 
 import toast from 'react-hot-toast'
-import {useLocation, useNavigate} from 'react-router-dom'
+import {useRouter} from 'next/router'
 import {setCookie} from 'src/helpers'
 import {useAuth} from 'src/app/routing'
 import {useParams} from 'src/hooks'
@@ -14,12 +14,10 @@ export const ResetPasswordPage = () => {
   const dispatch = useDispatch()
 
   // const resetToken = useParams('resetToken')
-
-  const location = useLocation() // Access the current location object
-  const queryParams = new URLSearchParams(location.search) // Parse the query string
-
-  // Get individual query parameters
-  const resetToken = queryParams.get('resetToken')
+  const router = useRouter()
+  const resetToken = Array.isArray(router.query.resetToken)
+    ? router.query.resetToken[0]
+    : router.query.resetToken
 
   console.log(resetToken, 'resetTokens')
   // const age = queryParams.get('age')
@@ -28,7 +26,6 @@ export const ResetPasswordPage = () => {
     password: '',
     confirmpassword: ''
   })
-  const navigate = useNavigate()
   const {handleLogin} = useAuth()
   const handleResetPassword = () => {
     // console.log(loginData, 'logindatat')
@@ -45,7 +42,7 @@ export const ResetPasswordPage = () => {
             console.log(data?.user?._id, 'success login')
             toast.success('Password reset successfully')
 
-            navigate('/login')
+            router.push('/login')
             console.log('loginnnnnnnn')
             setCookie('userId', data?.user?._id)
             // setCookie('userRoles', data?.userRoles)

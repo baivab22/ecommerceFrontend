@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Link} from 'react-router-dom'
+import Link from 'next/link'
 import {FiChevronDown} from 'react-icons/fi'
 import {
   AnimatedBlock,
@@ -88,13 +88,7 @@ export const CollapseMenu = ({
           >
             {menu?.sub_categories?.map((item) => (
               <NestedHeaderMenuTitle key={item.id.toString()}>
-                <Link
-                  to={getCategoryLink(
-                    menuType,
-                    item.slug,
-                    item.is_description_only
-                  )}
-                >
+                <Link href={getCategoryLink(menuType, item.slug, item.is_description_only)}>
                   <HeaderMenuTitle onClick={() => setMenu?.()}>
                     {item.title}
                   </HeaderMenuTitle>
@@ -104,13 +98,7 @@ export const CollapseMenu = ({
           </NestedCollapseMenuItem>
         ) : (
           <NestedHeaderMenuTitle key={menu.id.toString()}>
-            <Link
-              to={getCategoryLink(
-                menuType,
-                menu.slug,
-                menu.is_description_only
-              )}
-            >
+            <Link href={getCategoryLink(menuType, menu.slug, menu.is_description_only)}>
               <HeaderMenuTitle onClick={() => setMenu?.()}>
                 {menu.title}
               </HeaderMenuTitle>
@@ -154,7 +142,7 @@ const CollapseMenuItem = ({
             <HeaderMenuContainer onClick={() => setOpen((prev) => !prev)}>
               {defaultLink ? (
                 <div>
-                  <Link to={defaultLink}>
+                  <Link href={defaultLink}>
                     <HeaderMenuTitle>
                       {headerMenu[menuType].label}
                     </HeaderMenuTitle>
@@ -234,7 +222,7 @@ const NestedCollapseMenuItem = ({
           >
             <HeaderMenuContainer onClick={() => setOpen((prev) => !prev)}>
               <NestedHeaderMenuTitle>
-                <Link to={link ?? '/'}>
+                <Link href={link ?? '/'}>
                   <HeaderMenuTitle>{menuTitle}</HeaderMenuTitle>
                 </Link>
               </NestedHeaderMenuTitle>

@@ -1,7 +1,8 @@
 import moment from 'moment'
 import {useMedia} from 'src/hooks'
 import {getImageUrl} from 'src/helpers/getImageUrl.helper'
-import {Link, useNavigate} from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import {ProductCard} from '../productCard'
 import {useSelector, useDispatch} from 'src/store'
 import {useEffect} from 'react'
@@ -116,7 +117,7 @@ export const ProductSection = ({
 }: any) => {
   const media = useMedia()
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const getEntityId = (value: any): string => {
     if (!value) return ''
@@ -182,7 +183,6 @@ export const ProductSection = ({
   // Filter and sort products based on homeCategory
   const getFilteredProducts = () => {
     let filtered = [...data]
-
     if (isForSimilar) {
       filtered = filtered
         .filter((item: any) => getEntityId(item) !== currentProductId)
@@ -221,7 +221,6 @@ export const ProductSection = ({
 
       return filtered.slice(0, 4)
     }
-    
     if (homeCategory === 'isBestSelling') {
       filtered = filtered.filter((item: any) => item.isBestSelling === true)
     } else if (homeCategory === 'isNewArrivals') {
@@ -234,11 +233,14 @@ export const ProductSection = ({
         return dateB - dateA // Descending order (newest first)
       })
     }
-    
     return filtered.slice(0, 4)
   }
 
   const filteredProducts = getFilteredProducts()
+
+  if (filteredProducts.length === 0) {
+    return null
+  }
 
   return (
     <div className="jobsSectionContainer">
@@ -266,11 +268,11 @@ export const ProductSection = ({
           className="jobsSectionContainer-seemore"
           onClick={() => {
             if (homeCategory === 'isBestSelling') {
-              navigate('/products?isBestSelling=true')
+              router.push('/products?isBestSelling=true')
             } else if (homeCategory === 'isNewArrivals') {
-              navigate('/products?isNewArrivals=true')
+              router.push('/products?isNewArrivals=true')
             } else if (homeCategory === 'allProducts') {
-              navigate('/products')
+              router.push('/products')
             }
           }}
         >

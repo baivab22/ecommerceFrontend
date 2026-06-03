@@ -5,6 +5,7 @@ const getProductList = async (query?: {
   categoryId?: string
   isNewArrivals?: boolean
   isBestSelling?: boolean
+  showInHomePage?: boolean
   sort?: string
   order?: string
   minPrice?: number
@@ -27,6 +28,7 @@ const getProductList = async (query?: {
     subCategoryId: query?.subCategoryId ?? '',
     isBestSelling: query?.isBestSelling ?? '',
     isNewArrivals: query?.isNewArrivals ?? '',
+    showInHomePage: query?.showInHomePage ?? '',
     nestedSubCategoryId: query?.nestedSubCategoryId ?? '',
     page: query?.page ?? 1,
     limit: query?.limit ?? 12,
@@ -54,7 +56,9 @@ const deleteProduct = async (productId: string) => {
 }
 
 const deleteProductImages = async (productId: string, imageId: string) => {
-  const response = await api<any>('delete')(`/product/${productId}/${imageId}`)
+  const response = await api<any>('delete')(
+    `/product/${productId}/${encodeURIComponent(imageId)}`
+  )
   return response
 }
 

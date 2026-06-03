@@ -9,6 +9,8 @@ import {
   setCurrentPlayingVideo,
   muteAllVideosExcept
 } from 'src/helpers/videoPlayback.helper';
+import { getProductVideoFallbackUrl } from 'src/helpers/mediaUrl.helper';
+import OptimizedImage from '../OptimizedImage/OptimizedImage.component';
 
 const CustomVideoPlayer = ({
   videoUrl,
@@ -35,6 +37,8 @@ const CustomVideoPlayer = ({
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [playbackUrl, setPlaybackUrl] = useState(videoUrl);
+  const [hasTriedFallback, setHasTriedFallback] = useState(false);
   const [isPreviewMuted, setIsPreviewMuted] = useState(!autoPlayWithSound);
   const [isPreviewInView, setIsPreviewInView] = useState(false);
   const [isPreviewActive, setIsPreviewActive] = useState(false);
@@ -136,6 +140,22 @@ const CustomVideoPlayer = ({
   }, [isFullScreen, videoUrl]);
 
   useEffect(() => {
+    setPlaybackUrl(videoUrl);
+    setVideoFailed(false);
+    setHasTriedFallback(false);
+  }, [videoUrl]);
+
+  const handleVideoLoadError = () => {
+    const fallbackUrl = getProductVideoFallbackUrl(playbackUrl);
+    if (!hasTriedFallback && fallbackUrl) {
+      setHasTriedFallback(true);
+      setPlaybackUrl(fallbackUrl);
+      return;
+    }
+    setVideoFailed(true);
+  };
+
+  useEffect(() => {
     setIsPreviewMuted(!autoPlayWithSound);
     setIsPreviewInView(false);
     setIsPreviewActive(false);
@@ -144,7 +164,7 @@ const CustomVideoPlayer = ({
     if (previewVideoRef.current) {
       previewVideoRef.current.muted = !autoPlayWithSound;
     }
-  }, [autoPlayWithSound, videoUrl]);
+  }, [autoPlayWithSound, playbackUrl]);
 
   useEffect(() => {
     if (!autoPlayWithSound || isFullScreen || !previewVideoRef.current) {
@@ -160,7 +180,7 @@ const CustomVideoPlayer = ({
       unregisterVideoCandidate(previewInstanceIdRef.current);
       cleanup();
     };
-  }, [autoPlayWithSound, isFullScreen, videoUrl]);
+  }, [autoPlayWithSound, isFullScreen, playbackUrl]);
 
   useEffect(() => {
     if (!autoPlayWithSound || isFullScreen || !previewVideoRef.current) {
@@ -192,7 +212,7 @@ const CustomVideoPlayer = ({
       previewVideo.pause();
       updateVideoInView(previewInstanceIdRef.current, false);
     };
-  }, [autoPlayWithSound, isFullScreen, videoUrl]);
+  }, [autoPlayWithSound, isFullScreen, playbackUrl]);
 
   useEffect(() => {
     const unsubscribe = subscribeToActiveVideo((activeVideoId: string) => {
@@ -268,7 +288,7 @@ const CustomVideoPlayer = ({
               {!videoFailed ? (
                 <video 
                   ref={previewVideoRef}
-                  src={videoUrl} 
+                  src={playbackUrl} 
                   muted={isPreviewMuted}
                   autoPlay 
                   loop 
@@ -276,19 +296,15 @@ const CustomVideoPlayer = ({
                   onPlay={() => setIsPreviewPlaying(true)}
                   onPause={() => setIsPreviewPlaying(false)}
                   onEnded={() => setIsPreviewPlaying(false)}
-                  onError={() => setVideoFailed(true)}
+                  onError={handleVideoLoadError}
                 />
               ) : (
-                <img 
+                <OptimizedImage 
                   src={thumbnailUrl || '/assets/images/defaultProduct.jpeg'} 
                   alt="Video unavailable"
+                  width={400}
+                  height={300}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => {
-                    const img = e.currentTarget as HTMLImageElement;
-                    if ((img as any)._fallbackApplied) return;
-                    (img as any)._fallbackApplied = true;
-                    img.src = '/assets/images/defaultProduct.jpeg';
-                  }}
                 />
               )}
             </div>
@@ -320,26 +336,22 @@ const CustomVideoPlayer = ({
               {!videoFailed ? (
                 <video
                   ref={videoRef}
-                  src={videoUrl}
+                  src={playbackUrl}
                   className="fullscreen-video"
                   controls
                   autoPlay
                   playsInline
                   controlsList="nodownload"
-                  onError={() => setVideoFailed(true)}
+                  onError={handleVideoLoadError}
                 />
               ) : (
-                <img 
+                <OptimizedImage 
                   src={thumbnailUrl || '/assets/images/defaultProduct.jpeg'} 
                   alt="Video unavailable"
-                  className="fullscreen-video"
+                  width={800}
+                  height={600}
+                  fill
                   style={{ objectFit: 'contain', backgroundColor: '#000' }}
-                  onError={(e) => {
-                    const img = e.currentTarget as HTMLImageElement;
-                    if ((img as any)._fallbackApplied) return;
-                    (img as any)._fallbackApplied = true;
-                    img.src = '/assets/images/defaultProduct.jpeg';
-                  }}
                 />
               )}
             </div>

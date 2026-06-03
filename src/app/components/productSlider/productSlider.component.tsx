@@ -1,7 +1,5 @@
 import Slider from 'react-slick'
-
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
@@ -23,7 +21,14 @@ export const ProductSlider = ({backgroundImage}) => {
         {backgroundImage.map((item: any, index: number) => {
           return (
             <div className="image-container" key={index}>
-              <img src={item.url} alt="imange" placeholder="blur"></img>
+              <OptimizedImage 
+                src={item.url} 
+                alt={`Banner ${index + 1}`}
+                width={1200}
+                height={400}
+                priority={index === 0}
+                style={{ width: '100%', height: 'auto' }}
+              />
             </div>
           )
         })}

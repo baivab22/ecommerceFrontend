@@ -8,15 +8,16 @@ import {
 import { SearchField, VStack, HStack } from 'src/app/common'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { SearchDropdown } from '../search/SearchDropdown'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 import { useDebounceValue, useMedia } from 'src/hooks'
 import { Sidebar } from '../headerDrawer/headerDrawer.component'
 import { useDispatch, useSelector } from 'src/store'
-import { getProductListAction } from 'src/app/pages/products/product.slice'
+import { productService } from 'src/app/pages/products/product.service'
 
 import { getCookie, removeCookie } from 'src/helpers'
 import { getCartlistAction } from 'src/app/pages/web/cart/cart.slice'
 import { getCategoryListAction } from 'src/app/pages/category/category.slice'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { useAuth } from 'src/app/routing'
 import Cookies from 'universal-cookie'
 import { getSocialLinksAction } from 'src/app/pages/socialLinks/socialLinks.slice'
@@ -42,10 +43,10 @@ const DesktopNavigationSkeleton = () => {
     <div className="navmenuList">
       <div className="navmenuContainer">
         <nav className="desktop-nav">
-          <ul className="desktop-menu" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <ul className="desktop-menu">
             {Array.from({ length: 7 }).map((_, index) => (
               <li key={index} className="desktop-menu-item">
-                <div style={{...menuItemStyle, width: `${70 + Math.random() * 40}px`}}></div>
+                <div style={{ ...menuItemStyle, width: `${70 + Math.random() * 40}px` }} />
               </li>
             ))}
           </ul>
@@ -97,21 +98,21 @@ const TopHeaderSkeleton = () => {
   return (
     <>
       <div className="header-top">
-        <div className="container" style={{ paddingTop:'10px',border:'2px solid red' }}>
+        <div className="container" style={{ paddingTop: '10px' }}>
           <ul className="header-social-container" style={{ display: 'flex', gap: '8px' }}>
             {Array.from({ length: 3 }).map((_, index) => (
               <li key={index}>
-                <div style={{ width: '24px', height: '24px', ...skeletonStyle, borderRadius: '50%' }}></div>
+                <div style={{ width: '24px', height: '24px', ...skeletonStyle, borderRadius: '50%' }} />
               </li>
             ))}
           </ul>
 
           <div className="header-alert-news">
-            <div style={{ width: '200px', height: '16px', ...skeletonStyle }}></div>
+            <div style={{ width: '200px', height: '16px', ...skeletonStyle, marginBottom: '8px' }} />
           </div>
 
           <div className="header-top-actions">
-            <div style={{ width: '120px', height: '16px', ...skeletonStyle }}></div>
+            <div style={{ width: '120px', height: '16px', ...skeletonStyle }} />
           </div>
         </div>
       </div>
@@ -119,22 +120,22 @@ const TopHeaderSkeleton = () => {
       <div className="topHeader-container">
         <div className="topHeader">
           <div className="topHeader-logo">
-            <div style={{ width: '120px', height: '60px', ...skeletonStyle }}></div>
+            <div style={{ width: '120px', height: '60px', ...skeletonStyle }} />
           </div>
 
-          <div></div>
+          <div />
 
           <div className="topHeader-search">
-            <div style={{ width: '100%', height: '40px', ...skeletonStyle }}></div>
+            <div style={{ width: '100%', height: '40px', ...skeletonStyle }} />
           </div>
 
           <div className="topHeader-cartProfile">
             <div className="topHeader-cartProfile-cart">
-              <div style={{ width: '24px', height: '24px', ...skeletonStyle }}></div>
+              <div style={{ width: '24px', height: '24px', ...skeletonStyle }} />
             </div>
 
             <div className="topHeader-cartProfile-profile" style={{ padding: '10px' }}>
-              <div style={{ width: '24px', height: '24px', ...skeletonStyle }}></div>
+              <div style={{ width: '24px', height: '24px', ...skeletonStyle }} />
             </div>
           </div>
         </div>
@@ -148,7 +149,7 @@ export const DesktopHeader = () => {
   const [openDesktopMenus, setOpenDesktopMenus] = useState<Record<string, boolean>>({})
   const closeTimeoutRef = useRef<Record<string, any>>({})
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   useEffect(() => {
     dispatch(
@@ -188,22 +189,22 @@ export const DesktopHeader = () => {
 
   // Navigate to all products page
   const handleAllProductsClick = () => {
-    navigate('/products')
+    router.push('/products')
   }
 
   // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
+    router.push(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
   }
 
   // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
-    navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
+    router.push(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
   }
 
   // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
-    navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
+    router.push(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
   }
 
   const renderDesktopSubMenu = (subCategories: any[], level = 0) => {
@@ -314,7 +315,7 @@ export const DesktopHeader = () => {
 export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
   const { categoryData, loading }: any = useSelector((state: any) => state.category)
   const [openMobileMenus, setOpenMobileMenus] = useState<Record<string, boolean>>({})
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const toggleMobileSubmenu = (id: string) => {
     setOpenMobileMenus(prev => ({
@@ -325,25 +326,25 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 
   // Navigate to all products page
   const handleAllProductsClick = () => {
-    navigate('/products')
+    router.push('/products')
     onClose?.()
   }
 
   // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
+    router.push(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
     onClose?.()
   }
 
   // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
-    navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
+    router.push(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
     onClose?.()
   }
 
   // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
-    navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
+    router.push(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
     onClose?.()
   }
 
@@ -436,7 +437,7 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 export const TopHeader = () => {
   const dispatch = useDispatch()
   const cookies = new Cookies()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { setAuth, auth } = useAuth()
   
   const datas: any = useSelector((state: any) => state.cart)
@@ -448,16 +449,16 @@ export const TopHeader = () => {
   const sortRefs = useRef<HTMLDivElement | null>(null)
   const [searchValue, setSearchValue] = useState<string>('')
   const debouncedSearchValue = useDebounceValue(searchValue, 300) // Optimized debounce
-  const { data: allProducts = [] } = useSelector((state: any) => state.product)
   const [suggestedProducts, setSuggestedProducts] = useState<any[]>([])
   const [isSearchLoading, setIsSearchLoading] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
   const isAdminLoggedIn = auth.isLoggedin && String(auth.role).toUpperCase() === 'ADMIN'
 
   useEffect(() => {
     const userId = getCookie('userId')
-    !!userId && dispatch(getCartlistAction({ userId: userId }))
-    // Fetch all products for dropdown
-    dispatch(getProductListAction({ query: { limit: 100 } }))
+    if (userId) {
+      dispatch(getCartlistAction({ userId }))
+    }
   }, [dispatch])
 
   useEffect(() => {
@@ -471,26 +472,41 @@ export const TopHeader = () => {
   // Update suggestions on input change
   useEffect(() => {
     if (!debouncedSearchValue.trim()) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
       setSuggestedProducts([])
       setIsSearchLoading(false)
       return
     }
 
     setIsSearchLoading(true)
-    
-    // Filter products based on search value
-    const lower = debouncedSearchValue.trim().toLowerCase()
-    const similar = allProducts.filter((p: any) =>
-      p.name.trim().toLowerCase().includes(lower)
-    )
-    const startsWith = similar.filter((p: any) =>
-      p.name.trim().toLowerCase().startsWith(lower)
-    )
-    const unique = Array.from(new Set([...startsWith, ...similar]))
-    
-    setSuggestedProducts(unique)
-    setIsSearchLoading(false)
-  }, [debouncedSearchValue, allProducts])
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    productService
+      .getProductList({ search: debouncedSearchValue.trim(), limit: 20 })
+      .then((response) => {
+        if (controller.signal.aborted) return
+        setSuggestedProducts(response.data || [])
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return
+        console.error('Search dropdown query failed:', error)
+        setSuggestedProducts([])
+      })
+      .finally(() => {
+        if (controller.signal.aborted) return
+        setIsSearchLoading(false)
+      })
+
+    return () => {
+      controller.abort()
+    }
+  }, [debouncedSearchValue])
 
   // Helper: Levenshtein distance
   function levenshtein(a: string, b: string): number {
@@ -519,30 +535,30 @@ export const TopHeader = () => {
   // Search handler for Enter key
   const onSearchHandler = useCallback((searchedData: string) => {
     if (!searchedData.trim()) return;
-    
+
     const lowerSearch = searchedData.trim().toLowerCase();
-    
-    // Find almost exact match (distance <= 2 or startsWith)
-    const almostExact = allProducts.find((p: any) => {
+
+    // Prefer exact or close match from fetched suggestions
+    const almostExact = suggestedProducts.find((p: any) => {
       const name = p.name.trim().toLowerCase();
       return (
         name.startsWith(lowerSearch) ||
         levenshtein(name, lowerSearch) <= 2
       );
     });
-    
+
     if (almostExact) {
-      navigate(`/products/view/${almostExact.id}`);
+      router.push(`/products/view/${almostExact.id}`)
       setSearchDropdownVisible(false);
       setSearchValue('');
       return;
     }
-    
+
     // Navigate to search results page
-    navigate(`/products?search=${encodeURIComponent(searchedData.trim())}`);
+    router.push(`/products?search=${encodeURIComponent(searchedData.trim())}`)
     setSearchDropdownVisible(false);
     setSearchValue('');
-  }, [allProducts, navigate]);
+  }, [suggestedProducts, router]);
 
   const handleOutSideClick = (event: any) => {
     const target = document?.getElementById('openModalButtons')
@@ -576,7 +592,7 @@ export const TopHeader = () => {
       role: 'USER'
     })
     
-    navigate('/login', { replace: true })
+    router.replace('/login')
   }
 
   if (socialLinksLoading) {
@@ -585,7 +601,7 @@ export const TopHeader = () => {
 
   // Handle product click from dropdown
   const handleProductClick = (product: any) => {
-    navigate(`/products/view/${product.id}`)
+    router.push(`/products/view/${product.id}`)
     setSearchDropdownVisible(false)
     setSearchValue('') // Clear search input
   }
@@ -624,13 +640,19 @@ export const TopHeader = () => {
 
       <div className="topHeader-container">
         <div className="topHeader">
-          <div className="topHeader-logo" onClick={() => navigate('/home')}>
-            <img
-              src={BASE_URL + '/logo'}
-              alt="logo"
-              className="topHeader-logo-image"
-              onError={e => { e.currentTarget.src = '/assets/images/logosss.png'; }}
-            />
+          <div className="topHeader-logo" onClick={() => router.push('/home')}>
+            <div style={{ position: 'relative', height: '100px',width:'150px' }}>
+              <OptimizedImage
+                src='/assets/images/logosss.png'
+                alt="logo"
+                fill
+                objectFit="contain"
+                className="topHeader-logo-image"
+                onError={() => {
+                  /* fallback managed by OptimizedImage */
+                }}
+              />
+            </div>
           </div>
 
           <div></div>
@@ -671,7 +693,6 @@ export const TopHeader = () => {
               <div style={{ width: '100%' }}>
                 <SearchDropdown
                   onClose={() => setSearchDropdownVisible(false)}
-                  products={allProducts}
                   suggestedProducts={suggestedProducts}
                   searchValue={searchValue}
                   onProductClick={handleProductClick}
@@ -684,7 +705,7 @@ export const TopHeader = () => {
           <div className="topHeader-cartProfile">
             <div
               className="topHeader-cartProfile-cart"
-              onClick={() => navigate('/cart')}
+              onClick={() => router.push('/cart')}
             >
               {datas?.cartData?.[0]?.products?.length > 0 && auth.isLoggedin && (
                 <HStack
@@ -738,7 +759,7 @@ export const TopHeader = () => {
                         className="filterItem"
                         onClick={() => {
                           setSortVisible(false)
-                          navigate('/dash-product')
+                          router.push('/dash-product')
                         }}
                       >
                         <p>Go to Dashboard</p>
@@ -752,7 +773,7 @@ export const TopHeader = () => {
                       className="filterItem"
                       onClick={() => {
                         setSortVisible(false)
-                        navigate('/my-profile')
+                        router.push('/my-profile')
                       }}
                     >
                       <p>My Profile</p>
@@ -773,11 +794,11 @@ export const TopHeader = () => {
                         gap="$3"
                         className="filterItem"
                         onClick={() => {
-                          navigate('/register')
+                          router.push('/register')
                           setSortVisible(false)
                         }}
                       >
-                        <p>Register</p>
+                       <p className="text-[16px]">Register</p>
                       </HStack>
                     )}
                   </VStack>

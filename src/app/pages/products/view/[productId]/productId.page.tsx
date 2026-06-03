@@ -3,7 +3,7 @@ import {Chip, HStack, StatInfo, Title, VStack} from 'src/app/common'
 import React, {useEffect} from 'react'
 import {useDispatch, useSelector} from 'src/store'
 import {getProductDetailByIdAction} from '../../product.slice'
-import {useParams} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import ReactStarsRating from 'react-awesome-stars-rating'
 
 import {
@@ -15,6 +15,9 @@ import {
 } from 'src/app/common'
 import {CarouselSlider, ProductSlider} from 'src/app/components'
 import CustomVideoPlayer from 'src/app/common/customVideoPlayer/customVideoPlayer.component'
+import OptimizedImage from 'src/app/common/OptimizedImage/OptimizedImage.component'
+import PageMetaTags from 'src/components/PageMetaTags'
+import {generateProductSchema, getCanonicalUrl} from 'src/utils/seoHelpers'
 import {BASE_URL, FILE_URL} from 'src/config'
 
 const ProductDetailsPage = () => {
@@ -35,12 +38,15 @@ const ProductDetailsPage = () => {
     return `${FILE_URL}/video/${safePath}`
   }
 
-  let {productId} = useParams()
+  const router = useRouter()
+  const { productId } = router.query
+  const productIdString = Array.isArray(productId) ? productId[0] : productId
 
-  console.log(productId, 'productId')
+  console.log(productIdString, 'productId')
   useEffect(() => {
-    dispatch(getProductDetailByIdAction({productId: productId as string}))
-  }, [])
+    if (!productIdString) return
+    dispatch(getProductDetailByIdAction({productId: productIdString as string}))
+  }, [productIdString, dispatch])
 
   const {productDetailData, productDetailLoading}: any = useSelector(
     (state: any) => state.product
@@ -54,26 +60,76 @@ const ProductDetailsPage = () => {
     console.log(value, 'rating value')
   }
 
-  return (
-    <ActivityIndicator animating={productDetailLoading}>
-      <VStack className="productDetail-container">
-        <VStack className="productDetail">
-          <HStack style={{width: '100%'}} gap="$3">
-            <div style={{width: '50%'}}>
-              <CarouselSlider>
-                {products?.map((data: any, index: any) => (
-                  <img
-                    src={data.url}
-                    alt="image"
-                    className="image"
-                    key={index}
-                  />
-                ))}
-              </CarouselSlider>
-            </div>
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://abhushangallery.com'
+  const safeStockQuantity = Math.max(0, Number(productDetailData?.stockQuantity) || 0)
+  const firstImage = products?.[0]?.url || `${SITE_URL}/logo.png`
+  const productTitle = productDetailData?.name
+    ? `${productDetailData.name} | Nepal Imitation Jewellery`
+    : 'Product details | Nepal Imitation Jewellery'
+  const productDescription =
+    productDetailData?.description?.replace(/<[^>]+>/g, '').slice(0, 160) ||
+    'Explore premium imitation jewellery in Nepal with affordable bridal sets, necklaces, earrings, and fashion jewellery.'
+  const productUrl = getCanonicalUrl(`/products/${productIdString || ''}`)
+  const productPrice = productDetailData?.discountedPrice || productDetailData?.originalPrice
 
-            <VStack className="productDetail-detailTop" gap="$4">
-              <Title heading>{productDetailData?.name} </Title>
+  return (
+    <>
+      <PageMetaTags
+        title={productTitle}
+        description={productDescription}
+        keywords={`imitation jewellery, ${productDetailData?.category?.name || 'fashion jewellery'}, ${productDetailData?.name || 'product'}`}
+        canonicalUrl={productUrl}
+        ogImage={firstImage}
+        ogImageAlt={productDetailData?.name || 'Product image'}
+        ogType="product"
+      >
+        {productDetailData && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(
+                generateProductSchema({
+                  id: String(productIdString),
+                  name: productDetailData?.name,
+                  description: productDetailData?.description?.replace(/<[^>]+>/g, ''),
+                  image: firstImage,
+                  price: Number(productPrice),
+                  priceCurrency: 'NPR',
+                  rating: Number(productDetailData?.rating || 0),
+                  ratingCount: Number(productDetailData?.ratingCount || productDetailData?.reviews?.length || 0),
+                  availability:
+                    safeStockQuantity > 0
+                      ? 'https://schema.org/InStock'
+                      : 'https://schema.org/OutOfStock',
+                  sku: productDetailData?.sku || productDetailData?.productId || String(productIdString)
+                })
+              )
+            }}
+          />
+        )}
+      </PageMetaTags>
+      <ActivityIndicator animating={productDetailLoading}>
+        <VStack className="productDetail-container">
+          <VStack className="productDetail">
+            <HStack style={{width: '100%'}} gap="$3">
+              <div style={{width: '50%'}}>
+                <CarouselSlider>
+                  {products?.map((data: any, index: any) => (
+                    <OptimizedImage
+                      key={index}
+                      src={data.url}
+                      alt={`${productDetailData?.name || 'Product'} image ${index + 1}`}
+                      width={600}
+                      height={600}
+                      style={{width: '100%', height: 'auto'}}
+                      className="image"
+                    />
+                  ))}
+                </CarouselSlider>
+              </div>
+
+              <VStack className="productDetail-detailTop" gap="$4">
+                <Title heading>{productDetailData?.name} </Title>
               <HStack justify="flex-start" gap="$5">
                 <Title subheading>
                   NPR.{productDetailData?.discountedPrice}
@@ -126,7 +182,8 @@ const ProductDetailsPage = () => {
         </VStack>
       </VStack>
     </ActivityIndicator>
+    </>
   )
-}
+  }
 
 export default ProductDetailsPage

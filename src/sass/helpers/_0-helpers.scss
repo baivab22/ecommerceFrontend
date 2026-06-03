@@ -9,6 +9,9 @@
     width: 7px;
     height: 2px;
   }
+  ::-webkit-scrollbar:horizontal {
+    // height: 16px; /* double the default height (8px) */
+  }
   ::-webkit-scrollbar-track {
     background-color: #f1f1f1;
     border-radius: 4px;

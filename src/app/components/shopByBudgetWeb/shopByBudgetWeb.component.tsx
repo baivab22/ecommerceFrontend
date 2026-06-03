@@ -1,14 +1,14 @@
 import React from 'react'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 
 export const ShopByBudgetWeb = ({data}: any) => {
-  const navigate = useNavigate()
+  const router = useRouter()
   return (
     <div
       className="shopByBudgetWeb-container"
       onClick={() => {
-        navigate(`/products?maxPrice=${data.name}`)
+        router.push(`/products?maxPrice=${data.name}`)
       }}
     >
       <div className="shopByBudgetWeb">

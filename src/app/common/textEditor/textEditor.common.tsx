@@ -1,5 +1,5 @@
 import {ComponentPropsWithoutRef} from 'react'
-import ReactQuill from 'react-quill'
+import dynamic from 'next/dynamic'
 import styled from 'styled-components'
 // @ts-ignore
 // import BlotFormatter from 'quill-blot-formatter'
@@ -49,6 +49,10 @@ interface TextEditorProps extends ComponentPropsWithoutRef<'div'> {
   onChange: any
   placeholder?: any
 }
+
+const ReactQuill = dynamic(() => import('react-quill'), {
+  ssr: false
+})
 
 const TextEditorContainer = styled.div``
 

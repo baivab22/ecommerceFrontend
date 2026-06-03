@@ -1,6 +1,7 @@
 import {GrLocation} from 'react-icons/gr'
 import {BsPhone} from 'react-icons/bs'
 import {AiOutlineMail} from 'react-icons/ai'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 import {getImageUrl} from 'src/helpers/getImageUrl.helper'
 
 export const ProfileInfo = ({profileDetails}: Comp.ProfileDetailProps) => {
@@ -9,11 +10,12 @@ export const ProfileInfo = ({profileDetails}: Comp.ProfileDetailProps) => {
       <div className="profileDetail">
         <div className="profileDetail-topinfo">
           <div className="profileDetail-topinfo-image">
-            <img
+            <OptimizedImage
               src={getImageUrl('user', profileDetails?.image)}
-              alt={profileDetails.fullname}
+              alt={profileDetails.fullname || 'User profile image'}
               width={100}
               height={100}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
             />
           </div>
           <div className="profileDetail-topinfo-right">

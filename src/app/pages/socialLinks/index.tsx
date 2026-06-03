@@ -3,15 +3,11 @@ import {useDispatch} from 'src/store'
 // import {delteProductAction, getProductListAction} from './product.slice'
 import {useSelector} from 'react-redux'
 import {Box, Button, HStack, SelectField, Table} from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {toast} from 'react-hot-toast'
-import {
-  deleteSubCategoryAction,
-  getSubCategoryListAction
-} from '../subCategory/subCategory.slice'
-import {getSocialLinksAction} from './socialLinks.slice'
+import {getSocialLinksAction, deleteSocialLinksAction} from './socialLinks.slice'
 export const SocialLinksPage = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   const [category, setCategory] = useState<any>()
@@ -24,7 +20,24 @@ export const SocialLinksPage = () => {
         onSuccess: () => console.log('Sub categoryList fetch Successfully')
       })
     )
-  }, [])
+  }, [dispatch])
+
+  const handleDelete = (item: any, onCloseModalHandler: any) => {
+    dispatch(
+      deleteSocialLinksAction({
+        socialLinksId: item._id,
+        onSuccess: () => {
+          toast.success('Social link deleted successfully')
+          onCloseModalHandler?.()
+          dispatch(
+            getSocialLinksAction({
+              onSuccess: () => console.log('Social Links refreshed')
+            })
+          )
+        }
+      })
+    )
+  }
 
   return (
     <div>
@@ -32,7 +45,7 @@ export const SocialLinksPage = () => {
         <HStack justify="space-between" style={{margin: '20px 0'}}>
           <Button
             title="Add Social Links"
-            onClick={() => navigate('add')}
+            onClick={() => router.push('/dash-social-links/add')}
           ></Button>
         </HStack>
 
@@ -85,15 +98,11 @@ export const SocialLinksPage = () => {
           ]}
           data={socialLinks}
           actions={{
-            // onView: (item: any) => {
-            //   navigate(`view/${item.id}`)
-            // },
-
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
-              navigate(`update/${item._id}`)
-            }
-         
+              router.push(`/dash-social-links/update/${item._id}`)
+            },
+            onDelete: handleDelete
           }}
           pagination={{
             totalCount: Number(socialLinks?.length ?? 1)

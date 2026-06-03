@@ -194,6 +194,10 @@ const StyledSearchInput = styled.input`
   outline: none;
   color: #222;
   border-radius: 8px 0 0 8px;
+
+    &:hover {
+   border:none !important;
+  }
 `
 
 const IconButton = styled.button`
@@ -206,11 +210,9 @@ const IconButton = styled.button`
   font-size: 1.4rem;
   color: #217fdb;
   transition: color 0.2s;
-
   &:hover {
     color: #60afff;
   }
-
   &:disabled {
     color: #bdbdbd;
     cursor: not-allowed;
@@ -251,7 +253,7 @@ export const SearchField = React.forwardRef<HTMLInputElement, Com.SearchInputPro
         : ''
     )
     const recognitionRef = useRef<any>(null)
-    const inputRef = useRef<HTMLInputElement>(null)
+    const inputRef = useRef<HTMLInputElement | null>(null)
 
     // Sync with controlled value
     useEffect(() => {

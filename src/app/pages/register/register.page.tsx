@@ -149,7 +149,7 @@ import './_register.scss'
 import { useDispatch } from 'src/store'
 import { RegisterAction } from './register.slice'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { setCookie } from 'src/helpers'
 import { useAuth } from 'src/app/routing'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
@@ -203,7 +203,7 @@ declare global {
 
 export const RegisterPage: React.FC = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { handleLogin } = useAuth()
   
   const [registerData, setRegisterData] = useState({ 
@@ -276,11 +276,11 @@ export const RegisterPage: React.FC = () => {
     
     if (data.token) {
       handleLogin(data.token, userRole, data)
-      navigate('/home')
+      router.push('/home')
     } else {
-      navigate('/login')
+      router.push('/login')
     }
-  }, [handleLogin, navigate])
+  }, [handleLogin, router])
 
   const handleRegister = useCallback(() => {
     const trimmedEmail = registerData.email.trim()
@@ -436,8 +436,8 @@ export const RegisterPage: React.FC = () => {
   }, [])
 
   const navigateToLogin = useCallback(() => {
-    navigate('/login')
-  }, [navigate])
+    router.push('/login')
+  }, [router])
 
   return (
     <div className="register-page-wrapper">

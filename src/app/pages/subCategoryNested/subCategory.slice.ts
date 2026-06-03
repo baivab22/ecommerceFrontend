@@ -16,7 +16,7 @@ const getSubCategoryListActionNested = createAsyncThunk(
       console.log('final data hai value response above')
       const response = await subCategoryService.getSubCategoriesListNested()
       console.log('final data hai value response above below',response)
-      onSuccess(response.data)
+      onSuccess && onSuccess(response.data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue('Cannot get SubCategory!')

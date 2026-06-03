@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import {FaMinus, FaPlus} from 'react-icons/fa'
 import {RiArrowDropDownLine} from 'react-icons/ri'
-import {Link, useNavigate} from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import {HStack} from 'src/app/common'
 import Theme from 'src/theme'
 import styled from 'styled-components'
@@ -29,7 +30,7 @@ const SidebarLabel = styled.span`
   width: auto;
 `
 
-const DropdownLink = styled(Link)`
+const DropdownLink = styled.a`
   background: rgb(87 4 86);
   height: 60px;
   padding-left: 3.5rem;
@@ -49,7 +50,7 @@ const DrawerMenu = ({item, handleClose}) => {
   const [subnav, setSubnav] = useState(false)
 
   const showSubnav = () => setSubnav(!subnav)
-  const navigate = useNavigate()
+  const router = useRouter()
 
   console.log(showSubnav, 'showsubnav')
 
@@ -71,9 +72,7 @@ const DrawerMenu = ({item, handleClose}) => {
           <SidebarLabel
             onClick={() => {
               handleClose()
-              navigate(
-                `/products?categoryId=${item.id}&categoryname=${item.title}`
-              )
+              router.push(`/products?categoryId=${item.id}&categoryname=${item.title}`)
               // dispatch(
               //   getProductListAction({
               //     onSuccess: () => {},
@@ -105,16 +104,16 @@ const DrawerMenu = ({item, handleClose}) => {
         item?.subNav?.map((item, index) => {
           console.log('subnav', item)
           return (
-            <DropdownLink
-              onClick={() => {
-                handleClose()
-              }}
-              to={`/products?subCategoryId=${item.id}`}
-              key={index}
-            >
-              {item?.icon}
-              <SidebarLabel>{item.title}</SidebarLabel>
-            </DropdownLink>
+            <Link href={`/products?subCategoryId=${item.id}`} key={index} legacyBehavior>
+              <DropdownLink
+                onClick={() => {
+                  handleClose()
+                }}
+              >
+                {item?.icon}
+                <SidebarLabel>{item.title}</SidebarLabel>
+              </DropdownLink>
+            </Link>
           )
         })}
     </>

@@ -1,48 +1,31 @@
-// import {update} from '@react-spring/web'
-// import {useSearchParams} from 'react-router-dom'
 
-// export const useUpdateQuery = () => {
-//   let [searchParams, setSearchParams] = useSearchParams()
-//   console.log(searchParams, 'search params ')
-//   const updateQueryFunction = (queryList: {[key: string]: any}) => {
-//     const filteredObject = {}
-
-//     // Loop through the original object
-//     for (const key in queryList) {
-//       // Check if the value is not undefined or null
-//       if (queryList[key] !== undefined && queryList[key] !== null) {
-//         filteredObject[key] = queryList[key]
-//       }
-//     }
-
-//     setSearchParams(filteredObject)
-//   }
-
-//   return {updateQuery: updateQueryFunction}
-// }
-
-import {useSearchParams} from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 type QueryObject = {[key: string]: string | number | undefined | null}
 
 export const useUpdateQuery = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const router = useRouter()
+
   const updateQuery = (query: QueryObject) => {
-    const updatedSearchParams = new URLSearchParams(searchParams.toString())
+    const asPath = router.asPath || ''
+    const base = asPath.split('?')[0] || router.pathname || ''
+    const currentQs = asPath.split('?')[1] || ''
+    const updatedSearchParams = new URLSearchParams(currentQs)
 
     for (const key in query) {
-      if (query.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
         const value = query[key]
 
         if (value === undefined || value === null) {
           updatedSearchParams.delete(key)
         } else {
-          updatedSearchParams.set(key, value as string)
+          updatedSearchParams.set(key, String(value))
         }
       }
     }
-
-    setSearchParams(updatedSearchParams)
+    const newQs = updatedSearchParams.toString()
+    const target = newQs ? `${base}?${newQs}` : base
+    router.replace(target, undefined, { shallow: true })
   }
   return updateQuery
 }

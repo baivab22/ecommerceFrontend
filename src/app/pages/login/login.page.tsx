@@ -3,11 +3,11 @@ import './_loginPage.scss'
 import { useDispatch } from 'src/store'
 import { ForgotPasswordAction, LoginAction } from './login.slice'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { setCookie } from 'src/helpers'
 import { useAuth } from 'src/app/routing'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
-import { GoogleLogin } from '@react-oauth/google'
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { BASE_URL } from 'src/config'
 
@@ -75,7 +75,7 @@ declare global {
 
 export const LoginPage: React.FC = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { handleLogin } = useAuth()
   
   const [loginData, setLoginData] = useState({ email: '', password: '' })
@@ -167,8 +167,8 @@ export const LoginPage: React.FC = () => {
     const userRole = data?.userRoles || 'USER'
     setCookie('userRoles', userRole)
     handleLogin(data.token, userRole, data)
-    navigate(redirectPath)
-  }, [handleLogin, navigate])
+    router.push(redirectPath)
+  }, [handleLogin, router])
 
   const handleLogins = useCallback(() => {
     const trimmedEmail = loginData.email.trim()
@@ -288,6 +288,12 @@ export const LoginPage: React.FC = () => {
     toast.error('Google login failed. Please try again.')
   }, [])
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: handleGoogleLoginError,
+    flow: 'implicit'
+  })
+
   const handleFacebookLogin = useCallback(() => {
     if (!isFacebookSDKReady || !window.FB) {
       toast.error('Facebook is still loading. Please try again in a moment.')
@@ -391,8 +397,8 @@ export const LoginPage: React.FC = () => {
   }, [])
 
   const navigateToRegister = useCallback(() => {
-    navigate('/register')
-  }, [navigate])
+    router.push('/register')
+  }, [router])
 
   return (
     <div className="login-page-wrapper">
@@ -479,10 +485,7 @@ export const LoginPage: React.FC = () => {
           <div className="social-button-wrapper">
             <button
               type="button"
-              onClick={() => {
-                const googleBtn = document.querySelector('[role="button"]') as HTMLElement
-                googleBtn?.click()
-              }}
+              onClick={() => googleLogin()}
               className="btn-social btn-google"
               disabled={isLoading}
             >
@@ -494,17 +497,6 @@ export const LoginPage: React.FC = () => {
               </svg>
               Google
             </button>
-            <div style={{ display: 'none' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleLoginSuccess}
-                onError={handleGoogleLoginError}
-                useOneTap={false}
-                theme="outline"
-                size="large"
-                text="continue_with"
-                shape="rectangular"
-              />
-            </div>
           </div>
 
           <button

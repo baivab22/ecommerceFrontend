@@ -3,14 +3,14 @@ import {useDispatch} from 'src/store'
 // import {delteProductAction, getProductListAction} from './product.slice'
 import {useSelector} from 'react-redux'
 import {Box, Button, HStack, SelectField, Table} from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {toast} from 'react-hot-toast'
 import {
   deleteCategoryAction,
   getCategoryListAction
 } from '../category/category.slice'
 export const CategoryListPage = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const dispatch = useDispatch()
 
   const [category, setCategory] = useState<any>()
@@ -56,7 +56,7 @@ export const CategoryListPage = () => {
     <div>
       <Box>
         <HStack justify="space-between" style={{margin: '20px 0'}}>
-          <Button title="Add Category" onClick={() => navigate('add')}></Button>
+          <Button title="Add Category" onClick={() => router.push('/dash-category/add')}></Button>
         </HStack>
 
         <Table
@@ -89,7 +89,7 @@ export const CategoryListPage = () => {
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
-              navigate(`update/${item.id}`)
+              router.push(`/dash-category/update/${item.id}`)
             },
             onDelete: (item: any, onCloseModalHandler) => {
               console.log(item.id, 'item to be deleted')

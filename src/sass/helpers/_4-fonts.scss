@@ -102,12 +102,17 @@ textarea {
 }
 
 @font-face {
-  font-family: JosefinSans;
-  src: url(/src/assets/fonts/JosefinSans-VariableFont_wght.ttf)
+  font-family: 'JosefinSans';
+  src: url(/assets/fonts/JosefinSans-VariableFont_wght.ttf)
     format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
 }
 
-#root,
+html,
 body {
-  font-family: 'JosefinSans';
+  font-family: 'JosefinSans', sans-serif !important;
+  font-size: 18px;
+  line-height: 1.65;
+  font-weight: 500;
 }

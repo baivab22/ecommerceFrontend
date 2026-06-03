@@ -20,36 +20,32 @@ export const USER_ROLES: UserRoles = {
       '/dash-subCategory/*',
       '/dash-new-arrivals/*',
       '/dash-best-selling/*',
-      '/banners/*',
+      '/dash-banners/*',
       '/dash-product/*',
       '/sample',
       '/product/*',
-      './home/*',
+      '/home/*',
       '/dash-testimonial/*',
       '/dash-shopByBudget/*',
       '/cart/*',
       '/dash-orders/*',
-      '/product/*',
       '/return-policy',
       '/shipping-policy',
       '/dash-social-links/*',
-      'orderDetails/*',
+      '/orderDetails/*',
       '/dash-subCategorynested/*',
       '/my-profile/*',
       '/contact-us',
       '/about-us',
       '/privacy-policy',
+      '/user-data-deletion-instructions',
       '/styling-guide',
-      '/dash-banners',
       '/dash-hot-selling/*',
- 'dash-holiday-mode/*',
- 'dash-selling-analysis/*',
-  'dash-mark-shipped/*',
-  '/dash-emailMarketing',
-
-  '/dash-config/*'
-  
-
+      '/dash-holiday-mode/*',
+      '/dash-selling-analysis/*',
+      '/dash-mark-shipped/*',
+      '/dash-emailMarketing/*',
+      '/dash-config/*'
     ]
   },
   USER: {
@@ -77,6 +73,7 @@ export const USER_ROLES: UserRoles = {
               '/contact-us',
       '/about-us',
       '/privacy-policy',
+              '/user-data-deletion-instructions',
       '/styling-guide',
       //  'dash-holiday-mode/*'
     ]

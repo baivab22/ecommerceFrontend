@@ -3,6 +3,7 @@ import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 // import Image from 'next/image'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
@@ -91,9 +92,12 @@ export const MainCarousel = () => {
             return (
               <picture key={`${item.desktop}-${item.mobile}-${index}`}>
                 <source media="(max-width: 768px)" srcSet={`${FILE_URL}/banners/${item.mobile}`} />
-                <img
+                <OptimizedImage
                   src={`${FILE_URL}/banners/${item.desktop}`}
                   alt="banner"
+                  width={1200}
+                  height={400}
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
                 />
               </picture>
             )

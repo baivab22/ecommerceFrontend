@@ -26,7 +26,8 @@ import { useMeasure, useMedia } from 'src/hooks'
 import { TextArea } from 'src/app/common/textArea'
 import { CONTACT_NUMBER } from 'src/config/constant.config'
 import { fetchHolidayModeAction, selectHolidayMode } from '../../holidayMode/holidayMode.slice'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
+import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 // Types
 interface Option {
@@ -163,7 +164,7 @@ const OFFICE_DELIVERY = 70 // NPR
 
 export const CartPage = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
   const datas = useSelector((state: any) => state.cart)
   const media = useMedia()
   const userId = getCookie('userId')
@@ -258,8 +259,8 @@ export const CartPage = () => {
     return true;
   }, [settings]);
 
-  const [location, setLocation] = useState({ lat: null, lng: null });
-  const [error, setError] = useState(null);
+  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -656,7 +657,7 @@ useEffect(() => {
     setCartProducts(datas?.cartData?.[0]?.products ?? [])
   }, [datas?.cartData?.[0]?.products])
 
-  console.log(datas.cartData,cartProducts,"datas and cart datas")
+
 
   // Clear dependent selections when parent changes
   useEffect(() => {
@@ -746,9 +747,8 @@ useEffect(() => {
   }, [])
 
   const generateOrderId = useCallback(() => {
-    const timestamp = Date.now()
-    const randomPart = Math.floor(Math.random() * 1000000)
-    return `ORD-${timestamp}-${randomPart}`
+    // Generate a 5-digit numeric order ID (string)
+    return (Math.floor(10000 + Math.random() * 90000)).toString();
   }, [])
 
   const normalizeCheckoutPhone = useCallback((value: string) => {
@@ -895,10 +895,8 @@ useEffect(() => {
           })
         },
         onSuccess: (response) => {
-          const backendOrderId = response?.data?.orderId || response?.orderId || orderId
-          
+          const backendOrderId = response?.data?.productOrderId || response?.orderId ||response?.ncmOrderId
           setShowQRModal(false)
-          
           let successMessage = ''
           if (isRedZone && selectedDeliveryPartner === 'third_party') {
             successMessage = `
@@ -954,7 +952,7 @@ useEffect(() => {
           clearCartItems()
           resetForm()
           openWhatsApp(backendOrderId)
-          navigate('/')
+          router.push('/')
         },
         onFailure: error => {
           console.error('Order failed:', error)
@@ -993,7 +991,6 @@ useEffect(() => {
     deliveryTimeMessage,
     deliveryPartnerPrice,
     isBefore12PM,
-    navigate,
     isPlacingOrder
   ])
 
@@ -1057,7 +1054,7 @@ useEffect(() => {
     setIsShippingSame(true)
     setLocationCoordinates(null)
     setIncludeGiftBox(false)
-    setIsRedZone(false)
+    // setIsRedZone(false)
     setSelectedDeliveryPartner('ncm')
     setDeliveryTimeMessage('Same day if ordered before 12:00 PM, otherwise tomorrow')
     setDeliveryPartnerPrice(120)
@@ -1065,6 +1062,8 @@ useEffect(() => {
   }, [generatePaymentReference])
 
   const openWhatsApp = useCallback((orderId: string) => {
+
+    console.log("inside whatsapp funcation",orderId);
     // Determine payment scenario
     const isOutsideValley = isInsideValley === false;
     const isPhonePay = isPhonePaySelected;
@@ -1083,11 +1082,8 @@ Order ID: ${orderId}
 Payment Reference: ${paymentReferenceId}
 
 मैले पूरा रकम पेमेन्ट गरिसकेको छु।
-
 Payment Screenshot यसै म्यासेजमा पठाउँदै छु।
-
 कृपया मेरो अर्डर कन्फर्म गरिदिनुहोस्।
-
 धन्यवाद! 🙏`;
       } else {
         message = `नमस्ते! 🙏
@@ -1161,7 +1157,7 @@ ${deliveryInfo}
         justifyContent: 'center',
         zIndex: 9998,
         padding: '20px',
-        backdropFilter: 'blur(5px)'
+        backdropFilter: 'blur(10px)'
       }}>
         <div style={{
           backgroundColor: 'white',
@@ -1251,37 +1247,19 @@ ${deliveryInfo}
               boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
               backgroundColor: 'white'
             }}>
-              <img
+              <OptimizedImage
                 src={selectedImage.src}
                 alt={selectedImage.alt}
+                width={400}
+                height={400}
+                objectFit="contain"
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain',
                   padding: '16px'
                 }}
-                onError={(e) => {
+                onError={() => {
                   console.error('Gift box image failed to load');
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerHTML = `
-                    <div style="
-                      width: 100%;
-                      height: 100%;
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      justify-content: center;
-                      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-                      color: #92400e;
-                      font-weight: bold;
-                      font-size: 20px;
-                      text-align: center;
-                    ">
-                      <div style="font-size: 48px; margin-bottom: 16px;">🎁</div>
-                      <div>Premium Gift Box</div>
-                      <div style="font-size: 14px; margin-top: 8px; opacity: 0.9;">Click to view other angle</div>
-                    </div>
-                  `;
                 }}
               />
               <div style={{
@@ -1596,18 +1574,17 @@ const QRPaymentModal = () => {
                 border: '3px solid #e5e7eb',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
               }}>
-                <img
+                <OptimizedImage
                   src={getQRImage()}
                   alt={`${getPaymentMethodName()} QR Code`}
+                  width={280}
+                  height={280}
+                  objectFit="contain"
                   style={{
-                    width: '280px',
-                    height: '280px',
-                    borderRadius: '8px',
-                    objectFit: 'contain'
+                    borderRadius: '8px'
                   }}
-                  onError={(e) => {
+                  onError={() => {
                     console.error('QR Code image failed to load');
-                    e.currentTarget.style.display = 'none';
                   }}
                 />
                 <div style={{
@@ -2033,61 +2010,78 @@ const QRPaymentModal = () => {
       }
     }
 
+    // Responsive modal maxHeight: 70dvh on mobile, 90vh on desktop
+    const isMobile = window.innerWidth <= 600;
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '20px'
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '24px',
-          borderRadius: '12px',
-          maxWidth: '800px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'auto'
-        }}>
-          <h3 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: '600' }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: isMobile ? '4vw' : '20px',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: 'white',
+            padding: isMobile ? '12px' : '24px',
+            borderRadius: '12px',
+            maxWidth: isMobile ? '98vw' : '800px',
+            width: '100%',
+            maxHeight: isMobile ? '70dvh' : '90vh',
+            overflow: 'auto',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <h3 style={{ marginBottom: '8px', fontSize: isMobile ? '17px' : '20px', fontWeight: '600' }}>
             Select Delivery Location
           </h3>
-          <p style={{ marginBottom: '16px', fontSize: '14px', color: '#666' }}>
+          <p style={{ marginBottom: '10px', fontSize: isMobile ? '12px' : '14px', color: '#666' }}>
             Click on the map or drag the marker to select your delivery location
           </p>
-          
-          <div 
+          <p style={{ marginBottom: '10px', fontSize: '12px', color: '#b91c1c', fontWeight: 600 }}>
+            <span role="img" aria-label="info">ℹ️</span> Please make sure the map modal does not exceed 70% of your screen height on mobile for best experience.
+          </p>
+          <div
             ref={mapContainerRef}
             style={{
               width: '100%',
-              height: '450px',
+              height: isMobile ? '38dvh' : '450px',
               borderRadius: '8px',
               marginBottom: '16px',
-              border: '2px solid #e0e0e0'
+              border: '2px solid #e0e0e0',
+              minHeight: isMobile ? '180px' : 'unset',
+              maxHeight: isMobile ? '38dvh' : '450px',
+              boxSizing: 'border-box',
             }}
           />
 
           {selectedPosition && (
-            <div style={{
-              padding: '12px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '6px',
-              marginBottom: '16px',
-              fontSize: '13px',
-              color: '#495057'
-            }}>
+            <div
+              style={{
+                padding: '12px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '6px',
+                marginBottom: '16px',
+                fontSize: isMobile ? '12px' : '13px',
+                color: '#495057',
+                wordBreak: 'break-all',
+              }}
+            >
               <strong>Selected Coordinates:</strong> {selectedPosition[0].toFixed(6)}, {selectedPosition[1].toFixed(6)}
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
             <button
               onClick={() => {
                 setShowMapPicker(false)
@@ -2098,14 +2092,17 @@ const QRPaymentModal = () => {
                 }
               }}
               style={{
-                padding: '12px 24px',
-                fontSize: '14px',
+                padding: isMobile ? '10px 16px' : '12px 24px',
+                fontSize: isMobile ? '13px' : '14px',
                 fontWeight: '500',
                 backgroundColor: '#6c757d',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                marginBottom: isMobile ? '6px' : 0,
+                flex: 1,
+                minWidth: isMobile ? '0' : '120px',
               }}
             >
               Cancel
@@ -2114,14 +2111,16 @@ const QRPaymentModal = () => {
               onClick={handleConfirm}
               disabled={!selectedPosition}
               style={{
-                padding: '12px 24px',
-                fontSize: '14px',
+                padding: isMobile ? '10px 16px' : '12px 24px',
+                fontSize: isMobile ? '13px' : '14px',
                 fontWeight: '500',
                 backgroundColor: selectedPosition ? '#007bff' : '#ccc',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                cursor: selectedPosition ? 'pointer' : 'not-allowed'
+                cursor: selectedPosition ? 'pointer' : 'not-allowed',
+                flex: 1,
+                minWidth: isMobile ? '0' : '120px',
               }}
             >
               Confirm Location
@@ -2628,36 +2627,21 @@ const RedZoneDeliverySection = () => {
               height: '100%'
             }}>
               {/* Main image */}
-              <img
+              <OptimizedImage
                 src={GIFT_BOX_IMAGES[0].src}
                 alt="Premium Gift Box"
+                width={400}
+                height={300}
+                objectFit="contain"
                 style={{
                   width: '100%',
-                  height: '300px',
-                  objectFit:'contain'
+                  height: '300px'
                 }}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerHTML = `
-                    <div style="
-                      width: 100%;
-                      height: 100%;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-                      color: #92400e;
-                    ">
-                      <div style="text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🎁</div>
-                        <div style="font-weight: bold; font-size: 16px;">Premium Gift Box</div>
-                        <div style="font-size: 12px; margin-top: 4px;">Click to preview</div>
-                      </div>
-                    </div>
-                  `;
+                onError={() => {
+                  console.error('Gift box image failed to load');
                 }}
               />
-              
+
               {/* Overlay with info */}
               <div style={{
                 position: 'absolute',
@@ -2742,13 +2726,16 @@ const RedZoneDeliverySection = () => {
           minHeight: '400px',
           width:'100%' 
         }}>
-          <img
+          <OptimizedImage
             className="noProductOnCart"
-            src="src/assets/images/noCart.png"
+            src="/assets/images/noCart.png"
             alt="Empty cart"
+            width={300}
+            height={300}
+            objectFit="contain"
             style={{ maxWidth: '300px', opacity: 0.7 }}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
+            onError={() => {
+              /* graceful fallback handled by OptimizedImage */
             }}
           />
           <p style={{ fontSize: '18px', color: '#666', textAlign: 'center' }}>Your cart is empty</p>
@@ -2767,7 +2754,7 @@ const RedZoneDeliverySection = () => {
       gap: '24px',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      padding: media.sm ? '16px' : '24px',
+      padding: media.sm ? '16px' : '0px',
       // maxWidth: '1200px',
       margin: '0 auto'
     }}>

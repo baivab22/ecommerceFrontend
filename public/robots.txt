@@ -1,0 +1,48 @@
+# Robots.txt for Abhushi Gallery
+# This file controls search engine crawler access to your website
+
+# Allow all bots
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /private/
+Disallow: /dashboard/
+Disallow: /.next/
+Disallow: /uploads/
+Disallow: *?sort=
+Disallow: *?order=
+Disallow: *?page=
+Allow: /*?page=1$
+
+# Allow pagination on first page only for crawlers
+# Remove query parameters that don't affect content
+Allow: /products
+Allow: /categories
+Allow: /search
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemaps
+Sitemap: https://abhushangallery.com/sitemap.xml
+Sitemap: https://abhushangallery.com/sitemap-products.xml
+Sitemap: https://abhushangallery.com/sitemap-categories.xml

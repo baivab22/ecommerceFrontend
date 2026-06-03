@@ -78,7 +78,7 @@ const updateHolidayModeAction = createAsyncThunk(
 // INITIAL STATE
 // ============================================
 
-const initialState = {
+const initialState: any = {
   settings: {
     isActive: false,
     message: 'We are currently on holiday. Orders will be processed after we return.',
@@ -142,7 +142,7 @@ const holidayModeSlice = createSlice({
     builder.addCase(fetchHolidayModeAction.rejected, (state, action) => {
       state.loading = false;
       state.fetchLoading = false;
-      state.error = action.payload;
+      state.error = action.payload as string;
     });
     
     // ============================================
@@ -165,7 +165,7 @@ const holidayModeSlice = createSlice({
     builder.addCase(toggleHolidayModeAction.rejected, (state, action) => {
       state.loading = false;
       state.toggleLoading = false;
-      state.error = action.payload;
+      state.error = action.payload as string;
       state.success = null;
     });
     
@@ -188,7 +188,7 @@ const holidayModeSlice = createSlice({
     builder.addCase(updateHolidayModeAction.rejected, (state, action) => {
       state.loading = false;
       state.updateLoading = false;
-      state.error = action.payload;
+      state.error = action.payload as string;
       state.success = null;
     });
   }

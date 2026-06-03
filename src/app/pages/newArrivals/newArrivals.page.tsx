@@ -14,21 +14,26 @@ import {
   SelectField,
   Table
 } from 'src/app/common'
-import {useNavigate} from 'react-router-dom'
+import { useRouter } from 'next/router'
 import {toast} from 'react-hot-toast'
 import {getCategoryListAction} from '../category/category.slice'
-import {useDebounceValue, useMedia} from 'src/hooks'
+import {useDebounceValue, useMedia, useQuery} from 'src/hooks'
+import OptimizedImage from '../../common/OptimizedImage/OptimizedImage.component'
 export const NewArrivalListPage = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
+  const query = useQuery() as any
   const dispatch = useDispatch()
   const [searchTxt, setSearchTxt] = useState('')
-  const [newArrivalProducts, setNewArrivalProducts] = useState([])
+  const debouncedSearchTxt = useDebounceValue(searchTxt, 500)
 
-  const {data}: any = useSelector((state: any) => state.product)
+  const {data, loading, pagination}: any = useSelector((state: any) => state.product)
 
   const [category, setCategory] = useState<any>([])
   const [selectedCateory, setSelectedCategory] = useState<any>('')
   const {categoryData}: any = useSelector((state: any) => state.category)
+
+  const currentPage = query?.page ? Number(query.page) : 1
+  const perPage = 10
 
   useEffect(() => {
     dispatch(
@@ -36,39 +41,42 @@ export const NewArrivalListPage = () => {
         onSuccess: () => console.log('categoryList fetch Successfully')
       })
     )
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
-    console.log('all product', data)
-    const newArrivalProductsss = data?.filter((item: any, index: number) => {
-      return item.isNewArrivals === true
-    })
+    const queryParams: any = {
+      isNewArrivals: true,
+      page: currentPage,
+      limit: perPage
+    }
 
-    console.log(newArrivalProductsss, 'new arrival list')
+    if (debouncedSearchTxt.trim()) {
+      queryParams.search = debouncedSearchTxt.trim()
+    }
 
-    setNewArrivalProducts(newArrivalProductsss)
-  }, [data])
+    if (selectedCateory) {
+      queryParams.categoryId = selectedCateory
+    }
+
+    dispatch(
+      getProductListAction({
+        onSuccess: () => {},
+        query: queryParams
+      })
+    )
+  }, [dispatch, currentPage, debouncedSearchTxt, selectedCateory])
 
   console.log(categoryData, 'category data called')
 
   useEffect(() => {
-    console.log(categoryData, 'caetgory data called')
-    const mappedCategory = categoryData?.map((item: any, index: number) => {
-      console.log(item, 'caetgory item')
-      return {
-        id: item.id,
-        label: item.name,
-        value: item.name,
-        subCategory: item.subCategories
-      }
-    })
+    console.log(categoryData, 'category data called')
+    const mappedCategory = categoryData?.map((item: any) => ({
+      id: item.id,
+      label: item.name,
+      value: item.id,
+      subCategory: item.subCategories
+    }))
 
-    // const allCategory = [
-    //   {},
-    //   mappedCategory
-    // ]
-
-    // console.log(mappedCategory, 'mapped category from products')
     mappedCategory?.unshift({
       id: '',
       label: 'All',
@@ -79,30 +87,24 @@ export const NewArrivalListPage = () => {
     setCategory(mappedCategory)
   }, [categoryData])
 
-  useEffect(() => {
-    getProductListAction({
-      onSuccess: () => {},
-      query: {isNewArrivals: true}
-    })
-  }, [])
-
   const handleSearch = (e: any) => {
-    // console.log(e.target.value, 'searchValue')
     setSearchTxt(e.target.value)
 
-    // const debounceValue = useDebounceValue(e.target.value)
+    const newQuery: any = {
+      ...query,
+      page: '1'
+    }
+
+    if (e.target.value.trim()) {
+      newQuery.search = e.target.value.trim()
+    } else {
+      delete newQuery.search
+    }
+
+    router.replace({ pathname: router.pathname, query: newQuery }, undefined, {
+      shallow: true
+    })
   }
-
-  useEffect(() => {
-    console.log(selectedCateory, 'selected category name')
-
-    dispatch(
-      getProductListAction({
-        onSuccess: () => {},
-        query: {isNewArrivals: true}
-      })
-    )
-  }, [searchTxt, selectedCateory])
 
   console.log(data?.length, 'data length')
 const media=useMedia();
@@ -110,9 +112,10 @@ const media=useMedia();
     <div>
       <Box>
         <HStack justify="space-between" gap={'$4'} style={{margin: '20px 0'}}>
-          <Button title="Add Product" onClick={() => navigate('add')}></Button>
+          {/* <Button title="Add Product" onClick={() => navigate('add')}></Button> */}
           <SearchField
             placeholder="Search Your Product"
+            value={searchTxt}
             onChange={handleSearch}
           ></SearchField>
 
@@ -176,24 +179,28 @@ const media=useMedia();
               render: (datas) => (
                 <div>
                   {datas?.[0] && (
-                    <img
+                    <OptimizedImage
                       src={datas?.[0]?.url}
+                      alt="Product image"
+                      width={100}
+                      height={70}
                       style={{height: '70px', width: '100px'}}
-                    ></img>
+                    />
                   )}
                 </div>
               )
             }
           ]}
-          data={newArrivalProducts && newArrivalProducts}
+          data={data || []}
+          loading={loading}
           actions={{
             onView: (item: any) => {
-              navigate(`view/${item.id}`)
+              router.push(`/dash-new-arrivals/view/${item.id}`)
             },
 
             onEdit: (item: any) => {
               console.log(item.id, 'item id to delete')
-              navigate(`update/${item.id}`)
+              router.push(`/dash-new-arrivals/update/${item.id}`)
             },
             onDelete: (item: any, onCloseModalHandler) => {
               console.log(item.id, 'item to be deleted')
@@ -215,11 +222,18 @@ const media=useMedia();
             }
           }}
           pagination={{
-            totalCount: Number(data?.length ?? 1),
-            perPage: Number(5)
+            totalCount: Number(pagination?.totalProducts ?? 0),
+            perPage: perPage
           }}
-
-             pageFe={true}
+          onPageChange={(page: number) => {
+            const newQuery: any = {
+              ...query,
+              page: page.toString()
+            }
+            router.replace({ pathname: router.pathname, query: newQuery }, undefined, {
+              shallow: true
+            })
+          }}
         />
       </Box>
     </div>
