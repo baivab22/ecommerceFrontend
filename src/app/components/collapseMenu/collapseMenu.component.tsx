@@ -138,6 +138,7 @@ const CollapseMenuItem = ({
               position: 'relative',
               width: '100%'
             }}
+            placeholder={false}
           >
             <HeaderMenuContainer onClick={() => setOpen((prev) => !prev)}>
               {defaultLink ? (
@@ -159,6 +160,7 @@ const CollapseMenuItem = ({
                     alignItems: 'center',
                     rotateZ: interpolate(animation.value, [0, 1], [0, 180])
                   }}
+                  placeholder={false}
                 >
                   <FiChevronDown size={14} />
                 </AnimatedBlock>
@@ -219,6 +221,7 @@ const NestedCollapseMenuItem = ({
               position: 'relative',
               width: '100%'
             }}
+            placeholder={false}
           >
             <HeaderMenuContainer onClick={() => setOpen((prev) => !prev)}>
               <NestedHeaderMenuTitle>
@@ -233,6 +236,7 @@ const NestedCollapseMenuItem = ({
                   alignItems: 'center',
                   rotateZ: interpolate(animation.value, [0, 1], [0, 180])
                 }}
+                      placeholder={false}
               >
                 <FiChevronDown size={14} />
               </AnimatedBlock>

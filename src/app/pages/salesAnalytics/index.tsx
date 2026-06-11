@@ -2778,7 +2778,7 @@ const SalesAnalytics: React.FC = () => {
     area: AreaChart,
   }[chartType];
 
-  const ChartDataComponent = {
+  const ChartDataComponent :any = {
     line: Line,
     bar: Bar,
     area: Area,
