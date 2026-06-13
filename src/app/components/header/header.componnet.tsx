@@ -97,7 +97,7 @@ const TopHeaderSkeleton = () => {
   return (
     <>
       <div className="header-top">
-        <div className="container" style={{ paddingTop:'10px',border:'2px solid red' }}>
+        <div className="container" style={{ paddingTop:'10px' }}>
           <ul className="header-social-container" style={{ display: 'flex', gap: '8px' }}>
             {Array.from({ length: 3 }).map((_, index) => (
               <li key={index}>
@@ -186,22 +186,18 @@ export const DesktopHeader = () => {
     }, 150)
   }
 
-  // Navigate to all products page
   const handleAllProductsClick = () => {
     navigate('/products')
   }
 
-  // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
   }
 
-  // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
     navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
   }
 
-  // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
     navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
   }
@@ -230,7 +226,6 @@ export const DesktopHeader = () => {
                 if (level === 0) {
                   handleSubCategoryClick(subCat.id, subCat.name)
                 } else {
-                  console.log(level,"levellll nested clicked")
                   handleNestedSubCategoryClick(subCat.id, subCat.name)
                 }
               }}
@@ -262,7 +257,6 @@ export const DesktopHeader = () => {
       <div className="navmenuContainer">
         <nav className="desktop-nav">
           <ul className="desktop-menu">
-            {/* All Products Menu Item */}
             <li className="desktop-menu-item">
               <button
                 className="desktop-menu-link"
@@ -272,7 +266,6 @@ export const DesktopHeader = () => {
               </button>
             </li>
 
-            {/* Regular Category Menu Items */}
             {categoryData?.map((category: any) => (
               <li
                 key={category.id}
@@ -323,25 +316,21 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
     }))
   }
 
-  // Navigate to all products page
   const handleAllProductsClick = () => {
     navigate('/products')
     onClose?.()
   }
 
-  // Navigate to category - only pass categoryId
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/products?categoryId=${categoryId}&categoryname=${categoryName}`)
     onClose?.()
   }
 
-  // Navigate to subcategory - only pass subCategoryId (backend handles hierarchy)
   const handleSubCategoryClick = (subCategoryId: string, subCategoryName?: string) => {
     navigate(`/products?subCategoryId=${subCategoryId}${subCategoryName ? `&subCategoryName=${subCategoryName}` : ''}`)
     onClose?.()
   }
 
-  // Navigate to nested subcategory - only pass nestedSubCategoryId (highest priority)
   const handleNestedSubCategoryClick = (nestedSubCategoryId: string, nestedSubCategoryName?: string) => {
     navigate(`/products?nestedSubCategoryId=${nestedSubCategoryId}${nestedSubCategoryName ? `&nestedSubCategoryName=${nestedSubCategoryName}` : ''}`)
     onClose?.()
@@ -392,7 +381,6 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
 
   return (
     <div className="mobile-menu-list">
-      {/* All Products Menu Item */}
       <div className="mobile-menu-item">
         <button
           className="mobile-menu-toggle"
@@ -402,7 +390,6 @@ export const MobileNavigation = ({ onClose }: { onClose?: () => void }) => {
         </button>
       </div>
 
-      {/* Regular Category Menu Items */}
       {categoryData?.map((category: any) => (
         <div key={category.id} className="mobile-menu-item">
           {category.subCategories && category.subCategories.length > 0 ? (
@@ -447,19 +434,20 @@ export const TopHeader = () => {
   const searchInputRef = useRef<HTMLDivElement | null>(null)
   const sortRefs = useRef<HTMLDivElement | null>(null)
   const [searchValue, setSearchValue] = useState<string>('')
-  const debouncedSearchValue = useDebounceValue(searchValue, 300) // Optimized debounce
-  const { data: allProducts = [] } = useSelector((state: any) => state.product)
-  const [suggestedProducts, setSuggestedProducts] = useState<any[]>([])
+  const debouncedSearchValue = useDebounceValue(searchValue, 500)
+  const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearchLoading, setIsSearchLoading] = useState(false)
   const isAdminLoggedIn = auth.isLoggedin && String(auth.role).toUpperCase() === 'ADMIN'
 
+  // Fetch cart on mount if user is logged in
   useEffect(() => {
     const userId = getCookie('userId')
-    !!userId && dispatch(getCartlistAction({ userId: userId }))
-    // Fetch all products for dropdown
-    dispatch(getProductListAction({ query: { limit: 100 } }))
+    if (userId) {
+      dispatch(getCartlistAction({ userId: userId }))
+    }
   }, [dispatch])
 
+  // Fetch social links on mount
   useEffect(() => {
     dispatch(
       getSocialLinksAction({
@@ -468,32 +456,48 @@ export const TopHeader = () => {
     )
   }, [dispatch])
 
-  // Update suggestions on input change
+  // Search products from API whenever debounced search value changes
   useEffect(() => {
     if (!debouncedSearchValue.trim()) {
-      setSuggestedProducts([])
+      setSearchResults([])
       setIsSearchLoading(false)
       return
     }
 
-    setIsSearchLoading(true)
-    
-    // Filter products based on search value
-    const lower = debouncedSearchValue.trim().toLowerCase()
-    const similar = allProducts.filter((p: any) =>
-      p.name.trim().toLowerCase().includes(lower)
-    )
-    const startsWith = similar.filter((p: any) =>
-      p.name.trim().toLowerCase().startsWith(lower)
-    )
-    const unique = Array.from(new Set([...startsWith, ...similar]))
-    
-    setSuggestedProducts(unique)
-    setIsSearchLoading(false)
-  }, [debouncedSearchValue, allProducts])
+    const searchProducts = async () => {
+      setIsSearchLoading(true)
+      
+      const queryParams = {
+        search: debouncedSearchValue.trim(),
+        limit: 50,
+        page: 1,
+        sort: 'createdAt',
+        order: 'desc'
+      }
+
+      try {
+        const result = await dispatch(
+          getProductListAction({
+            query: queryParams,
+            onSuccess: () => {}
+          })
+        ).unwrap()
+        
+        const products = result?.data || result?.products || result || []
+        setSearchResults(Array.isArray(products) ? products : [])
+      } catch (error) {
+        console.error('Search failed:', error)
+        setSearchResults([])
+      } finally {
+        setIsSearchLoading(false)
+      }
+    }
+
+    searchProducts()
+  }, [debouncedSearchValue, dispatch])
 
   // Helper: Levenshtein distance
-  function levenshtein(a: string, b: string): number {
+  const levenshtein = useCallback((a: string, b: string): number => {
     const an = a ? a.length : 0;
     const bn = b ? b.length : 0;
     if (an === 0) return bn;
@@ -514,7 +518,7 @@ export const TopHeader = () => {
       }
     }
     return matrix[bn][an];
-  }
+  }, []);
 
   // Search handler for Enter key
   const onSearchHandler = useCallback((searchedData: string) => {
@@ -522,17 +526,26 @@ export const TopHeader = () => {
     
     const lowerSearch = searchedData.trim().toLowerCase();
     
-    // Find almost exact match (distance <= 2 or startsWith)
-    const almostExact = allProducts.find((p: any) => {
-      const name = p.name.trim().toLowerCase();
-      return (
-        name.startsWith(lowerSearch) ||
-        levenshtein(name, lowerSearch) <= 2
-      );
+    // Try to find exact match from search results
+    const exactMatch = searchResults.find((p: any) => 
+      p.name?.trim().toLowerCase() === lowerSearch
+    );
+    
+    if (exactMatch) {
+      navigate(`/products/view/${exactMatch.id}`);
+      setSearchDropdownVisible(false);
+      setSearchValue('');
+      return;
+    }
+    
+    // Try to find close match using Levenshtein distance
+    const closeMatch = searchResults.find((p: any) => {
+      const name = p.name?.trim().toLowerCase() || '';
+      return levenshtein(name, lowerSearch) <= 2;
     });
     
-    if (almostExact) {
-      navigate(`/products/view/${almostExact.id}`);
+    if (closeMatch) {
+      navigate(`/products/view/${closeMatch.id}`);
       setSearchDropdownVisible(false);
       setSearchValue('');
       return;
@@ -542,7 +555,7 @@ export const TopHeader = () => {
     navigate(`/products?search=${encodeURIComponent(searchedData.trim())}`);
     setSearchDropdownVisible(false);
     setSearchValue('');
-  }, [allProducts, navigate]);
+  }, [searchResults, navigate, levenshtein]);
 
   const handleOutSideClick = (event: any) => {
     const target = document?.getElementById('openModalButtons')
@@ -587,17 +600,17 @@ export const TopHeader = () => {
   const handleProductClick = (product: any) => {
     navigate(`/products/view/${product.id}`)
     setSearchDropdownVisible(false)
-    setSearchValue('') // Clear search input
+    setSearchValue('')
   }
 
   return (
     <>
       <div className="header-top">
-        <div className="container" style={{ paddingBottom: '10px',paddingTop:'10px' }}>
+        <div className="container" style={{ paddingBottom: '10px', paddingTop: '10px' }}>
           <ul className="header-social-container">
             <li>
               <a href={socialLinks?.[0]?.socialLinks?.facebook} className="social-link" target="_blank" rel="noopener noreferrer">
-                <FaFacebook  style={{ color: '#1877F3' }} size={16}/>
+                <FaFacebook style={{ color: '#1877F3' }} size={16}/>
               </a>
             </li>
             <li>
@@ -607,12 +620,12 @@ export const TopHeader = () => {
             </li>
             <li>
               <a href={socialLinks?.[0]?.socialLinks?.instagram} className="social-link" target="_blank" rel="noopener noreferrer">
-                <FaInstagram style={{ color: '#E4405F' }}  size={16} />
+                <FaInstagram style={{ color: '#E4405F' }} size={16} />
               </a>
             </li>
           </ul>
 
-          <div className="header-alert-news" style={{fontSize:'14px'}}>
+          <div className="header-alert-news" style={{ fontSize: '14px' }}>
             <p>{socialLinks?.[0]?.offerText}</p>
           </div>
 
@@ -624,7 +637,7 @@ export const TopHeader = () => {
 
       <div className="topHeader-container">
         <div className="topHeader">
-          <div className="topHeader-logo" onClick={() => navigate('/home')}>
+          <div className="topHeader-logo" onClick={() => navigate('/home')} style={{ cursor: 'pointer' }}>
             <img
               src={BASE_URL + '/logo'}
               alt="logo"
@@ -642,9 +655,8 @@ export const TopHeader = () => {
               onChange={e => {
                 const value = e.target.value;
                 setSearchValue(value);
-                // Show/hide dropdown based on input
                 if (!value.trim()) {
-                  setSuggestedProducts([]);
+                  setSearchResults([]);
                   setSearchDropdownVisible(false);
                 } else {
                   setSearchDropdownVisible(true);
@@ -656,7 +668,6 @@ export const TopHeader = () => {
                 }
               }}
               onBlur={() => {
-                // Slight delay to allow click on dropdown items
                 setTimeout(() => setSearchDropdownVisible(false), 200);
               }}
               style={{ width: '100%' }}
@@ -668,11 +679,10 @@ export const TopHeader = () => {
               }}
             />
             {searchDropdownVisible && (
-              <div style={{ width: '100%' }}>
+              <div style={{ width: '100%', position: 'absolute', top: '100%', left: 0, zIndex: 1000 }}>
                 <SearchDropdown
                   onClose={() => setSearchDropdownVisible(false)}
-                  products={allProducts}
-                  suggestedProducts={suggestedProducts}
+                  suggestedProducts={searchResults}
                   searchValue={searchValue}
                   onProductClick={handleProductClick}
                   isLoading={isSearchLoading}
@@ -685,6 +695,7 @@ export const TopHeader = () => {
             <div
               className="topHeader-cartProfile-cart"
               onClick={() => navigate('/cart')}
+              style={{ position: 'relative', cursor: 'pointer' }}
             >
               {datas?.cartData?.[0]?.products?.length > 0 && auth.isLoggedin && (
                 <HStack
@@ -713,7 +724,7 @@ export const TopHeader = () => {
               onClick={(e) => {
                 e.stopPropagation()
                 setSortVisible((prev) => !prev)}}
-              style={{ padding: '10px' }}
+              style={{ padding: '10px', cursor: 'pointer' }}
             >
               <VStack className="sortMainContainer">
                 <HStack id="openModalButtons" style={{ cursor: 'pointer' }}>
@@ -725,12 +736,19 @@ export const TopHeader = () => {
                   style={{ 
                     scale: sortVisible ? '1' : '0', 
                     minWidth: '120px',
-                    transformOrigin: 'top right'
+                    transformOrigin: 'top right',
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    zIndex: 1000,
+                    transition: 'scale 0.2s ease',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
                   }}
                   ref={sortRefs}
                 >
-                  <VStack>
-
+                  <VStack style={{ padding: '8px 0' }}>
                     {isAdminLoggedIn && (
                       <HStack
                         align="center"
@@ -740,23 +758,30 @@ export const TopHeader = () => {
                           setSortVisible(false)
                           navigate('/dash-product')
                         }}
+                        style={{ padding: '8px 16px', cursor: 'pointer', width: '100%', transition: 'background-color 0.2s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                       >
                         <p>Go to Dashboard</p>
                       </HStack>
                     )}
 
                     {auth.isLoggedin && (
-                    <HStack 
-                      align="center" 
-                      gap="$3" 
-                      className="filterItem"
-                      onClick={() => {
-                        setSortVisible(false)
-                        navigate('/my-profile')
-                      }}
-                    >
-                      <p>My Profile</p>
-                    </HStack>)}
+                      <HStack 
+                        align="center" 
+                        gap="$3" 
+                        className="filterItem"
+                        onClick={() => {
+                          setSortVisible(false)
+                          navigate('/my-profile')
+                        }}
+                        style={{ padding: '8px 16px', cursor: 'pointer', width: '100%', transition: 'background-color 0.2s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                      >
+                        <p>My Profile</p>
+                      </HStack>
+                    )}
 
                     {auth.isLoggedin ? (
                       <HStack
@@ -764,6 +789,9 @@ export const TopHeader = () => {
                         gap="$3"
                         className="filterItem"
                         onClick={handleLogoutAndRedirect}
+                        style={{ padding: '8px 16px', cursor: 'pointer', width: '100%', transition: 'background-color 0.2s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                       >
                         <p>Logout</p>
                       </HStack>
@@ -776,6 +804,9 @@ export const TopHeader = () => {
                           navigate('/register')
                           setSortVisible(false)
                         }}
+                        style={{ padding: '8px 16px', cursor: 'pointer', width: '100%', transition: 'background-color 0.2s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                       >
                         <p>Register</p>
                       </HStack>
@@ -799,13 +830,17 @@ export const Header = () => {
   }, [])
 
   return (
-    <>
-      {media.md ? (
-        <DesktopHeader />
-      ) : (
+     <>
+       <>
+      {/* <TopHeader /> */}
+      {media.md && <DesktopHeader />}
+      {!media.md && (
         <Sidebar handleClose={handleSideNav}>
           <MobileNavigation />
         </Sidebar>
       )}
     </>
-  )}
+ 
+    </>
+  )
+}

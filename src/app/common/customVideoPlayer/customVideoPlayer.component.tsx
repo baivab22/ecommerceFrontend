@@ -295,7 +295,7 @@ const CustomVideoPlayer = ({
 
             {showPlayingIndicator && autoPlayWithSound && isPreviewPlaying ? (
               <div className="play-button playing-indicator" aria-hidden="true">
-                <AudioLines size={26} color="white" />
+                {/* <AudioLines size={26} color="white" /> */}
               </div>
             ) : (
               <div className="play-button" aria-hidden="true">

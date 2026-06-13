@@ -114,7 +114,7 @@ const App = () => {
         </div>
       </HStack>
       {!containsDash && (
-  <SocialChatButtons 
+  <SocialChatButtons  
     whatsappNumber="977-9861698400"  // Your WhatsApp number with country code
     whatsappMessage="Hi! I'm interested in your products."
     facebookPageId="Abhushan Gallery"  // Your Facebook Page username or ID

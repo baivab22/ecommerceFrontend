@@ -155,6 +155,7 @@ $breakpoints: (
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
+ 
 }
 
 .price-original {
@@ -171,12 +172,16 @@ $breakpoints: (
 
 .discount-badge {
   background-color: map-get($colors, discount-bg);
+  background-color: #9a40a9;
+
   color: map-get($colors, discount);
   font-size: map-get($font-sizes, small);
   padding: 6px 10px;
   border-radius: 6px;
   font-weight: map-get($font-weights, medium);
-}
+  position: relative !important;
+
+  }
 
 .shipping-text {
   color: map-get($colors, text-secondary);
@@ -256,6 +261,7 @@ $breakpoints: (
   border-top: 1px solid map-get($colors, border);
   border-bottom: 1px solid map-get($colors, border);
   background-color: map-get($colors, background);
+  
   font-size: map-get($font-sizes, base);
   font-weight: map-get($font-weights, medium);
 }

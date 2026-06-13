@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import {FaCartArrowDown} from 'react-icons/fa'
 import {Chip, HStack, VStack} from 'src/app/common'
 import ReactStarsRating from 'react-awesome-stars-rating'
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {useDispatch, useSelector} from 'src/store'
 import {createCartByUserId} from 'src/app/pages/web/cart/cart.service'
 import {createCartByUserIdAction} from 'src/app/pages/web/cart/cart.slice'
@@ -10,7 +10,10 @@ import {getCookie} from 'src/helpers'
 import toast from 'react-hot-toast'
 import {getNprPrice} from 'src/helpers/nprPrice.helper'
 import {FiEye, FiPlay, FiShoppingCart} from 'react-icons/fi'
-import {FILE_URL} from 'src/config'
+import {
+  resolveProductImageUrl,
+  resolveProductVideoUrl
+} from 'src/helpers/mediaUrl.helper'
 import { fetchHolidayModeAction, selectHolidayMode } from 'src/app/pages/holidayMode/holidayMode.slice'
 import {registerVideoElement} from 'src/helpers/videoPlayback.helper'
 
@@ -26,46 +29,19 @@ export const ProductCard = ({data}: {data: any}) => {
     `product-card-${data?.id || 'unknown'}-${Math.random().toString(36).slice(2, 9)}`
   )
 
-  const resolveProductImageUrl = (rawValue?: string) => {
-    if (!rawValue) return ''
-    const value = String(rawValue).trim()
-    if (/^https?:\/\//i.test(value)) return encodeURI(value)
-
-    const cleaned = value.replace(/^\/+/, '')
-    const safePath = encodeURI(cleaned)
-    if (cleaned.startsWith('products/')) return `${FILE_URL}/${safePath}`
-    if (cleaned.startsWith('uploads/')) {
-      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
-    }
-
-    return `${FILE_URL}/products/${safePath}`
-  }
-
-  const resolveProductVideoUrl = (rawValue?: string) => {
-    if (!rawValue) return ''
-    const value = String(rawValue).trim()
-    if (/^https?:\/\//i.test(value)) return encodeURI(value)
-
-    const cleaned = value.replace(/^\/+/, '')
-    const safePath = encodeURI(cleaned)
-    if (cleaned.startsWith('video/')) return `${FILE_URL}/${safePath}`
-    if (cleaned.startsWith('uploads/')) {
-      return `${FILE_URL}/${encodeURI(cleaned.replace(/^uploads\//, ''))}`
-    }
-
-    return `${FILE_URL}/video/${safePath}`
-  }
+  console.log('product card data',productImages)
 
 
   const productVideoUrl = resolveProductVideoUrl(data?.video)
-
-
-
-
+  
   useEffect(() => {
     const ProductImages = (data?.images || [])
-      .map((item: any) => (typeof item === 'string' ? item : item?.coloredImage))
-      .filter(Boolean)
+      .map((item: any) => {
+console.log('item from product images', item,data.name)        
+        return (typeof item === 'string' ? item : item?.coloredImages)})
+      // .filter(Boolean)
+
+console.log('product images after mapping', ProductImages)
     setProductImages(ProductImages)
   }, [data])
 
@@ -130,13 +106,15 @@ export const ProductCard = ({data}: {data: any}) => {
     ? Math.round(((data.originalPrice - data.discountedPrice) / data.originalPrice) * 100)
     : 0
 
+
+
+console.log(productImages[0],"prrrr")
   return (
     <div
       className="productCard-container"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() =>{
-        
         console.log("product clicked")
         navigate(`/products/view/${data?.id}`)
       }}
@@ -148,8 +126,9 @@ export const ProductCard = ({data}: {data: any}) => {
           >
             {productImages.length > 0 ? (
               <img
-                src={resolveProductImageUrl(productImages?.[0])}
-                alt={data?.name}
+                src={resolveProductImageUrl(productImages?.[0]?.[0])}
+                alt={data?.name || 'Product image'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : productVideoUrl ? (
               <>
@@ -177,7 +156,8 @@ export const ProductCard = ({data}: {data: any}) => {
             ) : (
               <img
                 src="/assets/images/defaultProduct.jpeg"
-                alt={data?.name}
+                alt={data?.name || 'Product image'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             )}
             

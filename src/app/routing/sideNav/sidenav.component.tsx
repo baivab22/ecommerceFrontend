@@ -3,6 +3,7 @@ import {useAuth} from '../hooks'
 import {useSpring, animated} from '@react-spring/web'
 import {NavLink} from 'react-router-dom'
 import {useCanAccessRoute} from '../routes/ProtectedRoutes.app'
+import { useNavigate } from 'react-router-dom'
 import {
   MdInventory,
   MdCategory,
@@ -28,6 +29,8 @@ import { BASE_URL } from 'src/config'
 
 import {Box, ToolTip} from 'src/app/common'
 import { useMedia } from 'src/hooks'
+
+
 
 export const SideNav = React.memo(() => {
   const {auth} = useAuth()
@@ -78,6 +81,10 @@ const SideNavComponent = React.memo(() => {
 
   const media = useMedia()
 
+ 
+
+      const navigate = useNavigate()
+
   return auth.isLoggedin ? (
     <>
       {/* Mobile Menu Toggle Button */}
@@ -115,8 +122,10 @@ const SideNavComponent = React.memo(() => {
             <animated.div
               className="sidenav-header-logo1"
               style={{
-                ...headerStyle
+                ...headerStyle,
+                cursor: 'pointer'
               }}
+              onClick={() =>   navigate('/')}
             >
               <img src={BASE_URL + '/logo'} alt="TMO" onError={e => { e.currentTarget.src = '/assets/images/logosss.png'; }} />
             </animated.div>

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import './searchDropdown.scss';
 import { FILE_URL } from 'src/config/api.config';
+// import { OptimizedImage } from 'src/app/common/OptimizedImage/OptimizedImage.component'
 
 interface Product {
   id: string;
@@ -13,7 +14,6 @@ interface Product {
 
 interface SearchDropdownProps {
   onClose?: () => void;
-  products?: Product[];
   suggestedProducts?: Product[];
   searchValue?: string;
   onProductClick?: (product: Product) => void;
@@ -126,6 +126,8 @@ export const SearchDropdown = ({
           <img
             src={`${FILE_URL}/products/${item.images[0].coloredImage}`}
             alt={item.name}
+            width={36}
+            height={36}
             style={{ width: 36, height: 36, borderRadius: '50%' }}
             loading="lazy"
           />

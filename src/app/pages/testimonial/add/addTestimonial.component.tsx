@@ -8,10 +8,12 @@ import {
   getTestimonialDetailByIdAction
 } from '../testimonial.slice'
 import toast from 'react-hot-toast'
-import {useNavigate} from 'react-router-dom'
+// import {useRouter} from 'next/router'
 import ImageUploader from 'src/app/common/imageUploader/imageUploader.common'
-
+import { useNavigate } from 'react-router-dom'
 export const AddTestimonialPage = () => {
+    const navigate = useNavigate()
+  // const router = useRouter()
   const {
     updateTestimonialLoading,
     createTestimonialLoading,
@@ -20,7 +22,6 @@ export const AddTestimonialPage = () => {
     // testimoniailDetailData
     testimonialDetailData
   } = useSelector((state: any) => state.testimonial)
-  const navigate = useNavigate()
 
   const testimonialId = useParams('testimonialId')
   const [data, setData] = useState<any>({
@@ -31,18 +32,36 @@ export const AddTestimonialPage = () => {
 
   useEffect(() => {
     console.log(testimonialId, 'tid')
-    dispatch(getTestimonialDetailByIdAction({testimonialId: testimonialId}))
-  }, [testimonialId])
+    // Only fetch detail if we're in edit mode
+    if (testimonialId) {
+      dispatch(getTestimonialDetailByIdAction({testimonialId: testimonialId}))
+    } else {
+      // Clear form data when in add mode
+      setData({
+        description: '',
+        image: []
+      })
+    }
+  }, [testimonialId, dispatch])
 
   useEffect(() => {
     // console.log(testimonialDetailData, 'dd')
-    setData((prev: any) => ({
-      image: testimonialDetailData?.testimonialImage,
-      description: testimonialDetailData?.testimonialDescription
-    }))
+    // Only set data if we're in edit mode and have detail data
+    if (testimonialId && testimonialDetailData) {
+      setData((prev: any) => ({
+        image: testimonialDetailData?.testimonialImage,
+        description: testimonialDetailData?.testimonialDescription
+      }))
+    } else if (!testimonialId) {
+      // Clear form when in add mode
+      setData({
+        description: '',
+        image: []
+      })
+    }
 
     console.log(testimonialDetailData, 'testimonial detail data')
-  }, [testimonialDetailData])
+  }, [testimonialDetailData, testimonialId])
 
   const addTestimonialHandler = () => {
     const formData = new FormData()
@@ -104,12 +123,11 @@ for (const pair of formData.entries()) {
           <Label required labelName="Testimonial Name"></Label>
 
           <ImageUploader
-            defaultImage={data.image}
-            onImageChange={(e: any) => {
-              const selectedFiles = Array.from(e.target.files)
-              console.log(selectedFiles, 'seelctedFiles+++++++++++++')
+            defaultImages={data.image}
+            onImageChange={(files: File[]) => {
+              console.log(files, 'seelctedFiles+++++++++++++')
 
-              setData((prev: any) => ({...prev, image: selectedFiles}))
+              setData((prev: any) => ({...prev, image: files}))
             }}
             // value={bannerImage}
             uniqueKeys="testimonialImages"
@@ -122,7 +140,8 @@ for (const pair of formData.entries()) {
               //   })
               // )
             }}
-            isBanner={true}
+            isBanner={false}
+            isTestimonial={true}
           ></ImageUploader>
         </VStack>
       </VStack>
