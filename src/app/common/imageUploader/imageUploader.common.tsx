@@ -174,6 +174,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { AiFillCloseCircle } from 'react-icons/ai'
 import { TbCameraPlus } from 'react-icons/tb'
 import { FILE_URL } from 'src/config'
+import { ImageViewer } from 'src/app/common/image'
 
 interface ImageItem {
   file: string
@@ -219,6 +220,7 @@ const ImageUploader = React.memo(({
   const [newImages, setNewImages] = useState<ImageItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploadKey, setUploadKey] = useState<number>(Date.now())
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null)
 
   const buildImageUrl = useCallback((imagePath: string): string => {
     if (imagePath.startsWith('http') || imagePath.startsWith('/')) {
@@ -351,6 +353,10 @@ const ImageUploader = React.memo(({
                 alt={`Selected ${imageIndex + 1}`}
                 className="image-list-item-preview"
                 loading="lazy"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setFullScreenImage(image.file)
+                }}
               />
               <button
                 type="button"
@@ -367,6 +373,14 @@ const ImageUploader = React.memo(({
             </span>
           ))}
         </div>
+      )}
+
+      {fullScreenImage && (
+        <ImageViewer
+          src={fullScreenImage}
+          alt="Uploaded image"
+          onClose={() => setFullScreenImage(null)}
+        />
       )}
 
       <label htmlFor={String(uniqueKeys)}>

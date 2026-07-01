@@ -288,7 +288,8 @@ import {
   HStack,
   SearchField,
   SelectField,
-  Table
+  Table,
+  ImageViewer
 } from 'src/app/common'
 
 import {toast} from 'react-hot-toast'
@@ -314,6 +315,7 @@ export const ProductListPage = () => {
   const {categoryData}: any = useSelector((state: any) => state.category)
 
   const proudctCardRef = useRef<HTMLDivElement | null>(null)
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null)
   
   // Get current page from URL query params
   const searchParams = new URLSearchParams(location.search)
@@ -517,17 +519,21 @@ export const ProductListPage = () => {
               {
                 field: 'images',
                 name: 'Images',
-                render: (datas) => (
-                  <div>
-                    <img
-                      src={`${FILE_URL}/products/${datas?.[0]?.coloredImages?.[0]}`}
-                      width={100}
-                      height={70}
-                      alt="product"
-                      style={{height: '70px', width: '100px', objectFit: 'cover'}}
-                    />
-                  </div>
-                )
+                render: (datas) => {
+                  const imgSrc = `${FILE_URL}/products/${datas?.[0]?.coloredImages?.[0]}`
+                  return (
+                    <div>
+                      <img
+                        src={imgSrc}
+                        width={100}
+                        height={70}
+                        alt="product"
+                        style={{height: '70px', width: '100px', objectFit: 'cover', cursor: 'pointer'}}
+                        onClick={() => setFullScreenImage(imgSrc)}
+                      />
+                    </div>
+                  )
+                }
               }
             ]}
             data={data || []}
@@ -546,6 +552,14 @@ export const ProductListPage = () => {
           />
         </div>
       </Box>
+
+      {fullScreenImage && (
+        <ImageViewer
+          src={fullScreenImage}
+          alt="product"
+          onClose={() => setFullScreenImage(null)}
+        />
+      )}
     </div>
   )
 }
