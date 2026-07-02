@@ -131,7 +131,7 @@ console.log(productImages[0],"prrrr")
           >
             {productImages.length > 0 ? (
               <img
-                src={resolveProductImageUrl(productImages?.[0]?.[0])}
+                src={(() => { const src = resolveProductImageUrl(productImages?.[0]?.[0]); console.log('ProductCard src:', src, 'for', data?.name); return src; })()}
                 alt={data?.name || 'Product image'}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
