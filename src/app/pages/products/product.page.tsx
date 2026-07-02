@@ -520,17 +520,34 @@ export const ProductListPage = () => {
                 field: 'images',
                 name: 'Images',
                 render: (datas) => {
-                  const imgSrc = `${FILE_URL}/products/${datas?.[0]?.coloredImages?.[0]}`
+                  let imagePath = ''
+                  if (Array.isArray(datas) && datas.length > 0) {
+                    const first = datas[0]
+                    if (typeof first === 'string') {
+                      imagePath = first
+                    } else if (first?.coloredImages?.length > 0) {
+                      imagePath = first.coloredImages[0]
+                    } else if (first?.coloredImage) {
+                      imagePath = first.coloredImage
+                    } else if (first?.image) {
+                      imagePath = first.image
+                    }
+                  }
+                  const imgSrc = imagePath ? `${FILE_URL}/products/${imagePath}` : ''
                   return (
                     <div>
-                      <img
-                        src={imgSrc}
-                        width={100}
-                        height={70}
-                        alt="product"
-                        style={{height: '70px', width: '100px', objectFit: 'cover', cursor: 'pointer'}}
-                        onClick={() => setFullScreenImage(imgSrc)}
-                      />
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          width={100}
+                          height={70}
+                          alt="product"
+                          style={{height: '70px', width: '100px', objectFit: 'cover', cursor: 'pointer'}}
+                          onClick={() => setFullScreenImage(imgSrc)}
+                        />
+                      ) : (
+                        <span style={{color: '#999', fontSize: '12px'}}>No image</span>
+                      )}
                     </div>
                   )
                 }
