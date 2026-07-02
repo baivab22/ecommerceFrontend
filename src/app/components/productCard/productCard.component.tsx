@@ -38,8 +38,13 @@ export const ProductCard = ({data}: {data: any}) => {
     const ProductImages = (data?.images || [])
       .map((item: any) => {
 console.log('item from product images', item,data.name)        
-        return (typeof item === 'string' ? item : item?.coloredImages)})
-      // .filter(Boolean)
+        return (typeof item === 'string'
+          ? item
+          : Array.isArray(item?.coloredImages)
+            ? item.coloredImages
+            : item?.coloredImage
+              ? [item.coloredImage]
+              : undefined)})
 
 console.log('product images after mapping', ProductImages)
     setProductImages(ProductImages)
