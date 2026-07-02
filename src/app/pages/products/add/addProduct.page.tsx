@@ -24,7 +24,7 @@ import {
   resetProductDetail
 } from '../product.slice'
 // import { useRouter } from 'next/router'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import ImageUploader from 'src/app/common/imageUploader/imageUploader.common'
 import VideoUploader from 'src/app/common/videoUploader/videoUploader.common'
@@ -43,6 +43,7 @@ interface ColorVariant {
 export const AddProductPage: React.FC = () => {
   // const router = useRouter()
     const navigate = useNavigate()
+    const location = useLocation()
   const dispatch = useDispatch()
   const productId = useParams('productId')
   const hydratedProductIdRef = useRef<string | null>(null)
@@ -562,7 +563,7 @@ export const AddProductPage: React.FC = () => {
         productId: productId as any,
         onSuccess: (): void => {
           dispatch(getProductListAction({ onSuccess: (): void => {} }))
-          navigate('/dash-product')
+          navigate('/dash-product' + location.search)
           toast.success('Product Updated Successfully')
           resetForm()
         },
@@ -575,7 +576,7 @@ export const AddProductPage: React.FC = () => {
         productBody: submitData,
         onSuccess: (): void => {
           dispatch(getProductListAction({ onSuccess: (): void => {} }))
-          navigate('/dash-product')
+          navigate('/dash-product' + location.search)
           toast.success('Product Created Successfully')
           resetForm()
         },

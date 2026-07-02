@@ -764,12 +764,12 @@ export const Table = <T, K extends Extract<keyof T, string>>({
                     {hasActions ? (
                       <StyledTableCell align="center" width={50}>
                         <HStack gap="$3">
-                          {actionsRef.current?.onView && (
+                          {actions?.onView && (
                             <ToolTip text="View">
                               <ActionButton
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  actionsRef.current?.onView?.(item)
+                                  actions?.onView?.(item)
                                 }}
                               >
                                 <IoMdListBox size={22} />
@@ -777,12 +777,12 @@ export const Table = <T, K extends Extract<keyof T, string>>({
                             </ToolTip>
                           )}
 
-                          {actionsRef.current?.onEdit && (
+                          {actions?.onEdit && (
                             <ToolTip text="Edit">
                               <ActionButton
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  actionsRef.current?.onEdit?.(item)
+                                  actions?.onEdit?.(item)
                                 }}
                               >
                                 <MdEdit size={22} />
@@ -790,27 +790,26 @@ export const Table = <T, K extends Extract<keyof T, string>>({
                             </ToolTip>
                           )}
 
-                          {actionsRef.current?.onDelete && (
-                            <ToolTip text="Delete">
-                              <ConfirmationModal
-                                label="want to delete this item ?"
-                                danger
-                                cancelLabel="Cancel"
-                                confirmLabel="Delete"
-                                onConfirmClick={(onCloseModalHandler) =>
-                                  actionsRef.current?.onDelete?.(
-                                    item,
-                                    onCloseModalHandler
-                                  )
-                                }
-                                displayElement={
-                                  <ActionButton className="action-delete">
-                                    <AiFillDelete size={22} />
-                                  </ActionButton>
-                                }
-                              />
-                            </ToolTip>
+                          {actions?.onDelete && (
+                            <ConfirmationModal
+                              label="want to delete this item ?"
+                              danger
+                              cancelLabel="Cancel"
+                              confirmLabel="Delete"
+                              onConfirmClick={(onCloseModalHandler) =>
+                                actions?.onDelete?.(
+                                  item,
+                                  onCloseModalHandler
+                                )
+                              }
+                              displayElement={
+                                <ActionButton className="action-delete">
+                                  <AiFillDelete size={22} />
+                                </ActionButton>
+                              }
+                            />
                           )}
+
                         </HStack>
                       </StyledTableCell>
                     ) : null}

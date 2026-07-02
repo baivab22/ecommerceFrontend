@@ -461,7 +461,7 @@ export const ProductListPage = () => {
         <HStack justify="space-between" gap={'$4'} style={{margin: '20px 0'}}>
           <Button 
             title="Add Product" 
-            onClick={() => navigate('/dash-product/add')}
+            onClick={() => navigate('/dash-product/add' + location.search)}
             style={{
               padding: !media.md ? '8px' : '8px 20px'
             }}
@@ -540,7 +540,7 @@ export const ProductListPage = () => {
             loading={loading}
             actions={{
               onEdit: (item: any) => {
-                navigate(`/dash-product/update/${item.id}`)
+                navigate(`/dash-product/update/${item.id}` + location.search)
               },
               onDelete: handleDelete
             }}
