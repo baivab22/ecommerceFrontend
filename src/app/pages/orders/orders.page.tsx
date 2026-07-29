@@ -4077,7 +4077,7 @@ Aabhushan Gallery Team`
                           (img) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor
                         )
                         const chosen = matched || images[0]
-                        const colored = chosen?.coloredImage || chosen?.image || null
+                        const colored = chosen?.coloredImage || (Array.isArray(chosen?.coloredImages) && chosen?.coloredImages[0]) || chosen?.image || null
                         if (colored) {
                           imageUrl = `${FILE_URL}/products/${colored}`
                         }
@@ -4301,7 +4301,7 @@ const OrderCard = ({
         (img) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor
       )
       const chosen = matched || images[0]
-      const colored = chosen?.coloredImage || chosen?.image || null
+      const colored = chosen?.coloredImage || (Array.isArray(chosen?.coloredImages) && chosen?.coloredImages[0]) || chosen?.image || null
       if (colored) {
         return `${FILE_URL}/products/${colored}`
       }
