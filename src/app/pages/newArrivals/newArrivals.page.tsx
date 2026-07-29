@@ -179,6 +179,7 @@ const media=useMedia();
                     <img
                       src={datas?.[0]?.url}
                       style={{height: '70px', width: '100px'}}
+                      loading="lazy"
                     ></img>
                   )}
                 </div>

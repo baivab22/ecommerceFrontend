@@ -189,6 +189,7 @@ if(!!isAlreadyExistData){
           <img
             src={`${FILE_URL}/products/${productImages?.[0]}`}
             alt={product.name}
+            loading="lazy"
           />
         ) : (
           <div className="placeholder">No Image Available</div>

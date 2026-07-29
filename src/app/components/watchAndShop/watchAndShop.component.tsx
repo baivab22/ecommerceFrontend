@@ -150,6 +150,7 @@ export const WatchAndShopCard = ({
                   'https://www.verizon.com/learning/_next/static/images/87c8be7b206ab401b295fd1d21620b79.jpg'
               }}
               alt={data?.name}
+              loading="lazy"
             />
           </div>
 

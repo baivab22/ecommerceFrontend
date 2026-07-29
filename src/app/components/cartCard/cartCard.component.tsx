@@ -129,6 +129,7 @@ export const CartCard = ({
           <HStack className="cartCard-left-image">
             <img
               src={`${FILE_URL}/products/${data?.productId?.images[0]?.coloredImage}`}
+              loading="lazy"
             />
           </HStack>
           <VStack className="cartCard-left-detail">

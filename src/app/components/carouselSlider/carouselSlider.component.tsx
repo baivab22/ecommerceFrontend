@@ -131,6 +131,7 @@ export const CarouselSlider = ({children}: any) => {
               }
               alt="modal image"
               className="image"
+              loading="lazy"
             />
           </div>
           <div className="closeIcon">

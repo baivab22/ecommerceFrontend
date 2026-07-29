@@ -544,6 +544,7 @@ export const ProductListPage = () => {
                           alt="product"
                           style={{height: '70px', width: '100px', objectFit: 'cover', cursor: 'pointer'}}
                           onClick={() => setFullScreenImage(imgSrc)}
+                          loading="lazy"
                         />
                       ) : (
                         <span style={{color: '#999', fontSize: '12px'}}>No image</span>

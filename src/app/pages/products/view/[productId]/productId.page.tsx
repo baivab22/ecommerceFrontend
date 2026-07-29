@@ -67,6 +67,7 @@ const ProductDetailsPage = () => {
                     alt="image"
                     className="image"
                     key={index}
+                    loading="lazy"
                   />
                 ))}
               </CarouselSlider>

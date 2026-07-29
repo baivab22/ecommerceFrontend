@@ -23,7 +23,7 @@ export const ProductSlider = ({backgroundImage}) => {
         {backgroundImage.map((item: any, index: number) => {
           return (
             <div className="image-container" key={index}>
-              <img src={item.url} alt="imange" placeholder="blur"></img>
+              <img src={item.url} alt="imange" placeholder="blur" loading="lazy"></img>
             </div>
           )
         })}

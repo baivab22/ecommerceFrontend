@@ -92,6 +92,7 @@ export const MainCarousel = () => {
                 <img
                   src={`${FILE_URL}/banners/${item.desktop}`}
                   alt="banner"
+                  loading="lazy"
                 />
               </picture>
             )

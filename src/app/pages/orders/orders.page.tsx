@@ -4044,6 +4044,7 @@ Aabhushan Gallery Team`
                           alt={product.productId?.name || 'Product image'}
                           width={80}
                           height={80}
+                          loading="lazy"
                           onClick={() => setModalFullscreenImage(imageUrl || '/assets/images/defaultProduct.jpeg')}
                           style={{
                             objectFit: 'cover',
@@ -4346,6 +4347,7 @@ const OrderCard = ({
                   alt={product.productId?.name || 'Product'} 
                   width={70}
                   height={70}
+                  loading="lazy"
                   onClick={() => setFullscreenImage(getProductImageUrl(product))}
                   style={{objectFit: 'cover', borderRadius: '8px', border: '1px solid #f0e4d5', cursor: 'pointer'}}
                 />

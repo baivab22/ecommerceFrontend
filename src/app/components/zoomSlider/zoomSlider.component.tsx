@@ -162,6 +162,7 @@ export const ZoomSlider = ({
                   <img
                     src={image}
                     alt=""
+                    loading="lazy"
                     onLoad={() => handleImageLoad(i)}
                     onError={event =>
                       (event.currentTarget.src =
@@ -211,6 +212,7 @@ export const ZoomSlider = ({
                   src={img}
                   alt="Product image"
                   className="zoom-slider-mobile-img"
+                  loading="lazy"
                 />
               ) : (
                 <ReactImageMagnify

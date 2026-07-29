@@ -127,6 +127,7 @@ export const ProductCarousel = ({data}: {data: any}) => {
                       src={item.image}
                       alt="active-features"
                       className="eachProduct-gif-img"
+                      loading="lazy"
                     />
                   </div>
                   <div className="eachProduct-name">{item.title}</div>

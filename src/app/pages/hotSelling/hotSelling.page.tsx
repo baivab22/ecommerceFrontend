@@ -639,6 +639,7 @@ const HotSellingProducts = () => {
                   height={600}
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                   onError={(e) => { (e.target as any).src = '/assets/images/defaultProduct.jpeg' }}
+                  loading="lazy"
                 />
                 {getDiscountPercentage(featuredProduct) > 0 && (
                   <div className="discount-badge-large">
@@ -748,6 +749,7 @@ const HotSellingProducts = () => {
                           height={300}
                           style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           onError={(e) => { (e.target as any).src = '/assets/images/defaultProduct.jpeg' }}
+                          loading="lazy"
                         />
                         {getDiscountPercentage(product) > 0 && (
                           <div className="discount-badge">

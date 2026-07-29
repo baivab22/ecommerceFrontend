@@ -426,6 +426,7 @@ export const ProductWebDetail = () => {
                       src="/assets/images/defaultProduct.jpeg"
                       alt={productDetailData?.name || 'Product'}
                       style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      loading="lazy"
                     />
                   </div>
                 )}
@@ -511,6 +512,7 @@ export const ProductWebDetail = () => {
                               objectFit: 'cover',
                               display: 'block'
                             }}
+                            loading="lazy"
                           />
                       </span>
                     </button>
