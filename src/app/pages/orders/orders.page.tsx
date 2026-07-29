@@ -3511,7 +3511,6 @@ Aabhushan Gallery Team`
                     truncateText={truncateText}
                     openGoogleMaps={openGoogleMaps}
                     getTotalPrice={getTotalPrice}
-                    FILE_URL={FILE_URL}
                   />
                 ))}
               </div>
