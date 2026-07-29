@@ -4467,7 +4467,7 @@ const OrderCard = ({
               padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '800',
               backgroundColor: '#fce4ec', color: '#c44569', border: '1px solid #f8bbd0'
             }}>
-              {order.paymentMethod === 'phonepay' ? 'PhonePay' : 'Cash on Delivery'}
+              {order.paymentMethod === 'phonePay' ? 'Phone Pay' : 'Cash on Delivery'}
             </span>
           </div>
         </div>
@@ -4683,120 +4683,137 @@ const OrderPDF = ({data}) => {
     return 'No location available'
   }
 
+  const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+    const result: T[][] = []
+    for (let i = 0; i < arr.length; i += size) result.push(arr.slice(i, i + size))
+    return result
+  }
+
+  const filteredOrders = data?.filter((item) => Object.keys(item).length !== 0) || []
+  const pageGroups = chunkArray(filteredOrders, 4)
+
   return (
     <PDFViewer style={styles.viewer}>
       <Document>
-        {data?.filter((item) => Object.keys(item).length !== 0)?.map((item, index) => {
-          const {totalQuantity, totalPrice} = calculateOrderTotals(item?.products || [])
-          const locationQrData = generateLocationQrUrl(item.latitude, item.longitude)
-          const orderId = item.productOrderId || item._id
+        {pageGroups.map((group, pageIndex) => (
+          <Page size="A4" style={styles.page} key={pageIndex}>
+            <View style={styles.grid}>
+              {group.map((item:any, index) => {
+                const {totalQuantity, totalPrice} = calculateOrderTotals(item?.products || [])
+                const locationQrData = generateLocationQrUrl(item.latitude, item.longitude)
+                const orderId = item.productOrderId || item._id
 
-          return (
-            <Page size="A5" style={styles.page} key={index}>
-              <View style={styles.header}>
-                <View style={styles.brandSection}>
-                  <PDFImage style={styles.logo} src="/assets/images/logosss.png" />
-                </View>
-                <View style={styles.orderSection}>
-                  <Text style={styles.orderNumber}>{orderId}</Text>
-                  <View style={styles.barcodeContainer}>
-                    <PDFImage style={styles.barcode} src={generateBarcodeUrl(orderId)} />
-                  </View>
-                </View>
-              </View>
+                return (
+                  <View style={styles.item} key={index}>
+                    <View style={styles.itemContent}>
+                      <View style={styles.header}>
+                        <View style={styles.brandSection}>
+                          <PDFImage style={styles.logo} src="/assets/images/logosss.png" />
+                        </View>
+                        <View style={styles.orderSection}>
+                          <Text style={styles.orderNumber}>{orderId}</Text>
+                          <View style={styles.barcodeContainer}>
+                            <PDFImage style={styles.barcode} src={generateBarcodeUrl(orderId)} />
+                          </View>
+                        </View>
+                      </View>
 
-              <View style={styles.shippingGrid}>
-                <View style={styles.addressCard}>
-                  <Text style={styles.addressTitle}>ORIGIN</Text>
-                  <View style={styles.divider} />
-                  <Text style={styles.name}>Aabhushan Gallery</Text>
-                  <Text style={styles.address}>Kathmandu</Text>
-                  <Text style={styles.address}>Nepal 44600</Text>
-                  <Text style={styles.contact}>T: 9861698400</Text>
-                </View>
+                      <View style={styles.shippingGrid}>
+                        <View style={styles.addressCard}>
+                          <Text style={styles.addressTitle}>ORIGIN</Text>
+                          <View style={styles.divider} />
+                          <Text style={styles.name}>Aabhushan Gallery</Text>
+                          <Text style={styles.address}>Kathmandu</Text>
+                          <Text style={styles.address}>Nepal 44600</Text>
+                          <Text style={styles.contact}>T: 9861698400</Text>
+                        </View>
 
-                <View style={[styles.addressCard, styles.destinationCard]}>
-                  <View style={styles.destinationHeader}>
-                    <Text style={styles.deliveryType}>{item?.isHomeDelivery ? 'HOME DELIVERY' : 'OFFICE DELIVERY'}</Text>
-                    <Text style={styles.deliveryType}>{item?.paymentMethod === 'phonePay' ? 'Phone Pay' : 'Cash on Delivery'}</Text>
-                  </View>
-                  {item.deliveryPartner && (
-                    <View style={styles.deliveryPartnerBadge}>
-                      <Text style={styles.deliveryPartnerText}>Partner: {item.deliveryPartner}</Text>
+                        <View style={[styles.addressCard, styles.destinationCard]}>
+                          <View style={styles.destinationHeader}>
+                            <Text style={styles.deliveryType}>{item?.isHomeDelivery ? 'HOME DELIVERY' : 'OFFICE DELIVERY'}</Text>
+                            <Text style={styles.deliveryType}>{item?.paymentMethod === 'phonePay' ? 'Phone Pay' : 'Cash on Delivery'}</Text>
+                          </View>
+                          {item.deliveryPartner && (
+                            <View style={styles.deliveryPartnerBadge}>
+                              <Text style={styles.deliveryPartnerText}>Partner: {item.deliveryPartner}</Text>
+                            </View>
+                          )}
+                          <View style={styles.divider} />
+                          <Text style={styles.name}>{item.customerName || 'Customer'}</Text>
+                          <Text style={styles.address}>Address by user: {item.shippingLocation}</Text>
+                          {item.locationAddress && <Text style={styles.address}>Address From Map: {item.locationAddress}</Text>}
+                          <Text style={styles.contact}>T: {item.phoneNumber}</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.noteSection}>
+                        <Text style={styles.noteTitle}>ORDER NOTE</Text>
+                        <View style={styles.divider} />
+                        <Text style={styles.noteText}>{truncateOrderNote(item?.orderNote)}</Text>
+                      </View>
+
+                      <View style={styles.financialSection}>
+                        <View style={styles.summaryGrid}>
+                          <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>ITEMS</Text>
+                            <Text style={styles.summaryValue}>{item?.products?.length || 0}</Text>
+                          </View>
+                          <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>QTY</Text>
+                            <Text style={styles.summaryValue}>{totalQuantity}</Text>
+                          </View>
+                          <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>SUBTOTAL</Text>
+                            <Text style={styles.summaryValue}>Rs. {totalPrice.toFixed(2)}</Text>
+                          </View>
+                          {!!item.includeGiftBox && (
+                            <View style={styles.summaryItem}>
+                              <Text style={styles.summaryLabel}>GiftBox Charge</Text>
+                              <Text style={styles.summaryValue}>Rs.400</Text>
+                            </View>
+                          )}
+                          <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>SHIPPING</Text>
+                            <Text style={styles.summaryValue}>Rs. {item?.shippingPrice || 0}</Text>
+                          </View>
+                        </View>
+
+                        {item.isInsideValley === false ? (
+                          <View style={styles.paymentHighlight}>
+                            <View style={styles.paymentRow}>
+                              <Text style={styles.paymentLabel}>ADVANCE PAID</Text>
+                              <Text style={styles.paymentValue}>Rs. {item?.shippingPrice}</Text>
+                            </View>
+                            <View style={[styles.paymentRow, styles.balanceRow]}>
+                              <Text style={styles.balanceLabel}>BALANCE DUE</Text>
+                              <Text style={styles.balanceAmount}>Rs. {(item?.totalAmount - item?.shippingPrice).toFixed(2)}</Text>
+                            </View>
+                          </View>
+                        ) : (
+                          <View style={styles.totalSection}>
+                            <View style={styles.totalRow}>
+                              <Text style={styles.totalLabel}>TOTAL AMOUNT</Text>
+                              <Text style={styles.totalAmount}>Rs. {item?.totalAmount?.toFixed(2) || 0}</Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+
+                      <View style={styles.footer}>
+                        {item.latitude && item.longitude && (
+                          <View style={styles.qrSection}>
+                            <PDFImage style={styles.qrCode} src={generateQrCodeUrl(locationQrData)} />
+                            <Text style={styles.qrLabel}>DELIVERY LOCATION</Text>
+                          </View>
+                        )}
+                      </View>
                     </View>
-                  )}
-                  <View style={styles.divider} />
-                  <Text style={styles.name}>{item.customerName || 'Customer'}</Text>
-                  <Text style={styles.address}>Address by user: {item.shippingLocation}</Text>
-                  {item.locationAddress && <Text style={styles.address}>Address From Map: {item.locationAddress}</Text>}
-                  <Text style={styles.contact}>T: {item.phoneNumber}</Text>
-                </View>
-              </View>
-
-              <View style={styles.noteSection}>
-                <Text style={styles.noteTitle}>ORDER NOTE</Text>
-                <View style={styles.divider} />
-                <Text style={styles.noteText}>{truncateOrderNote(item?.orderNote)}</Text>
-              </View>
-
-              <View style={styles.financialSection}>
-                <View style={styles.summaryGrid}>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>ITEMS</Text>
-                    <Text style={styles.summaryValue}>{item?.products?.length || 0}</Text>
                   </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>QTY</Text>
-                    <Text style={styles.summaryValue}>{totalQuantity}</Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>SUBTOTAL</Text>
-                    <Text style={styles.summaryValue}>Rs. {totalPrice.toFixed(2)}</Text>
-                  </View>
-                  {!!item.includeGiftBox && (
-                    <View style={styles.summaryItem}>
-                      <Text style={styles.summaryLabel}>GiftBox Charge</Text>
-                      <Text style={styles.summaryValue}>Rs.400</Text>
-                    </View>
-                  )}
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>SHIPPING</Text>
-                    <Text style={styles.summaryValue}>Rs. {item?.shippingPrice || 0}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.totalSection}>
-                  <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>TOTAL AMOUNT</Text>
-                    <Text style={styles.totalAmount}>Rs. {item?.totalAmount?.toFixed(2) || 0}</Text>
-                  </View>
-                </View>
-
-                {item.isInsideValley === false && (
-                  <View style={styles.paymentHighlight}>
-                    <View style={styles.paymentRow}>
-                      <Text style={styles.paymentLabel}>ADVANCE PAID</Text>
-                      <Text style={styles.paymentValue}>Rs. {item?.shippingPrice}</Text>
-                    </View>
-                    <View style={[styles.paymentRow, styles.balanceRow]}>
-                      <Text style={styles.balanceLabel}>BALANCE DUE</Text>
-                      <Text style={styles.balanceAmount}>Rs. {(item?.totalAmount - item?.shippingPrice).toFixed(2)}</Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-
-              <View style={styles.footer}>
-                {item.latitude && item.longitude && (
-                  <View style={styles.qrSection}>
-                    <PDFImage style={styles.qrCode} src={generateQrCodeUrl(locationQrData)} />
-                    <Text style={styles.qrLabel}>DELIVERY LOCATION</Text>
-                  </View>
-                )}
-              </View>
-            </Page>
-          )
-        })}
+                )
+              })}
+            </View>
+          </Page>
+        ))}
       </Document>
     </PDFViewer>
   )
@@ -4804,48 +4821,50 @@ const OrderPDF = ({data}) => {
 
 const styles = StyleSheet.create({
   viewer: { height: '100vh', width: '75vw', position: 'absolute', top: 0, left: 0 },
-  page: { padding: 20, backgroundColor: '#ffffff', fontFamily: 'Helvetica' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 12, marginBottom: 12, borderBottom: '2px solid #000000' },
-  brandSection: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  logo: { width: 35, height: 50 },
-  tagline: { fontSize: 7, color: '#666666', letterSpacing: 0.5, marginTop: 1 },
-  orderSection: { alignItems: 'flex-end', flex: 1, marginLeft: 10 },
-  orderNumber: { fontSize: 11, fontWeight: 'bold', color: '#000000', letterSpacing: 0.5, marginBottom: 4 },
+  page: { padding: 28, backgroundColor: '#ffffff', fontFamily: 'Helvetica' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', width: '100%', height: '100%' },
+  item: { width: '50%', height: '50%', padding: 7 },
+  itemContent: { flex: 1, border: '0.5px solid #000000', padding: 10, backgroundColor: '#ffffff' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 6, marginBottom: 6, borderBottom: '1px solid #000000' },
+  brandSection: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logo: { width: 22, height: 30 },
+  orderSection: { alignItems: 'flex-end', flex: 1, marginLeft: 12 },
+  orderNumber: { fontSize: 9, fontWeight: 'bold', color: '#000000', letterSpacing: 0.3, marginBottom: 4 },
   barcodeContainer: { width: '100%', alignItems: 'center', marginTop: 4, backgroundColor: '#ffffff', paddingVertical: 4, border: '0.5px solid #e0e0e0' },
-  barcode: { width: '100%', height: 30 },
-  shippingGrid: { flexDirection: 'row', gap: 10, marginBottom: 12 },
-  addressCard: { flex: 1, padding: 10, backgroundColor: '#fafafa', borderLeft: '3px solid #cccccc' },
-  destinationCard: { backgroundColor: '#ffffff', borderLeft: '3px solid #000000', border: '1px solid #000000' },
+  barcode: { width: '100%', height: 24 },
+  shippingGrid: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  addressCard: { flex: 1, padding: 8, backgroundColor: '#fafafa', borderLeft: '3px solid #cccccc' },
+  destinationCard: { backgroundColor: '#ffffff', borderLeft: '3px solid #000000', border: '0.5px solid #000000' },
   destinationHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   deliveryPartnerBadge: { backgroundColor: '#e3f2fd', padding: '2px 6px', borderRadius: '3px', marginBottom: 4, alignSelf: 'flex-start' },
-  deliveryPartnerText: { fontSize: 7, color: '#1976d2', fontWeight: 'bold' },
-  addressTitle: { fontSize: 8, fontWeight: 'bold', color: '#000000', letterSpacing: 1.2 },
+  deliveryPartnerText: { fontSize: 6, color: '#1976d2', fontWeight: 'bold' },
+  addressTitle: { fontSize: 7, fontWeight: 'bold', color: '#000000', letterSpacing: 1 },
   deliveryType: { fontSize: 6, fontWeight: 'bold', color: '#666666', letterSpacing: 0.8, paddingHorizontal: 4, paddingVertical: 2, backgroundColor: '#f0f0f0' },
-  divider: { height: 1, backgroundColor: '#e0e0e0', marginVertical: 6 },
-  noteSection: { padding: 10, border: '1px solid #e0e0e0', backgroundColor: '#ffffff', marginBottom: 12 },
-  noteTitle: { fontSize: 8, fontWeight: 'bold', color: '#000000', letterSpacing: 1.2, marginBottom: 4 },
-  noteText: { fontSize: 8, color: '#333333', lineHeight: 1.4 },
-  name: { fontSize: 7, fontWeight: 'bold', color: '#000000', marginBottom: 3 },
-  address: { fontSize: 8, color: '#666666', marginBottom: 1, lineHeight: 1.4 },
-  contact: { fontSize: 8, fontWeight: 'bold', color: '#000000', marginTop: 4 },
-  financialSection: { marginBottom: 12, border: '2px solid #000000', backgroundColor: '#fafafa' },
-  summaryGrid: { flexDirection: 'row', borderBottom: '1px solid #e0e0e0' },
-  summaryItem: { flex: 1, padding: 8, borderRight: '1px solid #e0e0e0', alignItems: 'center' },
-  summaryLabel: { fontSize: 6, color: '#666666', letterSpacing: 1, marginBottom: 3 },
-  summaryValue: { fontSize: 9, fontWeight: 'bold', color: '#000000' },
-  totalSection: { backgroundColor: '#ffffff', padding: 10 },
+  divider: { height: 0.5, backgroundColor: '#e0e0e0', marginVertical: 4 },
+  noteSection: { padding: 8, border: '0.5px solid #e0e0e0', backgroundColor: '#ffffff', marginBottom: 8 },
+  noteTitle: { fontSize: 7, fontWeight: 'bold', color: '#000000', letterSpacing: 1, marginBottom: 4 },
+  noteText: { fontSize: 7, color: '#333333' },
+  name: { fontSize: 7, fontWeight: 'bold', color: '#000000', marginBottom: 2 },
+  address: { fontSize: 7, color: '#666666', marginBottom: 1 },
+  contact: { fontSize: 7, fontWeight: 'bold', color: '#000000', marginTop: 4 },
+  financialSection: { marginBottom: 6, border: '1px solid #000000', backgroundColor: '#fafafa' },
+  summaryGrid: { flexDirection: 'row', borderBottom: '0.5px solid #e0e0e0' },
+  summaryItem: { flex: 1, padding: 6, borderRight: '0.5px solid #e0e0e0', alignItems: 'center' },
+  summaryLabel: { fontSize: 6, color: '#666666', letterSpacing: 0.8, marginBottom: 2 },
+  summaryValue: { fontSize: 7, fontWeight: 'bold', color: '#000000' },
+  totalSection: { backgroundColor: '#ffffff', padding: 8 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalLabel: { fontSize: 9, fontWeight: 'bold', color: '#000000', letterSpacing: 1.5 },
-  totalAmount: { fontSize: 16, fontWeight: 'bold', color: '#000000', letterSpacing: 0.5 },
-  paymentHighlight: { backgroundColor: '#ffffff', padding: 10, borderTop: '2px solid #000000' },
-  paymentRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
-  paymentLabel: { fontSize: 8, color: '#666666', letterSpacing: 0.8 },
-  paymentValue: { fontSize: 8, fontWeight: 'bold', color: '#000000' },
-  balanceRow: { borderTop: '1px solid #e0e0e0', paddingTop: 6, marginTop: 3 },
-  balanceLabel: { fontSize: 9, fontWeight: 'bold', color: '#000000', letterSpacing: 1 },
-  balanceAmount: { fontSize: 12, fontWeight: 'bold', color: '#000000' },
-  footer: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', paddingTop: 10, borderTop: '1px solid #e0e0e0' },
+  totalLabel: { fontSize: 8, fontWeight: 'bold', color: '#000000', letterSpacing: 1.2 },
+  totalAmount: { fontSize: 13, fontWeight: 'bold', color: '#000000', letterSpacing: 0.3 },
+  paymentHighlight: { backgroundColor: '#ffffff', padding: 8, borderTop: '1px solid #000000' },
+  paymentRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
+  paymentLabel: { fontSize: 7, color: '#666666', letterSpacing: 0.8 },
+  paymentValue: { fontSize: 7, fontWeight: 'bold', color: '#000000' },
+  balanceRow: { borderTop: '0.5px solid #e0e0e0', paddingTop: 4, marginTop: 2 },
+  balanceLabel: { fontSize: 8, fontWeight: 'bold', color: '#000000', letterSpacing: 0.8 },
+  balanceAmount: { fontSize: 10, fontWeight: 'bold', color: '#000000' },
+  footer: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', paddingTop: 6, borderTop: '0.5px solid #e0e0e0', marginTop: 'auto' },
   qrSection: { alignItems: 'center' },
-  qrCode: { width: 45, height: 45, marginBottom: 3 },
-  qrLabel: { fontSize: 6, color: '#666666', letterSpacing: 1 }
+  qrCode: { width: 28, height: 28, marginBottom: 2 },
+  qrLabel: { fontSize: 5, color: '#666666', letterSpacing: 0.8 }
 })

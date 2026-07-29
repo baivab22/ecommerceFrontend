@@ -221,17 +221,7 @@ export const CartPage = () => {
   const [deliveryTimeMessage, setDeliveryTimeMessage] = useState<string>('Same day if ordered before 12:00 PM, otherwise tomorrow')
   const [deliveryPartnerPrice, setDeliveryPartnerPrice] = useState<number>(120)
 
-  // Generate UUID for payment reference
-  const generatePaymentReference = useCallback(() => {
-    return 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase()
-  }, [])
-
-  const [paymentReferenceId, setPaymentReferenceId] = useState<string>('')
-
-  // Initialize payment reference ID
-  useEffect(() => {
-    setPaymentReferenceId(generatePaymentReference())
-  }, [generatePaymentReference])
+  const [currentOrderId, setCurrentOrderId] = useState<string>('')
 
   // Fetch holiday mode settings
   useEffect(() => {
@@ -746,9 +736,7 @@ useEffect(() => {
   }, [])
 
   const generateOrderId = useCallback(() => {
-    const timestamp = Date.now()
-    const randomPart = Math.floor(Math.random() * 1000000)
-    return `ORD-${timestamp}-${randomPart}`
+    return `ord-${Date.now()}`
   }, [])
 
   const normalizeCheckoutPhone = useCallback((value: string) => {
@@ -827,7 +815,7 @@ useEffect(() => {
       return
     }
 
-    const orderId = generateOrderId()
+    const orderId = currentOrderId
     const isPhonePay = selectedPaymentMethod === PAYMENT_METHODS.PHONE_PAY
 
     const orderProducts = cartProducts?.map(item => {
@@ -856,7 +844,7 @@ useEffect(() => {
     console.log('Gift Box Charge:', giftBoxCharge)
     console.log('Total:', total)
     console.log('Location Coordinates:', isOutsideValley, locationCoordinates)
-    console.log('Payment Reference ID:', paymentReferenceId)
+    console.log('Order ID:', orderId)
     console.log('Red Zone:', isRedZone)
     console.log('Delivery Partner:', selectedDeliveryPartner)
     console.log('Delivery Partner Price:', deliveryPartnerPrice)
@@ -872,7 +860,7 @@ useEffect(() => {
           isInsideValley: JSON.stringify(!isOutsideValley),
           OrderedAt: new Date().toLocaleString(),
           productOrderId: orderId,
-          paymentReferenceId: paymentReferenceId,
+          paymentReferenceId: orderId,
           shippingLocation: isOutsideValley === false ? shippingLocation : `${selectedDistrictOption?.value}, ${selectedMunicipalityOption?.value}, ${selectedAreaOption?.value}, ${shippingLocation}`,
           paymentMethod: selectedPaymentMethod,
           deliveryType: selectedDeliveryTypeOption?.value,
@@ -895,7 +883,7 @@ useEffect(() => {
           })
         },
         onSuccess: (response) => {
-          const backendOrderId = response?.data?.orderId || response?.orderId || orderId
+          const backendOrderId = response?.data?.data?.productOrderId || response?.data?.data?._id || orderId
           
           setShowQRModal(false)
           
@@ -965,7 +953,7 @@ useEffect(() => {
     )
   }, [
     userId,
-    generateOrderId,
+    currentOrderId,
     dispatch,
     cartProducts,
     isOutsideValley,
@@ -986,7 +974,6 @@ useEffect(() => {
     subtotal,
     isHomeDelivery,
     locationCoordinates,
-    paymentReferenceId,
     location,
     isRedZone,
     selectedDeliveryPartner,
@@ -1016,8 +1003,8 @@ useEffect(() => {
       return
     }
 
-    // Regenerate payment reference for each checkout attempt
-    setPaymentReferenceId(generatePaymentReference())
+    const orderId = generateOrderId()
+    setCurrentOrderId(orderId)
 
     // If inside valley AND cash on delivery, proceed directly
     if (shouldProceedDirectly) {
@@ -1036,7 +1023,7 @@ useEffect(() => {
     shouldProceedDirectly,
     shouldShowQRModal,
     processOrder,
-    generatePaymentReference,
+    generateOrderId,
     isPlacingOrder
   ])
 
@@ -1061,8 +1048,8 @@ useEffect(() => {
     setSelectedDeliveryPartner('ncm')
     setDeliveryTimeMessage('Same day if ordered before 12:00 PM, otherwise tomorrow')
     setDeliveryPartnerPrice(120)
-    setPaymentReferenceId(generatePaymentReference())
-  }, [generatePaymentReference])
+    setCurrentOrderId('')
+  }, [])
 
   const openWhatsApp = useCallback((orderId: string) => {
     // Determine payment scenario
@@ -1080,7 +1067,6 @@ useEffect(() => {
         message = `नमस्ते! 🙏
 
 Order ID: ${orderId}
-Payment Reference: ${paymentReferenceId}
 
 मैले पूरा रकम पेमेन्ट गरिसकेको छु।
 
@@ -1093,7 +1079,6 @@ Payment Screenshot यसै म्यासेजमा पठाउँदै �
         message = `नमस्ते! 🙏
 
 Order ID: ${orderId}
-Payment Reference: ${paymentReferenceId}
 
 मैले Rs. ${shippingRate} एडभान्स पेमेन्ट गरिसकेको छु।
 
@@ -1108,7 +1093,6 @@ Payment Screenshot यसै म्यासेजमा पठाउँदै �
         message = `नमस्ते! 🙏
 
 Order ID: ${orderId}
-Payment Reference: ${paymentReferenceId}
 
 मैले पूरा रकम पेमेन्ट गरिसकेको छु।
 
@@ -1140,7 +1124,7 @@ ${deliveryInfo}
     
     const whatsappUrl = `https://wa.me/9779867072373?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-  }, [isInsideValley, isPhonePaySelected, paymentReferenceId, isRedZone, selectedDeliveryPartner, deliveryTimeMessage, shippingRate])
+  }, [isInsideValley, isPhonePaySelected, isRedZone, selectedDeliveryPartner, deliveryTimeMessage, shippingRate])
 
   // Gift Box Modal Component (unchanged from your original)
   const GiftBoxModal = () => {
@@ -1393,7 +1377,7 @@ const QRPaymentModal = () => {
         'Scan / Screenshot this QR code',
         `Open ${getPaymentMethodName()} app`,
         `Pay NPR ${advanceAmount} advance payment`,
-        `Add Payment Reference: ${paymentReferenceId} in remarks`,
+        `Use Order ID: ${currentOrderId} as Payment Reference`,
         'Send payment screenshot to WhatsApp: 977-9861698400',
         'We will confirm your order via WhatsApp'
       ];
@@ -1402,7 +1386,7 @@ const QRPaymentModal = () => {
         'Scan / Screenshot this QR code',
         `Open ${getPaymentMethodName()} app`,
         'Pay the complete amount shown above',
-        `Add Payment Reference: ${paymentReferenceId} in remarks`,
+        `Use Order ID: ${currentOrderId} as Payment Reference`,
         'Complete the payment transaction',
         'Click "Complete Payment" button below'
       ];
@@ -1710,7 +1694,7 @@ const QRPaymentModal = () => {
                 border: '1px solid #fdba74',
                 wordBreak: 'break-all'
               }}>
-                {paymentReferenceId}
+                {currentOrderId}
               </div>
               <div style={{
                 fontSize: '12px',
@@ -1719,7 +1703,7 @@ const QRPaymentModal = () => {
                 lineHeight: '1.5',
                 fontWeight:'bold'
               }}>
-                <strong>Important:</strong> You MUST add this Reference ID in the remarks/notes section when making the payment.
+                <strong>Important:</strong> Use this Order ID as your payment reference (remarks/notes) when making the payment.
               </div>
             </div>
 
