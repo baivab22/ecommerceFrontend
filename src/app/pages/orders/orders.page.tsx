@@ -2403,6 +2403,7 @@ import {
   Button,
   CheckBox,
   HStack,
+  ImageViewer,
   Modal,
   SelectField,
   Table
@@ -2437,6 +2438,27 @@ import toast from 'react-hot-toast'
 import {AxiosResponse} from 'axios'
 import {EditIcon, Eye, Trash2} from 'lucide-react'
 import {BASE_URL, FILE_URL} from 'src/config'
+
+const getProductImageUrl = (product: any): string => {
+  const images = product?.productId?.images || []
+  const targetColor = (product?.colorName || '').toString().trim().toLowerCase()
+  
+  if (Array.isArray(images) && images.length > 0) {
+    const first = images[0]
+    if (typeof first === 'string') {
+      return first
+    }
+    const matched = images.find(
+      (img: any) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor
+    )
+    const chosen = matched || images[0]
+    const colored = chosen?.coloredImage || (Array.isArray(chosen?.coloredImages) && chosen?.coloredImages[0]) || chosen?.image || null
+    if (colored) {
+      return `${FILE_URL}/products/${colored}`
+    }
+  }
+  return '/assets/images/defaultProduct.jpeg'
+}
 
 export const OrderListPage = () => {
   // const router = useRouter()
@@ -2487,6 +2509,7 @@ export const OrderListPage = () => {
   const [modalOrder, setModalOrder] = useState<any>(null)
   const [modalTracking, setModalTracking] = useState<any>(null)
   const [modalTrackingLoading, setModalTrackingLoading] = useState<boolean>(false)
+  const [modalFullscreenImage, setModalFullscreenImage] = useState<string | null>(null)
 
   // Fetch orders from backend on filter/search/page change
   const fetchOrders = useCallback(async () => {
@@ -3598,13 +3621,14 @@ Aabhushan Gallery Team`
 
         {/* Order Details Modal - FIXED VERSION */}
         {showOrderModal && modalOrder && (
-          <Modal
-            visible={showOrderModal}
-            modalSize="lg"
-            width="900px"
-            overlayBlur={6}
-            closeModal={closeOrderModal}
-          >
+          <>
+            <Modal
+              visible={showOrderModal}
+              modalSize="lg"
+              width="900px"
+              overlayBlur={6}
+              closeModal={closeOrderModal}
+            >
             <div style={{
               padding: '28px',
               maxHeight: '85vh',
@@ -4064,25 +4088,7 @@ Aabhushan Gallery Team`
                 </div>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '400px', overflowY: 'auto'}}>
                   {modalOrder.products?.map((product: any, index: number) => {
-                    const images = product?.productId?.images || []
-                    const targetColor = (product?.colorName || '').toString().trim().toLowerCase()
-                    let imageUrl = '/assets/images/defaultProduct.jpeg'
-
-                    if (Array.isArray(images) && images.length > 0) {
-                      const first = images[0]
-                      if (typeof first === 'string') {
-                        imageUrl = first
-                      } else {
-                        const matched = images.find(
-                          (img) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor
-                        )
-                        const chosen = matched || images[0]
-                        const colored = chosen?.coloredImage || (Array.isArray(chosen?.coloredImages) && chosen?.coloredImages[0]) || chosen?.image || null
-                        if (colored) {
-                          imageUrl = `${FILE_URL}/products/${colored}`
-                        }
-                      }
-                    }
+                    const imageUrl = getProductImageUrl(product)
 
                     return (
                       <div key={index} style={{
@@ -4098,10 +4104,12 @@ Aabhushan Gallery Team`
                           alt={product.productId?.name || 'Product image'}
                           width={80}
                           height={80}
+                          onClick={() => setModalFullscreenImage(imageUrl || '/assets/images/defaultProduct.jpeg')}
                           style={{
                             objectFit: 'cover',
                             borderRadius: '8px',
-                            border: '1px solid #e8ddd0'
+                            border: '1px solid #e8ddd0',
+                            cursor: 'pointer'
                           }}
                           onError={(e) => {
                             e.currentTarget.src = '/assets/images/defaultProduct.jpeg'
@@ -4202,6 +4210,11 @@ Aabhushan Gallery Team`
               </div>
             </div>
           </Modal>
+
+          {modalFullscreenImage && (
+            <ImageViewer src={modalFullscreenImage} onClose={() => setModalFullscreenImage(null)} />
+          )}
+          </>
         )}
 
         {orderPdf}
@@ -4282,32 +4295,11 @@ const OrderCard = ({
   formatDate,
   truncateText,
   openGoogleMaps,
-  getTotalPrice,
-  FILE_URL
+  getTotalPrice
 }) => {
   const isSelected = activeData?.find((item) => item._id === order._id) !== undefined
   const [expandedProducts, setExpandedProducts] = useState(false)
-
-  const getProductImageUrl = (product) => {
-    const images = product?.productId?.images || []
-    const targetColor = (product?.colorName || '').toString().trim().toLowerCase()
-    
-    if (Array.isArray(images) && images.length > 0) {
-      const first = images[0]
-      if (typeof first === 'string') {
-        return first
-      }
-      const matched = images.find(
-        (img) => (img?.colorName || '').toString().trim().toLowerCase() === targetColor
-      )
-      const chosen = matched || images[0]
-      const colored = chosen?.coloredImage || (Array.isArray(chosen?.coloredImages) && chosen?.coloredImages[0]) || chosen?.image || null
-      if (colored) {
-        return `${FILE_URL}/products/${colored}`
-      }
-    }
-    return '/assets/images/defaultProduct.jpeg'
-  }
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null)
 
   return (
     <div style={{
@@ -4414,7 +4406,8 @@ const OrderCard = ({
                   alt={product.productId?.name || 'Product'} 
                   width={70}
                   height={70}
-                  style={{objectFit: 'cover', borderRadius: '8px', border: '1px solid #f0e4d5'}}
+                  onClick={() => setFullscreenImage(getProductImageUrl(product))}
+                  style={{objectFit: 'cover', borderRadius: '8px', border: '1px solid #f0e4d5', cursor: 'pointer'}}
                 />
                 <div style={{flex: 1}}>
                   <div style={{fontSize: '15px', fontWeight: '800', color: '#2d1b4e', marginBottom: '6px'}}>
@@ -4627,6 +4620,10 @@ const OrderCard = ({
         }}>
           📦 Delivery Status: {order.ncmLastStatus}
         </div>
+      )}
+
+      {fullscreenImage && (
+        <ImageViewer src={fullscreenImage} onClose={() => setFullscreenImage(null)} />
       )}
     </div>
   )
