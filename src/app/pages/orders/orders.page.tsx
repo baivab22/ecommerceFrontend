@@ -3116,66 +3116,7 @@ Aabhushan Gallery Team`
     }}>
       <Box>
         {/* Header Section */}
-        <div style={{
-          background: 'linear-gradient(135deg, #2d1b4e 0%, #1a0a2e 50%, #2d1b4e 100%)',
-          borderRadius: '16px',
-          padding: '32px',
-          marginBottom: '24px',
-          marginTop: '16px',
-          marginLeft: '16px',
-          marginRight: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '16px'
-          }}>
-            <div>
-              <h2 style={{
-                color: '#ffffff',
-                margin: 0,
-                fontSize: '28px',
-                fontWeight: '700',
-                letterSpacing: '-0.3px'
-              }}>
-                Order Management
-              </h2>
-              <p style={{
-                color: 'rgba(255,255,255,0.85)',
-                margin: '8px 0 0 0',
-                fontSize: '15px',
-                fontWeight: '400'
-              }}>
-                Manage and track all customer orders
-              </p>
-            </div>
-            <button
-              onClick={() => console.log('add order list')}
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: '#ffffff',
-                fontWeight: '500',
-                fontSize: '14px',
-                padding: '10px 20px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.25)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'
-              }}
-            >
-              + Add Order
-            </button>
-          </div>
-        </div>
+   
 
         {/* Filter Section */}
         {!showDetails && (
@@ -3197,7 +3138,7 @@ Aabhushan Gallery Team`
               <div style={{flex: 1}}>
                 <input
                   type="text"
-                  placeholder="🔍 Search orders by ID, customer, product, location, phone, or delivery partner..."
+                  placeholder="🔍 Search orders by ID, location, phone"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
